@@ -18,6 +18,10 @@ Medical records are now stored electronically, allowing opportunities for resear
 
 ## Mining the EHR
 
+## What the EHR gives you
+
+## What the EHR misses
+
 ## What is i2b2?
 
 i2b2 is an acronym for Informatics for Integrating Biology and the Bedside.
@@ -25,6 +29,10 @@ i2b2 is an acronym for Informatics for Integrating Biology and the Bedside.
 ## i2b2 schema
 
 ![Source: @murphy2010](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3000779/bin/jamia000893.f4.jpg)
+
+## The EAV model
+
+## Metadata
 
 ## Alternative to i2b2
 
