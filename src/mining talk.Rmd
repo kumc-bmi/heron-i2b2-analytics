@@ -12,19 +12,59 @@ Medical records are now stored electronically, allowing opportunities for resear
 
 ## Do you understand this cartoon?
 
-![This cartoon is open source. You can find the original at https://xkcd.com/327/](https://imgs.xkcd.com/comics/exploits_of_a_mom.png)
+![](~/heron-i2b2-analytics/bin/bobby-tables-cartoon.png)
 
-## My motivation
+## Before the Electronic Health Record.
 
-## Mining the EHR
+![](~/heron-i2b2-analytics/bin/paper-health-record.jpg)
 
-## What the EHR gives you
+## What is the Electronic Health Record?
 
-## What the EHR misses
+![](~/heron-i2b2-analytics/bin/ehr-data-entry.jpg)
+
+
+## Mining the EHR, the old way
+
+![](~/heron-i2b2-analytics/bin/data-in-excel-spreadsheet.jpg)
 
 ## What is i2b2?
 
-i2b2 is an acronym for Informatics for Integrating Biology and the Bedside.
+i2b2 is an acronym:
+
+* Informatics for Integrating Biology and the Bedside.
+
+It has been adopted and aggressively promoted by many hospitals.
+
+## What is i2b2?
+
+It is an example of ETL:
+
+* Extract,
+* Transform, 
+* Load.
+
+## What is i2b2?
+
+You cannot and should not analyze the EHR as it exists within Cerner and Epic because of
+
+* privacy concerns,
+* usability issues.
+
+## What is i2b2?
+
+Cerner and Epic are designed for the care needs of individual patients.
+
+i2b2, in contrast, is designed for research.
+
+* The data is de-identified.
+* You can easily extract groups.
+* You can integrate other data sets.
+
+## What i2b2 lacks.
+
+i2b2 does not include free text fields (patient notes).
+
+i2b2 does not include information on health care provided to your patients, but provided at other locations.
 
 ## i2b2 schema
 
@@ -39,4 +79,6 @@ i2b2 is an acronym for Informatics for Integrating Biology and the Bedside.
 ## The special needs of data mining
 
 ## Bibliography
+
+All images used in this talk are made available through an open source license. You can find the websites where these images came from at https://github.com/kumc-bmi/heron-i2b2-analytics/bin/image-sources.txt
 

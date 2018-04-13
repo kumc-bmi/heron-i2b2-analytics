@@ -1,0 +1,11 @@
+All the image files here were obtained under an open source license.
+
+bobby-tables-cartoon.png was found at
+  https://xkcd.com/327/
+
+ehr-data-entry.jpg was found at
+  https://commons.wikimedia.org/wiki/File:Winn_Army_Community_Hospital_Pharmacy_Stays_Online_During_Power_Outage.jpg
+
+paper-health-record.jpg was found at 
+  https://www.flickr.com/photos/thirteenofclubs/5457469397
+  
