@@ -68,9 +68,125 @@ i2b2 does not include information on health care provided to your patients, but 
 
 ## i2b2 schema
 
-![Source: @murphy2010](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3000779/bin/jamia000893.f4.jpg)
+![Source: @bellazzi2012](~/heron-i2b2-analytics/bin/i2b2-schema.jpg)
 
 ## The EAV model
+
+The i2b2 database uses a modified verison of the EAV model. EAV stands for
+
+* Entity
+* Attribute
+* Value
+
+Longitudinal data has two formats
+
+* "tall and thin" and
+* "short and fat".
+
+The EAV model takes "tall and thin" to an extreme.
+
+```{r eav-example, echo=FALSE}
+library(knitr)
+df1 <- data.frame(
+  entity=c("alpha", "bravo"),
+  a1=11:12,
+  a2=21:22,
+  a3=31:32,
+  b1=c("a", "b"),
+  b2=c("c", "d"),
+  b3=c("e", "f"),
+  d1=c("1-Jan", "2-Jan"),
+  d2=c("1-Feb", "2-Feb"),
+  d3=c("1-Mar", "2-Mar"),
+  stringsAsFactors=FALSE
+)
+
+df2 <- data.frame(
+  entity=c(rep("alpha", 5), "..."),
+  attribute=c("a1", "b1", "d1", "a2", "b2", " "),
+  value=c("11", "a", "1-Jan", "21", "c", " "),
+  stringsAsFactors=FALSE
+)  
+```
+
+## An example of a "short and fat" data set
+
+`r kable(df1)`
+
+## "Short and fat" transformed into the EAV model
+
+`r kable(df2)`
+
+## The EAV model
+
+## Another example of the EAV model
+
+```{r wikipedia-example}
+# <pt XYZ>, <Temperature in degrees Fahrenheit>, "102"
+# <pt XYZ>, <Presence of Cough>, "True"
+# <pt XYZ>, <Type of Cough>, "With phlegm, streaks of blood"
+# <pt XYZ>, <Heart Rate in beats per minute>, "98"
+# ...
+
+```
+
+## Advantages
+
+The advantages of the EAV structure are that
+
+* you are only storing the medications, procedures, and diagnoses that a patient has,
+
+* as new medications, procedures, and diagnoses appear, you can add these without altering the database structure.
+
+The EAV structure is similar to that of a sparse matrix.
+
+## The EAV model requires a lot of self-joins
+
+Example: Get patients with breast cancer diagnosis...
+
+```{r select-bc, echo=FALSE}
+cat(
+  "SELECT distinct patient_num",
+  "  FROM observation_fact",
+  "  WHERE concept_cd LIKE 'ICD10:C50%'",
+sep="\n")
+```
+
+## The EAV model requires a lot of self-joins
+
+Example: ...and restrict to females only...
+
+```{r select-females-only, echo=FALSE}
+cat(
+  "SELECT distinct patient_num",
+  "  FROM observation_fact",
+  "  WHERE concept_cd = 'DEM|SEX:f'",
+  "  JOIN (SELECT distinct patient_num AS bc_pt",
+  "    FROM observation_fact",
+  "    WHERE concept_cd LIKE 'ICD10:C50%')",
+  "  ON patient_num=bc_pt",
+sep="\n")
+```
+
+## The EAV model requires a lot of self-joins
+
+Example: ...and get all medical procedures.
+
+```{r select-procedures, echo=FALSE}
+cat(
+  "SELECT patient_num, concept_cd",
+  "  FROM observation_fact",
+  "  WHERE concept_cd LIKE 'CPT:%", 
+  "  JOIN (SELECT distinct patient_num AS female_pt",
+  "    FROM observation_fact",
+  "    WHERE concept_cd = 'DEM|SEX:f')",
+  "  ON patient_num=female_pt",
+  "  JOIN (SELECT distinct patient_nm AS bc_pt",
+  "    FROM observation_fact",
+  "    WHERE concept_cd LIKE 'ICD10:C50%')",
+  "  ON patient_num=bc_pt",
+sep="\n")
+```
 
 ## Metadata
 

@@ -1,10 +1,13 @@
-All the image files here were obtained under an open source license.
+All the image files in this folder were obtained under an open source license.
 
 bobby-tables-cartoon.png was found at
   https://xkcd.com/327/
 
 ehr-data-entry.jpg was found at
   https://commons.wikimedia.org/wiki/File:Winn_Army_Community_Hospital_Pharmacy_Stays_Online_During_Power_Outage.jpg
+  
+i2b2-schema was found at 
+  https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-13-S14-S1
 
 paper-health-record.jpg was found at 
   https://www.flickr.com/photos/thirteenofclubs/5457469397
