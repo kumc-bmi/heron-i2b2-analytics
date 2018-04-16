@@ -117,8 +117,6 @@ df2 <- data.frame(
 
 `r kable(df2)`
 
-## The EAV model
-
 ## Another example of the EAV model
 
 ```{r wikipedia-example}
@@ -188,11 +186,94 @@ cat(
 sep="\n")
 ```
 
+## The problem with self-joins
+
+It's dangerous to generalize too much, but self-joins are often inefficient.
+
+Joining two separate tables
+
+* if you're lucky, the database can often go down record by record in each table.
+
+Self-joins
+
+* if you're not lucky, the database has to store the entire table in memory.
+
+There are always ways to optimize, of course.
+
 ## Metadata
 
-## Alternative to i2b2
+The metadata associated with i2b2 is very important. In particular, the concept path shows the hierarchy associated with medications, procedures, and diagnoses.
+
+The metadata also helps with labeling some of the cryptic codes used in the EHR.
+
+## Metadata, diagnoses
+
+Here's an example of the hierarchy for a particular diagnosis.
+
+* concept_cd = ICD10:S35.00XS
+* name_char = S35.00XS Unspecified injury of abdominal aorta, sequela
+* path level 0 = S35.00 Unspecified injury of abdominal aorta
+* path level 1 = S35.0 Injury of abdominal aorta
+* path level 2 = S35 Injury of blood vessels at abdomen, lower back and pelvis level
+* path level 3 = S30-S39 Injuries to the abdomen, lower back, lumbar spine, pelvis and external genitals
+* path level 4 = S00-T88 Injury, poisoning and certain other consequences of external causes
+* path level 5 = ICD10
+
+## Metadata, procedures
+
+Here's an example of the hierarchy for a particular procedure.
+
+* concept_cd = CPT:44363
+* name_char = Small intestinal endoscopy, enteroscopy beyond second portion of duodenum, not including ileum; with removal of foreign body
+* path level 0 = Endoscopy, Small Intestine and Stomal
+* path level 1 = Surgical Procedures on the Intestines (except rectum)
+* path level 2 = Surgical Procedures on the Digestive System
+* path level 3 = Surgical Procedures
+
+## Metadata, medications
+
+Here's an example of the hierarchy for a particular medication.
+
+* concept_cd = KUH|MEDICATION_ID:13878
+* name_char = PLENDIL 2.5 MG PO TB24
+* path level 0 = Felodipine Extended Release Oral Tablet
+* path level 1 = [CV200] CALCIUM CHANNEL BLOCKERS
+* path level 2 = [CV000] CARDIOVASCULAR MEDICATIONS
+
+## Metadata, lab tests
+
+Here's an example of the hierarchy for a lab test
+
+* concept_cd = LOINC:3548-5
+* name_char = Diazepam SerPl-mCnc (3548-5)
+* path level 0 = Diazepam | Bld-Ser-Plas (LP43601-1)
+* path level 1 = Diazepam (LP16108-0)
+* path level 2 = Benzodiazepines (LP15014-1)
+* path level 3 = Tranquilizers (LP30812-9)
+* path level 4 = Drugs (LP18046-0)
+* path level 5 = Drug/Tox (LP31389-7)
+
+## Alternatives to i2b2, NHAMCS
+
+THe National Hospital Ambulatory Medical Care Survey (NHAMCS) is...
+
+## Alternatives to i2b2, Health facts
+
+![Source: @deshazo2015](~/heron-i2b2-analytics/bin/deshazo-2015-article.png)
 
 ## The special needs of data mining
+
+## Application to developing an EHR phenotype
+
+![](~/heron-i2b2-analytics/bin/figure-1.png)
+
+## Application to developing an EHR phenotype
+
+![](~/heron-i2b2-analytics/bin/figure-2.png)
+
+## Application to developing an EHR phenotype
+
+![](~/heron-i2b2-analytics/bin/figure-3.png)
 
 ## Bibliography
 
