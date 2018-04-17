@@ -3,7 +3,6 @@ title: "Mining the Electronic Health Record, Why and How."
 author: "Steve Simon, Department of Biomedical and Health Informatics, UMKC"
 date: "4/19/2018"
 output: ioslides_presentation
-bibliography: ../doc/key-references.bibtex
 ---
 
 ## Abstract
@@ -12,24 +11,24 @@ Medical records are now stored electronically, allowing opportunities for resear
 
 ## Do you understand this cartoon?
 
-![](~/heron-i2b2-analytics/bin/bobby-tables-cartoon.png)
+![](~/heron-i2b2-analytics/doc/mining-talk/images/bobby-tables-cartoon.png)
 
-## Before the Electronic Health Record.
+## Before the Electronic Health Record
 
-![](~/heron-i2b2-analytics/bin/paper-health-record-resized.jpg)
+![](~/heron-i2b2-analytics/doc/mining-talk/images/paper-health-record-resized.jpg)
 
-## After the Electronic Health Record?
+## After the Electronic Health Record
 
-![](~/heron-i2b2-analytics/bin/ehr-data-entry-resized.jpg)
+![](~/heron-i2b2-analytics/doc/mining-talk/images/ehr-data-entry-resized.jpg)
 
 
 ## Mining the EHR, the old way
 
-![](~/heron-i2b2-analytics/bin/data-in-excel-spreadsheet-resized.jpg)
+![](~/heron-i2b2-analytics/doc/mining-talk/images/data-in-excel-spreadsheet-resized.jpg)
 
-## Mining the EHR, the new way
+## Mining the EHR with i2b2
 
-![](~/heron-i2b2-analytics/bin/i2b2-screenshot.png)
+![](~/heron-i2b2-analytics/doc/mining-talk/images/i2b2-screenshot.png)
 
 ## What is i2b2?
 
@@ -52,6 +51,11 @@ Cerner and Epic are designed for the care needs of individual patients. i2b2, in
 * You can easily extract groups.
 * You can integrate other data sets.
 
+## Intergration example
+
+![https://informatics.kumc.edu/work/wiki/HERON](~/heron-i2b2-analytics/doc/mining-talk/images/heron-progress.png)
+
+
 ## What i2b2 lacks.
 
 i2b2 does not include free text fields (patient notes).
@@ -65,10 +69,6 @@ i2b2 does not include information on health care provided to your patients, but 
 Attributed to Sir Josiah Stamp, 1840-1941, H.M. collector of inland revenue.
 
 This is a concern, of course, for any secondary data analysis.
-
-## i2b2 schema
-
-![Source: @bellazzi2012](~/heron-i2b2-analytics/bin/i2b2-schema.jpg)
 
 ## The EAV model
 
@@ -101,7 +101,17 @@ df1 <- data.frame(
   stringsAsFactors=FALSE
 )
 
-df2 <- data.frame(
+df2 <- 
+  data.frame(
+  entity=rep(df1$entity, 3),
+  time=rep(1:3, each=2),
+  a=c(df1$a1, df1$a2, df1$a3),
+  b=c(df1$b1, df1$b2, df1$b3),
+  d=c(df1$d1, df1$d2, df1$d3)
+)
+df2 <- dplyr::arrange(df2, entity)
+
+df3 <- data.frame(
   entity=c(rep("alpha", 5), "..."),
   attribute=c("a1", "b1", "d1", "a2", "b2", " "),
   value=c("11", "a", "1-Jan", "21", "c", " "),
@@ -113,9 +123,13 @@ df2 <- data.frame(
 
 `r kable(df1)`
 
-## "Short and fat" transformed into the EAV model
+## ... transformed to a "tall and thin" data set
 
 `r kable(df2)`
+
+## ... transformed into the EAV model
+
+`r kable(df3)`
 
 ## Another example of the EAV model
 
@@ -148,48 +162,45 @@ Two major concerns
 
 Example: Get patients with diabetes diagnosis...
 
-```{r select-bc, echo=FALSE}
-cat(
-  "SELECT distinct patient_num",
-  "  FROM observation_fact",
-  "  WHERE concept_cd LIKE 'ICD9:250%'",
-sep="\n")
+```{r select-bc, eval=FALSE}
+df1 <- dbGetQuery(c_connect,
+  "SELECT distinct patient_num
+    FROM blueherondata.observation_fact
+    WHERE concept_cd LIKE 'ICD9:250%'")
 ```
 
 ## Self-joins, part 2
 
-Example: ...and restrict to females only...
+...and restrict to females only...
 
-```{r select-females-only, echo=FALSE}
-cat(
-  "SELECT distinct patient_num",
-  "  FROM observation_fact",
-  "  WHERE concept_cd = 'DEM|SEX:f'",
-  "  JOIN (SELECT distinct patient_num AS bc_pt",
-  "    FROM observation_fact",
-  "    WHERE concept_cd LIKE 'ICD9:250%')",
-  "  ON patient_num=bc_pt",
-sep="\n")
+```{r select-females-only, eval=FALSE}
+df2 <- dbGetQuery(c_connect,
+  "SELECT distinct patient_num
+    FROM blueherondata.observation_fact
+    JOIN (SELECT distinct patient_num AS bc_pt
+      FROM blueherondata.observation_fact
+      WHERE concept_cd LIKE 'ICD9:250%')
+    ON patient_num=bc_pt
+    WHERE concept_cd LIKE 'DEM|SEX:f'")
 ```
 
 ## Self-joins, part 3
 
-Example: ...and get all medical procedures.
+...and get all medical procedures.
 
-```{r select-procedures, echo=FALSE}
-cat(
-  "SELECT patient_num, concept_cd",
-  "  FROM observation_fact",
-  "  WHERE concept_cd LIKE 'CPT:%", 
-  "  JOIN (SELECT distinct patient_num AS female_pt",
-  "    FROM observation_fact",
-  "    WHERE concept_cd = 'DEM|SEX:f')",
-  "  ON patient_num=female_pt",
-  "  JOIN (SELECT distinct patient_nm AS bc_pt",
-  "    FROM observation_fact",
-  "    WHERE concept_cd LIKE 'ICD9:250%')",
-  "  ON patient_num=bc_pt",
-sep="\n")
+```{r select-procedures, eval=FALSE}
+df3 <- dbGetQuery(c_connect,
+  "SELECT patient_num, concept_cd
+    FROM blueherondata.observation_fact
+    JOIN (SELECT distinct patient_num AS female_pt
+      FROM blueherondata.observation_fact
+      WHERE concept_cd = 'DEM|SEX:f')
+    ON patient_num=female_pt
+    JOIN (SELECT distinct patient_num AS bc_pt
+      FROM blueherondata.observation_fact
+      WHERE concept_cd LIKE 'ICD9:250%')
+    ON patient_num=bc_pt
+    WHERE concept_cd LIKE 'CPT:%'")
 ```
 
 ## The problem with self-joins
@@ -259,66 +270,68 @@ Here's an example of the hierarchy for a lab test
 * path level 4 = Drugs (LP18046-0)
 * path level 5 = Drug/Tox (LP31389-7)
 
+## i2b2 schema
+
+![](~/heron-i2b2-analytics/doc/mining-talk/images/i2b2-schema.jpg)
+
 ## Alternatives to i2b2, NHAMCS
 
-The National Hospital Ambulatory Medical Care Survey (NHAMCS) is a large nationally represented survey of patient visits to outpatient, emergency medicine, and ambulatory surgery centers.
-
-![](~/heron-i2b2-analytics/bin/nhamcs-survey.png)
+![](~/heron-i2b2-analytics/doc/mining-talk/images/nhamcs-survey.png)
 
 ## Alternatives to i2b2, Health facts
 
-![Source: @deshazo2015](~/heron-i2b2-analytics/bin/deshazo-2015-article.png)
+![](~/heron-i2b2-analytics/doc/mining-talk/images/deshazo-2015-article.png)
 
-## Alternatives to i2b2, HCUP
+## Why would you choose i2b2 over these larger nationwide databases?
 
-The Healthcare Cost and Utlilizaton Project (HCUP)
+In many studies, generalizability is a big factor. In those studies, a national database is almost always better than a local database.
 
-"The Healthcare Cost and Utilization Project (HCUP, pronounced "H-Cup") is a family of health care databases and related software tools and products developed through a Federal-State-Industry partnership and sponsored by the Agency for Healthcare Research and Quality (AHRQ)."
+A local database, however, still has some advantages.
 
----
-
-![](~/heron-i2b2-analytics/bin/hcup-logo.png)
-
-
-## The special needs of data mining
-
+* It has greater consistency in what data is recorded and how it is recorded.
+* It can study local interventions, such as quality improvement studies.
+* It can identify how many patients you can recruit for a local prospective trial.
 
 
 ## Application to developing an EHR phenotype
 
-![](~/heron-i2b2-analytics/bin/figure-1.png)
+![](~/heron-i2b2-analytics/doc/mining-talk/images/figure-1.png)
 
 ## Application to develop an EHR phenotype
 
 Here's the size of the model
 
-The number of rows of data
+* 8 thousand rows and
 
-* approximately 8 thousand 
+* 35 thousand columns,
 
-The number of independent variables
+* but only 3% of the values were non-zero.
 
-* approximately 35 thousand.
+I used an elastic net regression model, a variation of LASSO regression.
 
-Size of the design matrix
+## Boxplot of predicted probabilities on a 30% hold-out sample
 
-* approximately 280 million entries, but only 2% to 3% were non-zero.
+![](~/heron-i2b2-analytics/doc/mining-talk/images/figure-2.png)
 
-I used an elastic net regression model
 
-## Boxplot of predicted probabilities
+## Other applications, Predicting Acute Kidney Injury.
 
-![](~/heron-i2b2-analytics/bin/figure-2.png)
+![](~/heron-i2b2-analytics/doc/mining-talk/images/chen-kidney-paper.png)
 
-## ROC curve
+## Further work
 
-![](~/heron-i2b2-analytics/bin/figure-3.png)
+My work in this area is just starting. Here are some long term goals.
 
-## Other applications
+Expand use of i2b2 at other hospitals in the KC area.
 
-Predicting Acute Kidney Injury.
+Develop an analytics platform for i2b2.
 
-## Bibliography
+* Download data directly via SQL.
+* Exploit sparse matrix representations.
+* Extract information from metadata more easily.
 
-All images used in this talk are made available through an open source license. You can find the websites where these images came from at https://github.com/kumc-bmi/heron-i2b2-analytics/bin/image-sources.txt
+Encourage more statisticians to work in this area.
 
+You can find the source code for this talk at
+
+https://github.com/kumc-bmi/heron-i2b2-analytics/doc/data-mining
