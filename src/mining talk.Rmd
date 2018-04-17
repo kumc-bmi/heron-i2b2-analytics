@@ -16,16 +16,20 @@ Medical records are now stored electronically, allowing opportunities for resear
 
 ## Before the Electronic Health Record.
 
-![](~/heron-i2b2-analytics/bin/paper-health-record.jpg)
+![](~/heron-i2b2-analytics/bin/paper-health-record-resized.jpg)
 
-## What is the Electronic Health Record?
+## After the Electronic Health Record?
 
-![](~/heron-i2b2-analytics/bin/ehr-data-entry.jpg)
+![](~/heron-i2b2-analytics/bin/ehr-data-entry-resized.jpg)
 
 
 ## Mining the EHR, the old way
 
-![](~/heron-i2b2-analytics/bin/data-in-excel-spreadsheet.jpg)
+![](~/heron-i2b2-analytics/bin/data-in-excel-spreadsheet-resized.jpg)
+
+## Mining the EHR, the new way
+
+![](~/heron-i2b2-analytics/bin/i2b2-screenshot.png)
 
 ## What is i2b2?
 
@@ -35,26 +39,14 @@ i2b2 is an acronym:
 
 It has been adopted and aggressively promoted by many hospitals.
 
-## What is i2b2?
-
-It is an example of ETL:
-
-* Extract,
-* Transform, 
-* Load.
-
-## What is i2b2?
+## Why not use the source?
 
 You cannot and should not analyze the EHR as it exists within Cerner and Epic because of
 
 * privacy concerns,
 * usability issues.
 
-## What is i2b2?
-
-Cerner and Epic are designed for the care needs of individual patients.
-
-i2b2, in contrast, is designed for research.
+Cerner and Epic are designed for the care needs of individual patients. i2b2, in contrast, is designed for research.
 
 * The data is de-identified.
 * You can easily extract groups.
@@ -65,6 +57,14 @@ i2b2, in contrast, is designed for research.
 i2b2 does not include free text fields (patient notes).
 
 i2b2 does not include information on health care provided to your patients, but provided at other locations.
+
+## Concerns for i2b2 about data quality
+
+"The government [is] extremely fond of amassing great quantities of statistics. These are raised to the nth degree, the cube roots are extracted, and the results are arranged into elaborate and impressive displays. What must be kept ever in mind, however, is that in every case, the figures are first put down by a village watchman, and he puts down anything he damn well pleases."
+
+Attributed to Sir Josiah Stamp, 1840-1941, H.M. collector of inland revenue.
+
+This is a concern, of course, for any secondary data analysis.
 
 ## i2b2 schema
 
@@ -138,19 +138,25 @@ The advantages of the EAV structure are that
 
 The EAV structure is similar to that of a sparse matrix.
 
-## The EAV model requires a lot of self-joins
+Two major concerns
 
-Example: Get patients with breast cancer diagnosis...
+* Querying data in EAV format requires lots of self joins.
+
+* The EAV model demands high quality metadata.
+
+## Self-joins, part 1
+
+Example: Get patients with diabetes diagnosis...
 
 ```{r select-bc, echo=FALSE}
 cat(
   "SELECT distinct patient_num",
   "  FROM observation_fact",
-  "  WHERE concept_cd LIKE 'ICD10:C50%'",
+  "  WHERE concept_cd LIKE 'ICD9:250%'",
 sep="\n")
 ```
 
-## The EAV model requires a lot of self-joins
+## Self-joins, part 2
 
 Example: ...and restrict to females only...
 
@@ -161,12 +167,12 @@ cat(
   "  WHERE concept_cd = 'DEM|SEX:f'",
   "  JOIN (SELECT distinct patient_num AS bc_pt",
   "    FROM observation_fact",
-  "    WHERE concept_cd LIKE 'ICD10:C50%')",
+  "    WHERE concept_cd LIKE 'ICD9:250%')",
   "  ON patient_num=bc_pt",
 sep="\n")
 ```
 
-## The EAV model requires a lot of self-joins
+## Self-joins, part 3
 
 Example: ...and get all medical procedures.
 
@@ -181,7 +187,7 @@ cat(
   "  ON patient_num=female_pt",
   "  JOIN (SELECT distinct patient_nm AS bc_pt",
   "    FROM observation_fact",
-  "    WHERE concept_cd LIKE 'ICD10:C50%')",
+  "    WHERE concept_cd LIKE 'ICD9:250%')",
   "  ON patient_num=bc_pt",
 sep="\n")
 ```
@@ -202,7 +208,7 @@ There are always ways to optimize, of course.
 
 ## Metadata
 
-The metadata associated with i2b2 is very important. In particular, the concept path shows the hierarchy associated with medications, procedures, and diagnoses.
+The metadata associated with i2b2 is very important. In particular, the concept path shows the hierarchy associated with medications, procedures, diagnoses, etc.
 
 The metadata also helps with labeling some of the cryptic codes used in the EHR.
 
@@ -255,25 +261,62 @@ Here's an example of the hierarchy for a lab test
 
 ## Alternatives to i2b2, NHAMCS
 
-THe National Hospital Ambulatory Medical Care Survey (NHAMCS) is...
+The National Hospital Ambulatory Medical Care Survey (NHAMCS) is a large nationally represented survey of patient visits to outpatient, emergency medicine, and ambulatory surgery centers.
+
+![](~/heron-i2b2-analytics/bin/nhamcs-survey.png)
 
 ## Alternatives to i2b2, Health facts
 
 ![Source: @deshazo2015](~/heron-i2b2-analytics/bin/deshazo-2015-article.png)
 
+## Alternatives to i2b2, HCUP
+
+The Healthcare Cost and Utlilizaton Project (HCUP)
+
+"The Healthcare Cost and Utilization Project (HCUP, pronounced "H-Cup") is a family of health care databases and related software tools and products developed through a Federal-State-Industry partnership and sponsored by the Agency for Healthcare Research and Quality (AHRQ)."
+
+---
+
+![](~/heron-i2b2-analytics/bin/hcup-logo.png)
+
+
 ## The special needs of data mining
+
+
 
 ## Application to developing an EHR phenotype
 
 ![](~/heron-i2b2-analytics/bin/figure-1.png)
 
-## Application to developing an EHR phenotype
+## Application to develop an EHR phenotype
+
+Here's the size of the model
+
+The number of rows of data
+
+* approximately 8 thousand 
+
+The number of independent variables
+
+* approximately 35 thousand.
+
+Size of the design matrix
+
+* approximately 280 million entries, but only 2% to 3% were non-zero.
+
+I used an elastic net regression model
+
+## Boxplot of predicted probabilities
 
 ![](~/heron-i2b2-analytics/bin/figure-2.png)
 
-## Application to developing an EHR phenotype
+## ROC curve
 
 ![](~/heron-i2b2-analytics/bin/figure-3.png)
+
+## Other applications
+
+Predicting Acute Kidney Injury.
 
 ## Bibliography
 
