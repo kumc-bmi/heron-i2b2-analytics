@@ -9,13 +9,27 @@ output: ioslides_presentation
 
 Medical records are now stored electronically, allowing opportunities for research and quality improvement studies that did not exist before. In this talk, I will review the extraction of information into i2b2, a database that is scrubbed of personal identifiers, and will discuss the strengths and limitations of this data compared to other commonly used health care data sets. I will also show a simple example of creating a medical record phenotype and validating it against a tumor registry.
 
+Acknowledgements: Thanks to Dan Connolly, Mei Liu, Xing Song, and Russ Waitman.
+
 ## Do you understand this cartoon?
 
 ![](~/heron-i2b2-analytics/doc/mining-talk/images/bobby-tables-cartoon.png)
 
+<div class="notes">
+
+Working with the electronic health record (EHR) forces you to think like a database analyst. This cartoon illustrates the use of an injection attack. While this is not an issue that you will face, I show it to drive home the point that you have to get comfortable with database terminology.
+
+</div>
+
 ## Before the Electronic Health Record
 
 ![](~/heron-i2b2-analytics/doc/mining-talk/images/paper-health-record-resized.jpg)
+
+<div class="notes">
+
+In order to understand what the EHR is, you need to remember what medical care was like before the EHR existed. This is a clipboard that was attached to the bed of your patient. When you go in to examine the patient, you record your findings on this clipboard. If other people come in at a different time, they record their findings on the same clipboard. The entire history of your patient's care at the hospital is documented on that clipboard.
+
+</div>
 
 ## After the Electronic Health Record
 
