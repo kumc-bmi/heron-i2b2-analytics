@@ -1,0 +1,28 @@
+Requirements for analytic environment for CTSA 
+- Meeting with Steve on 2018-05-17
+
+----------------------------
+Hardware
+----------------------------
+-  Have ordered hardware for the new server, the old server will be repurposed as the new analytic server
+
+Question: When will the old server become available as the new analytic server?
+
+
+----------------------------
+Software Configurations
+----------------------------
+First step: key software include 
+-  Python
+-  Java
+-  R
+-  RStudio that can run multiple sessions for one user
+-  LaTeX within RStudio environment for producing slide shows, technical papers, etc.
+
+Next step: installation of SAS, however questions are:
+-  How to configure SAS for access to Oracle, system engineer question?
+-  Will there be a licensing issue on a different server with multiple users?
+
+Future: 
+-  Do we need to configure tools like Spark? Steve’s guess is no, but need to put it down to see what others think.
+
