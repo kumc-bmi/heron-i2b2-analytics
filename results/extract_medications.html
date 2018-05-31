@@ -121,28 +121,189 @@ $(document).ready(function () {
 </div>
 
 
-<div id="open_oracle.rmd" class="section level1">
-<h1>open_oracle.Rmd</h1>
-<p>This program shows how to open an Oracle database and count the number of records.</p>
-<p>To open Oracle, you need to have a small text file stored with information about Oracle. For the purposes of this program, I have used a file called cdm_config.csv, but any name will do fine.</p>
-<p>You can’t peek at my file because it includes confidential information, but here is an example of what that file might look like.</p>
-<p>account,password,access</p>
-<p>GeorgeBrett,secret_password,//pointer_to_database_location</p>
-<p>Make sure there is a line in the file .gitignore reading</p>
-<p>cdm_config.csv</p>
-<p>or your private password will be posted on a public repository.</p>
+<div id="extract_medications.rmd" class="section level1">
+<h1>extract_medications.Rmd</h1>
+<p>This program shows how to extract all the medication codes.</p>
+<p>Please review open_oracle.Rmd to review how to access information in an Oracle database.</p>
 <pre class="r"><code>library(&quot;ROracle&quot;)</code></pre>
 <pre><code>## Loading required package: DBI</code></pre>
 <pre class="r"><code>cdm_config &lt;- read.csv('../cdm_config.csv', stringsAsFactors=FALSE)
 c_connect &lt;-
-  dbConnect(Oracle(), cdm_config$account, cdm_config$password, cdm_config$access)
-dbListTables(c_connect)</code></pre>
-<pre><code>## [1] &quot;CONCEPTS&quot;     &quot;INSULIN&quot;      &quot;CASES&quot;        &quot;PC&quot;          
-## [5] &quot;PATIENTS&quot;     &quot;SUBSET&quot;       &quot;DP&quot;           &quot;BREASTCANCER&quot;
-## [9] &quot;OTHERCANCER&quot;</code></pre>
-<pre class="r"><code>dbGetQuery(c_connect, &quot;select count(patient_num) from blueherondata.observation_fact&quot;)</code></pre>
-<pre><code>##   COUNT(PATIENT_NUM)
-## 1         3415177101</code></pre>
+  dbConnect(Oracle(), cdm_config$account, cdm_config$password, cdm_config$access)</code></pre>
+<p>Run a simple test to see that the connection works.</p>
+<pre class="r"><code>dbGetQuery(c_connect, &quot;select * from blueherondata.observation_fact where rownum &lt; 5&quot;)</code></pre>
+<pre><code>##   ENCOUNTER_NUM PATIENT_NUM  CONCEPT_CD PROVIDER_ID          START_DATE
+## 1       3117845      313839   CPT:94760           @ 2015-01-11 23:00:00
+## 2       4209255       66661   CPT:96415           @ 2013-12-31 23:00:00
+## 3       5181915       93424 HCPCS:G0431           @ 2015-01-20 23:00:00
+## 4       5181915       93424 HCPCS:G0431           @ 2015-01-20 23:00:00
+##                        MODIFIER_CD INSTANCE_NUM VALTYPE_CD TVAL_CHAR
+## 1 ProcObs:Billing|ResoluteHospital 1.060409e+16          @         @
+## 2 ProcObs:Billing|ResoluteHospital 3.148564e+16          @         @
+## 3 ProcObs:Billing|ResoluteHospital 5.621894e+16          @         @
+## 4 ProcObs:Billing|ResoluteHospital 4.325391e+16          @         @
+##   NVAL_NUM VALUEFLAG_CD QUANTITY_NUM UNITS_CD            END_DATE
+## 1       NA         &lt;NA&gt;           NA     &lt;NA&gt; 2015-01-11 23:00:00
+## 2       NA         &lt;NA&gt;           NA     &lt;NA&gt; 2013-12-31 23:00:00
+## 3       NA         &lt;NA&gt;           NA     &lt;NA&gt; 2015-01-20 23:00:00
+## 4       NA         &lt;NA&gt;           NA     &lt;NA&gt; 2015-01-20 23:00:00
+##   LOCATION_CD OBSERVATION_BLOB CONFIDENCE_NUM         UPDATE_DATE
+## 1        &lt;NA&gt;             &lt;NA&gt;             NA 2015-01-11 23:00:00
+## 2        &lt;NA&gt;             &lt;NA&gt;             NA 2013-12-31 23:00:00
+## 3        &lt;NA&gt;             &lt;NA&gt;             NA 2015-01-20 23:00:00
+## 4        &lt;NA&gt;             &lt;NA&gt;             NA 2015-01-20 23:00:00
+##         DOWNLOAD_DATE         IMPORT_DATE SOURCESYSTEM_CD UPLOAD_ID
+## 1 2018-02-02 11:40:02 2018-03-15 18:50:37  Epic@kumed.com        88
+## 2 2018-02-02 11:40:02 2018-03-15 18:50:37  Epic@kumed.com        88
+## 3 2018-02-02 11:40:02 2018-03-15 18:50:37  Epic@kumed.com        88
+## 4 2018-02-02 11:40:02 2018-03-15 18:50:37  Epic@kumed.com        88
+##   SUB_ENCOUNTER
+## 1    1869459166
+## 2    1212349958
+## 3    3109979113
+## 4    3109979113</code></pre>
+<pre class="r"><code>dbGetQuery(c_connect, &quot;select * from blueherondata.concept_dimension where rownum &lt; 5&quot;)</code></pre>
+<pre><code>##                                                                                                                                                                              CONCEPT_PATH
+## 1           \\i2b2\\Laboratory Tests\\Chemistry\\Lipids\\Fatty acids\\Pristanate (C15:0(CH3)4) | Bld-Ser-Plas\\Pristanate/Phytanate SerPl-sRto (30550-8)\\115: PRISTANIC/PHYTANIC RATIO\\
+## 2                                \\i2b2\\Flowsheet\\KU\\IP\\TMP OB\\LABOR\\FLOWSHEET T:305025\\KU GROUP BISHOP SCORE G:11487 I#29\\KU IP ROW BISHOP SCORE STATION M:11491 I#3\\0=-3 C#1\\
+## 3 \\i2b2\\Flowsheet\\KU\\IP\\TMP OB\\LABOR\\FLOWSHEET T:305025\\KU IP GRP ARTERIAL BLOOD PRESSURE COMPLE G:7460 I#7\\KU IP ROW ARTERIAL LINE LOCATION 2 M:301290 I#4\\Femoral, Left C#3\\
+## 4                                                                                                                              \\i2b2\\Procorders\\Lab\\LABORATORY ORDERABLES\\10271920\\
+##                      CONCEPT_CD                          NAME_CHAR
+## 1          KUH|COMPONENT_ID:115     PRISTANIC/PHYTANIC RATIO(#115)
+## 2  KUH|FLO_MEAS_ID+LINE:11491_1                           01. 0=-3
+## 3 KUH|FLO_MEAS_ID+LINE:301290_3                  03. Femoral, Left
+## 4          KUH|PROC_ID:10271920 VENOUS BG, THERAPEUTIC HYPOTHERMIA
+##   CONCEPT_BLOB         UPDATE_DATE DOWNLOAD_DATE         IMPORT_DATE
+## 1         &lt;NA&gt; 2018-03-21 17:41:17          &lt;NA&gt; 2018-03-21 18:09:53
+## 2         &lt;NA&gt; 2018-03-21 17:34:55          &lt;NA&gt; 2018-03-21 18:09:53
+## 3         &lt;NA&gt; 2018-03-21 17:34:55          &lt;NA&gt; 2018-03-21 18:09:53
+## 4         &lt;NA&gt; 2018-03-21 17:36:51          &lt;NA&gt; 2018-03-21 18:09:53
+##   SOURCESYSTEM_CD UPLOAD_ID
+## 1  Epic@kumed.com        NA
+## 2  Epic@kumed.com        NA
+## 3  Epic@kumed.com        NA
+## 4  Epic@kumed.com        NA</code></pre>
+<p>```</p>
+<p>The most straightforward way to get all medicaitons is to look for a particular starting string for concept_path.</p>
+<pre class="r"><code>library(dplyr)</code></pre>
+<pre><code>## 
+## Attaching package: 'dplyr'</code></pre>
+<pre><code>## The following objects are masked from 'package:stats':
+## 
+##     filter, lag</code></pre>
+<pre><code>## The following objects are masked from 'package:base':
+## 
+##     intersect, setdiff, setequal, union</code></pre>
+<pre class="r"><code>sql_medications_via_path &lt;- &quot;
+  SELECT concept_cd
+    FROM blueherondata.concept_dimension 
+    WHERE concept_path LIKE '\\i2b2\\Medications\\%'&quot;
+
+medication_list_1 &lt;- dbGetQuery(c_connect, sql_medications_via_path)
+names(medication_list_1) &lt;- tolower(names(medication_list_1))
+sample_n(medication_list_1, 10)</code></pre>
+<pre><code>##                      concept_cd
+## 114017 KUH|MEDICATION_ID:317798
+## 84525           NDC:00536110297
+## 184422  KUH|MEDICATION_ID:78438
+## 41916           NDC:10939071001
+## 38191           NDC:63481095201
+## 103640          NDC:11917010913
+## 94607           NDC:00187520260
+## 114037 KUH|MEDICATION_ID:332068
+## 120550  KUH|MEDICATION_ID:25872
+## 98667  KUH|MEDICATION_ID:304101</code></pre>
+<pre class="r"><code>dim(medication_list_1)</code></pre>
+<pre><code>## [1] 248223      1</code></pre>
+<p>Note that the concept_cd value always starts with a specific prefix.</p>
+<pre class="r"><code>medication_prefix &lt;- gsub(&quot;:.*&quot;, &quot;&quot;, medication_list_1$concept_cd)
+table(medication_prefix)</code></pre>
+<pre><code>## medication_prefix
+## KUH|MEDICATION_ID               NDC             RXCUI 
+##            124885            109542             13796</code></pre>
+<p>This provides an alternate way to select all medications.</p>
+<pre class="r"><code>sql_medications_via_concept &lt;- &quot;
+  SELECT concept_cd 
+    FROM blueherondata.concept_dimension 
+    WHERE 
+      concept_cd LIKE 'KUH|MEDICATION_ID:%' OR
+      concept_cd LIKE 'NDC:%'               OR
+      concept_cd LIKE 'RXCUI:%'&quot;
+
+medication_list_2 &lt;- dbGetQuery(c_connect, sql_medications_via_concept)
+names(medication_list_2) &lt;- tolower(names(medication_list_2))
+sample_n(medication_list_2, 10)</code></pre>
+<pre><code>##                      concept_cd
+## 61802           NDC:96295012974
+## 98817   KUH|MEDICATION_ID:38112
+## 135864          NDC:13668018490
+## 75660           NDC:37000045310
+## 218860  KUH|MEDICATION_ID:81855
+## 173980          NDC:00178008990
+## 177969          NDC:52959069316
+## 37724           NDC:50268051711
+## 53108   KUH|MEDICATION_ID:78847
+## 36674  KUH|MEDICATION_ID:250635</code></pre>
+<pre class="r"><code>dim(medication_list_2)</code></pre>
+<pre><code>## [1] 248223      1</code></pre>
+<p>The codes are somewhat cryptic. The field, name_char, (usually) provides a cleaner description.</p>
+<pre class="r"><code>sql_medications_with_descriptions &lt;- &quot;
+  SELECT concept_cd, name_char
+    FROM blueherondata.concept_dimension 
+    WHERE concept_path LIKE '\\i2b2\\Medications\\%'&quot;
+
+medication_list_3 &lt;- dbGetQuery(c_connect, sql_medications_with_descriptions)
+names(medication_list_3) &lt;- tolower(names(medication_list_3))
+sample_n(medication_list_3, 10)</code></pre>
+<pre><code>##                      concept_cd
+## 107918          NDC:00363044908
+## 196991  KUH|MEDICATION_ID:83758
+## 60892              RXCUI:371962
+## 176658 KUH|MEDICATION_ID:151072
+## 185870  KUH|MEDICATION_ID:30918
+## 99881              RXCUI:485495
+## 158180          NDC:10939098933
+## 147469 KUH|MEDICATION_ID:332926
+## 227207 KUH|MEDICATION_ID:155232
+## 121683 KUH|MEDICATION_ID:143675
+##                                                                                                           name_char
+## 107918                                                                                       WALGREEN CO. (24 Each)
+## 196991                                                                       TUSS-MINE D.M. 2-30-10 MG/5 ML PO SYRP
+## 60892                                                           Doxepin Oral Capsule [13,029 facts; 1,152 patients]
+## 176658                                                                       MECLIZINE PO [817 facts; 338 patients]
+## 185870                                                                                SM ACID REDUCER 10 MG PO TABS
+## 99881                                                        aripiprazole Oral Solution [2,263 facts; 978 patients]
+## 158180                                                                                            SUNMARK (48 Each)
+## 147469 INSULIN NPH HUMAN RECOMB 100 UNIT/ML SC SUSP [COMPILED RECORD] [AGE ADULT (&gt;17YR &gt;40KG)] [1/9/2018  1:36 AM]
+## 227207                                                                                                   PIC 200 PO
+## 121683                                                                                          DAY &amp; NIGHT COLD PO</code></pre>
+<pre class="r"><code>dim(medication_list_3)</code></pre>
+<pre><code>## [1] 248223      2</code></pre>
+<p>It’s worth noting here that there are some duplications among the concept_cd and name_char variables. This is an unavoidable problem because in the hierarchical nature of the electronic health record, the same medication can find itself in different branches of the hierarchy, as represented by the concept_path field.</p>
+<pre class="r"><code>sql_count_paths &lt;- &quot;
+  SELECT COUNT(DISTINCT concept_path) 
+    FROM blueherondata.concept_dimension 
+    WHERE concept_path LIKE '\\i2b2\\Medications\\%'&quot;
+
+sql_count_concepts &lt;- &quot;
+  SELECT COUNT(DISTINCT concept_cd)
+    FROM blueherondata.concept_dimension 
+    WHERE concept_path LIKE '\\i2b2\\Medications\\%'&quot;
+
+sql_count_names &lt;- &quot;
+  SELECT COUNT(DISTINCT name_char) 
+    FROM blueherondata.concept_dimension 
+    WHERE concept_path LIKE '\\i2b2\\Medications\\%'&quot;
+
+dbGetQuery(c_connect, sql_count_paths)</code></pre>
+<pre><code>##   COUNT(DISTINCTCONCEPT_PATH)
+## 1                      248223</code></pre>
+<pre class="r"><code>dbGetQuery(c_connect, sql_count_concepts)</code></pre>
+<pre><code>##   COUNT(DISTINCTCONCEPT_CD)
+## 1                    159370</code></pre>
+<pre class="r"><code>dbGetQuery(c_connect, sql_count_names)</code></pre>
+<pre><code>##   COUNT(DISTINCTNAME_CHAR)
+## 1                   100443</code></pre>
 </div>
 
 
