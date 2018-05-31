@@ -106,12 +106,40 @@ medication_metadata <- dbGetQuery(c_connect, sql_extract_metadata_medication_pat
 
 names(medication_paths) <- tolower(names(medication_paths))
 names(medication_metadata) <- tolower(names(medication_metadata))
+```
 
+There's a very close correspondance between concept_path and c_fullname.
+
+```{r concept}
 setdiff(medication_paths$concept_path, medication_metadata$c_fullname)
 setdiff(medication_metadata$c_fullname, medication_paths$concept_path)
+```
 
+and for concept_cd and c_basecode
+
+```{r cd}
 setdiff(medication_paths$concept_cd, medication_metadata$c_basecode)
 setdiff(medication_metadata$c_basecode, medication_paths$concept_cd)
+```
 
-setdiff(medication_paths$name_char, medication_metadata$c_name)
-setdiff(medication_metadata$c_name, medication_paths$name_char)
+but name_char and c_name don't seem to line up as nicely.
+
+```{r name}
+library(dplyr)
+library(magrittr)
+length(setdiff(medication_paths$name_char, medication_metadata$c_name))
+length(setdiff(medication_metadata$c_name, medication_paths$name_char))
+
+medication_paths %>%
+  inner_join(medication_metadata, by=c("concept_path"="c_fullname")) %>%
+  select(name_char, c_name) %>%
+  filter(name_char != c_name) %>%
+  sample_n(size=100) %>%
+  mutate(x=paste(name_char, c_name, sep="||")) %>%
+  select(x)
+
+medication_metadata$c_name <- sub(" \\[.*\\]$", "", medication_metadata$c_name)
+
+length(setdiff(medication_paths$name_char, medication_metadata$c_name))
+length(setdiff(medication_metadata$c_name, medication_paths$name_char))
+```
