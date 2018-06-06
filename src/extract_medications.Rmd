@@ -1,0 +1,102 @@
+---
+title: "Extract medication information from i2b2"
+author: "Steve Simon"
+date: "5/31/2018"
+output: html_document
+---
+
+This program shows how to extract all the medication codes from i2b2.
+
+Please review open_oracle.Rmd to review how to access information in an Oracle database.
+
+
+```{r login-to-oracle}
+library("ROracle")
+cdm_config <- read.csv('../cdm_config.csv', stringsAsFactors=FALSE)
+c_connect <-
+  dbConnect(Oracle(), cdm_config$account, cdm_config$password, cdm_config$access)
+```
+
+Run a simple test to see that the connection works. 
+
+```{r simple-test}
+dbGetQuery(c_connect, "SELECT * FROM blueherondata.observation_fact WHERE rownum < 5")
+dbGetQuery(c_connect, "SELECT * FROM blueherondata.concept_dimension WHERE rownum < 5")
+```
+
+The most straightforward way to get all medications is to look for a particular starting string for concept_path.
+
+```{r path}
+library(dplyr)
+sql_medications_via_path <- "
+  SELECT concept_cd
+    FROM blueherondata.concept_dimension 
+    WHERE concept_path LIKE '\\i2b2\\Medications\\%'"
+
+medication_list_1 <- dbGetQuery(c_connect, sql_medications_via_path)
+names(medication_list_1) <- tolower(names(medication_list_1))
+sample_n(medication_list_1, 10)
+dim(medication_list_1)
+```
+
+Note that the concept_cd value always starts with a specific prefix.
+
+```{r prefix}
+medication_prefix <- gsub(":.*", "", medication_list_1$concept_cd)
+table(medication_prefix)
+```
+
+This provides an alternate way to select all medications.
+
+```{r alternative}
+sql_medications_via_concept <- "
+  SELECT concept_cd 
+    FROM blueherondata.concept_dimension 
+    WHERE 
+      concept_cd LIKE 'KUH|MEDICATION_ID:%' OR
+      concept_cd LIKE 'NDC:%'               OR
+      concept_cd LIKE 'RXCUI:%'"
+
+medication_list_2 <- dbGetQuery(c_connect, sql_medications_via_concept)
+names(medication_list_2) <- tolower(names(medication_list_2))
+sample_n(medication_list_2, 10)
+dim(medication_list_2)
+```
+
+The codes are somewhat cryptic. The field, name_char, (usually) provides a cleaner description.
+
+```{r description}
+sql_medications_with_descriptions <- "
+  SELECT concept_cd, name_char
+    FROM blueherondata.concept_dimension 
+    WHERE concept_path LIKE '\\i2b2\\Medications\\%'"
+
+medication_list_3 <- dbGetQuery(c_connect, sql_medications_with_descriptions)
+names(medication_list_3) <- tolower(names(medication_list_3))
+sample_n(medication_list_3, 10)
+dim(medication_list_3)
+```
+
+It's worth noting here that there are some duplications among the concept_cd and name_char variables. This is an unavoidable problem caused by the hierarchical nature of the electronic health record. Duplicates occur because the same medication can find itself in different branches of the hierarchy, as represented by the concept_path field.
+
+```{r duplicates}
+sql_count_paths <- "
+  SELECT COUNT(DISTINCT concept_path) 
+    FROM blueherondata.concept_dimension 
+    WHERE concept_path LIKE '\\i2b2\\Medications\\%'"
+
+sql_count_concepts <- "
+  SELECT COUNT(DISTINCT concept_cd)
+    FROM blueherondata.concept_dimension 
+    WHERE concept_path LIKE '\\i2b2\\Medications\\%'"
+
+sql_count_names <- "
+  SELECT COUNT(DISTINCT name_char) 
+    FROM blueherondata.concept_dimension 
+    WHERE concept_path LIKE '\\i2b2\\Medications\\%'"
+
+dbGetQuery(c_connect, sql_count_paths)
+dbGetQuery(c_connect, sql_count_concepts)
+dbGetQuery(c_connect, sql_count_names)
+```
+

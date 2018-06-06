@@ -9,26 +9,58 @@ output: ioslides_presentation
 
 Medical records are now stored electronically, allowing opportunities for research and quality improvement studies that did not exist before. In this talk, I will review the extraction of information into i2b2, a database that is scrubbed of personal identifiers, and will discuss the strengths and limitations of this data compared to other commonly used health care data sets. I will also show a simple example of creating a medical record phenotype and validating it against a tumor registry.
 
+Acknowledgements: Thanks to Dan Connolly, Mei Liu, Xing Song, and Russ Waitman.
+
 ## Do you understand this cartoon?
 
 ![](~/heron-i2b2-analytics/doc/mining-talk/images/bobby-tables-cartoon.png)
+
+<div class="notes">
+
+Working with the electronic health record (EHR) forces you to think like a database analyst. This cartoon illustrates the use of an injection attack. While this is not an issue that you will face, I show it to drive home the point that you have to get comfortable with database terminology.
+
+</div>
 
 ## Before the Electronic Health Record
 
 ![](~/heron-i2b2-analytics/doc/mining-talk/images/paper-health-record-resized.jpg)
 
+<div class="notes">
+
+In order to understand what the EHR is, you need to remember what medical care was like before the EHR existed. This is a clipboard that was attached to the bed of your patient. When you go in to examine the patient, you record your findings on this clipboard. If other people come in at a different time, they record their findings on the same clipboard. The entire history of your patient's care at the hospital is documented on that clipboard.
+
+</div>
+
 ## After the Electronic Health Record
 
 ![](~/heron-i2b2-analytics/doc/mining-talk/images/ehr-data-entry-resized.jpg)
+
+<div class="notes">
+
+Now, when you visit your patient, you spend half your time tapping away at a computer. There are many benefits to documenting patient care electronically, but it does come at a cost. There's a lot of debate about the costs and benefits, associated with the EHR, but from the perspective of research, it's all benefits. You can do amazing things today with information in the EHR, that would have required too much time and labor back when paper medical records were the only information available.
+
+</div>
 
 
 ## Mining the EHR, the old way
 
 ![](~/heron-i2b2-analytics/doc/mining-talk/images/data-in-excel-spreadsheet-resized.jpg)
 
+<div class="notes">
+
+But when the EHR first started, you still need to review the EHR data on screen, copy down the relevant information on paper, and then re-type the data into an Excel spreadsheet. The process was tedious and error prone. It took a new software product, i2b2, to streamline this process.
+
+</div>
+
 ## Mining the EHR with i2b2
 
 ![](~/heron-i2b2-analytics/doc/mining-talk/images/i2b2-screenshot.png)
+
+<div class="notes">
+
+This is a screen shot from a software program, i2b2, that helps you get data from the EHR for your research.
+
+</div>
 
 ## What is i2b2?
 
@@ -55,6 +87,11 @@ Cerner and Epic are designed for the care needs of individual patients. i2b2, in
 
 ![https://informatics.kumc.edu/work/wiki/HERON](~/heron-i2b2-analytics/doc/mining-talk/images/heron-progress.png)
 
+<div class="notes">
+
+This screeenshot of recent developments with the i2b2 system at KUMC (nicknamed HERON). Notice the sixth item on this list, which describes the integration of the Cystic Fibrosis registry. This is an example of the many data sources that Russ Waitman has integrated with the EHR inside i2b2.
+
+</div>
 
 ## What i2b2 lacks.
 
@@ -123,13 +160,31 @@ df3 <- data.frame(
 
 `r kable(df1)`
 
+<div class="notes">
+
+To understand the EAV model, it helps to review the two formats for longitudinal data. The "short and fat" format, as I call it, has one record per patient and strings the measurements at each visit east and west. If you are like me, you look at this format and immediately want to restructure it will a1, a2, and a3 stacked in a single column; b1, b2, and b3 stacked in a single column, and d1, d2, d3 stacked in a single column.
+
+</div>
+
 ## ... transformed to a "tall and thin" data set
 
 `r kable(df2)`
 
+<div class="notes">
+
+That produces an alternate format with one line per visit, multiple lines per patient. I like to call this the "tall and thin" format. Every statistical pacakge has a way to switch from the short and fat format to the tall and thin format, and the other way around.
+
+</div>
+
 ## ... transformed into the EAV model
 
 `r kable(df3)`
+
+<div class="notes">
+
+The EAV model takes the tall and thin format to an anorexic extreme.
+
+</div>
 
 ## Another example of the EAV model
 

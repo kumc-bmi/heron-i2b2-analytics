@@ -1,0 +1,185 @@
+---
+title: "Extract ids of patients with diabetes"
+author: "Steve Simon"
+date: "5/31/2018"
+output: html_document
+---
+
+This program shows how to extract the patient numbers for diabetes patients subject to a variety of restrictions.
+
+Please review open_oracle.Rmd to review how to access information in an Oracle database.
+
+
+```{r login-to-oracle}
+library("ROracle")
+cdm_config <- read.csv('../cdm_config.csv', stringsAsFactors=FALSE)
+c_connect <-
+  dbConnect(Oracle(), cdm_config$account, cdm_config$password, cdm_config$access)
+```
+
+Run a simple test to see that the connection works. 
+
+```{r simple-test}
+dbGetQuery(c_connect, "select count(patient_num) from blueherondata.observation_fact")
+```
+```
+
+The SQL code to count and extract patient numbers can get quite long. It helps to break the code into distinct pieces.
+
+The following SQL snippet counts the distinct number of patients. You can combine with additional SQL code to place restrictions on the types of patients.
+
+```{r count}
+sql_count_patients <- "
+  SELECT COUNT(DISTINCT patient_num)
+    FROM blueherondata.observation_fact
+"
+
+dbGetQuery(c_connect, sql_count_patients)
+```
+
+This SQL snippet adds a restriction to the ICD9 and ICD10 codes associated with diabetes.
+
+```{r diabetes-1}
+sql_restrict_to_diabetes <- "
+  WHERE concept_cd IN (
+    SELECT distinct concept_cd 
+    FROM blueherondata.concept_dimension
+    WHERE
+      concept_cd LIKE 'ICD9:250%' OR
+      concept_cd LIKE 'ICD10:E08%' OR
+      concept_cd LIKE 'ICD10:E09%' OR
+      concept_cd LIKE 'ICD10:E10%' OR
+      concept_cd LIKE 'ICD10:E11%' OR
+      concept_cd LIKE 'ICD10:E12%' OR
+      concept_cd LIKE 'ICD10:E13%'
+  )
+"
+```
+
+Combine this with the previous string.
+
+```{r diabetes-2}
+sql_combine <- paste(
+  sql_count_patients, 
+  sql_restrict_to_diabetes)
+cat(sql_combine)
+dbGetQuery(c_connect, sql_combine)
+```
+
+This snippet adds a date restriction.
+
+```{r dates-1}
+sql_restrict_dates <- "
+  AND TO_CHAR(start_date, 'yyyy-mm-dd') > '2010-01-01'
+"
+```
+
+Here's what the combination of all three strings looks like.
+
+```{r dates-2}
+sql_combine <- paste(
+  sql_count_patients, 
+  sql_restrict_to_diabetes,
+  sql_restrict_dates)
+cat(sql_combine)
+dbGetQuery(c_connect, sql_combine)
+```
+
+This snippet restricts to patients to females only. This represents a self-join.
+
+```{r females-1}
+sql_restrict_to_females <- "
+  AND patient_num IN (
+    SELECT DISTINCT patient_num
+    FROM blueherondata.observation_fact
+    WHERE
+      concept_cd = 'DEM|SEX:f'
+  )
+"
+```
+
+
+```{r females-2}
+sql_combine <- paste(
+  sql_count_patients, 
+  sql_restrict_to_diabetes,
+  sql_restrict_dates,
+  sql_restrict_to_females)
+cat(sql_combine)
+dbGetQuery(c_connect, sql_combine)
+```
+
+Extracting all the patient numbers requires a different start to the SQL query.
+
+```{r extract-1}
+sql_extract_patients <- "
+  SELECT patient_num, start_date AS pdate
+    FROM blueherondata.observation_fact
+"
+```
+
+This is what the combined query looks like.
+
+```{r extract-2}
+sql_combine <- paste(
+  sql_extract_patients,
+  sql_restrict_to_diabetes)
+cat(sql_combine)
+
+patient_list <- dbGetQuery(c_connect, sql_combine)
+names(patient_list) <- tolower(names(patient_list))
+head(patient_list)
+dim(patient_list)
+```
+
+Notice that patients appear more often than once in the query. To get a distinct set of patients, you need to group by patient number and then choose only one record. The simplest choice is the record with the smallest start-date.
+
+you can do this within R, but be careful, because some of the base R functions that you'd be tempted to use, such as unique or duplicated can be very inefficient with large data frames. The distinct or summarize functions in dplyr are a better choice.
+
+```{r distinct-1}
+library(dplyr)
+library(magrittr)
+patient_list                   %>% 
+  group_by(patient_num)        %>%
+  summarize(pdate=min(pdate))  %>%
+  ungroup                      -> unique_patients_1
+head(unique_patients_1)
+dim(unique_patients_1)
+```
+
+This method also works.
+
+```{r distinct-2}
+library(dplyr)
+library(magrittr)
+patient_list                             %>% 
+  arrange(patient_num, pdate)            %>%
+  distinct(patient_num, .keep_all=TRUE)  %>%
+  ungroup                                -> unique_patients_2
+head(unique_patients_2)
+dim(unique_patients_2)
+```
+
+You can also get the same effect using just SQL code.
+
+```{r distinct-3}
+sql_extract_unique_patients <- "
+  SELECT patient_num, MIN(start_date) AS pdate
+    FROM blueherondata.observation_fact
+"
+
+sql_group <- "
+  GROUP BY patient_num
+  ORDER BY patient_num"
+```
+
+```{r distinct-4}
+sql_combine <- paste(
+  sql_extract_unique_patients,
+  sql_restrict_to_diabetes,
+  sql_group)
+cat(sql_combine)
+unique_patients_3 <- dbGetQuery(c_connect, sql_combine)
+head(unique_patients_3)
+dim(unique_patients_3)
+```

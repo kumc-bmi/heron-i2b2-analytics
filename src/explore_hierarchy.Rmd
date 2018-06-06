@@ -1,0 +1,145 @@
+---
+title: "Explore the EHR hierachy"
+author: "Steve Simon"
+date: "5/31/2018"
+output: html_document
+---
+
+This program shows how to drill down through various levels of the hierarchy in the electronic health record.
+
+Please review open_oracle.Rmd to review how to access information in an Oracle database.
+
+
+```{r login-to-oracle}
+library("ROracle")
+cdm_config <- read.csv('../cdm_config.csv', stringsAsFactors=FALSE)
+c_connect <-
+  dbConnect(Oracle(), cdm_config$account, cdm_config$password, cdm_config$access)
+```
+
+Run a simple test to see that the connection works. 
+
+```{r simple-test}
+dbGetQuery(c_connect, "SELECT * FROM blueherondata.observation_fact WHERE rownum < 5")
+dbGetQuery(c_connect, "SELECT * FROM blueherondata.concept_dimension WHERE rownum < 5")
+dbGetQuery(c_connect, "SELECT * FROM blueheronmetadata.heron_terms WHERE rownum < 5")
+```
+
+The hierarchical structure of the electronic health record is represented by the concept path, a field in the concept_dimension table. There are similar representations of the hierachical structure in the heron_terms table of the blueheronmetadata database. These include the fields c_fullname, c_dimcode, and c_tooltip.
+
+```{r count-paths}
+sql_count_paths <- "
+  SELECT COUNT(concept_path) 
+    FROM blueherondata.concept_dimension"
+
+sql_count_i2b2_paths <- "
+  SELECT COUNT(concept_path) 
+    FROM blueherondata.concept_dimension 
+    WHERE concept_path LIKE '\\i2b2\\%'"
+
+sql_count_medication_paths <- "
+  SELECT COUNT(concept_path) 
+    FROM blueherondata.concept_dimension 
+    WHERE concept_path LIKE '\\i2b2\\Medications\\%'"
+
+dbGetQuery(c_connect, sql_count_paths)
+dbGetQuery(c_connect, sql_count_i2b2_paths)
+dbGetQuery(c_connect, sql_count_medication_paths)
+```
+
+The information in the blueheronmetadata database is fairly similar.
+
+```{r count-metadata}
+sql_count_metadata_paths <- "
+  SELECT COUNT(c_fullname) 
+    FROM blueheronmetadata.heron_terms"
+
+sql_count_metadata_i2b2_paths <- "
+  SELECT COUNT(c_fullname) 
+    FROM blueheronmetadata.heron_terms
+    WHERE c_fullname LIKE '\\i2b2\\%'"
+
+sql_count_metadata_medication_paths <- "
+  SELECT COUNT(c_fullname) 
+    FROM blueheronmetadata.heron_terms
+    WHERE c_fullname LIKE '\\i2b2\\Medications\\%'"
+
+dbGetQuery(c_connect, sql_count_metadata_paths)
+dbGetQuery(c_connect, sql_count_metadata_i2b2_paths)
+dbGetQuery(c_connect, sql_count_metadata_medication_paths)
+```
+
+Note that c_fullname and c_dimcode are almost identical, at least in this particular database.
+
+```{r identical}
+sql_count_discrepancies <- "
+  SELECT COUNT(c_fullname) 
+    FROM blueheronmetadata.heron_terms
+    WHERE c_fullname <> c_dimcode"
+
+sql_count_i2b2_discrepancies <- "
+  SELECT COUNT(c_fullname) 
+    FROM blueheronmetadata.heron_terms
+    WHERE
+      c_fullname <> c_dimcode AND
+      c_fullname LIKE '\\i2b2\\%'"
+
+dbGetQuery(c_connect, sql_count_discrepancies)
+dbGetQuery(c_connect, sql_count_i2b2_discrepancies)
+```
+
+Let's explore the hierarchy for medications, as that is a reasonably manageable size.
+
+```{r medications}
+sql_extract_medication_paths <- "
+  SELECT concept_path, concept_cd, name_char 
+    FROM blueherondata.concept_dimension
+    WHERE concept_path LIKE '\\i2b2\\Medications\\%'"
+
+sql_extract_metadata_medication_paths <- "
+  SELECT c_fullname, c_tooltip, c_basecode, c_name 
+    FROM blueheronmetadata.heron_terms
+    WHERE c_fullname LIKE '\\i2b2\\Medications\\%'"
+
+medication_paths <- dbGetQuery(c_connect, sql_extract_medication_paths)
+medication_metadata <- dbGetQuery(c_connect, sql_extract_metadata_medication_paths)
+
+names(medication_paths) <- tolower(names(medication_paths))
+names(medication_metadata) <- tolower(names(medication_metadata))
+```
+
+There's a very close correspondance between concept_path and c_fullname.
+
+```{r concept}
+setdiff(medication_paths$concept_path, medication_metadata$c_fullname)
+setdiff(medication_metadata$c_fullname, medication_paths$concept_path)
+```
+
+and for concept_cd and c_basecode
+
+```{r cd}
+setdiff(medication_paths$concept_cd, medication_metadata$c_basecode)
+setdiff(medication_metadata$c_basecode, medication_paths$concept_cd)
+```
+
+but name_char and c_name don't seem to line up as nicely.
+
+```{r name}
+library(dplyr)
+library(magrittr)
+length(setdiff(medication_paths$name_char, medication_metadata$c_name))
+length(setdiff(medication_metadata$c_name, medication_paths$name_char))
+
+medication_paths %>%
+  inner_join(medication_metadata, by=c("concept_path"="c_fullname")) %>%
+  select(name_char, c_name) %>%
+  filter(name_char != c_name) %>%
+  sample_n(size=100) %>%
+  mutate(x=paste(name_char, c_name, sep="||")) %>%
+  select(x)
+
+medication_metadata$c_name <- sub(" \\[.*\\]$", "", medication_metadata$c_name)
+
+length(setdiff(medication_paths$name_char, medication_metadata$c_name))
+length(setdiff(medication_metadata$c_name, medication_paths$name_char))
+```

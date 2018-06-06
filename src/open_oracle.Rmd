@@ -1,0 +1,35 @@
+---
+title: "Opening an Oracle database"
+author: "Steve Simon"
+date: "5/31/2018"
+output: html_document
+---
+
+This program shows how to open an Oracle database and count the number of records.
+
+To open Oracle, you need to have a small text file stored with information about Oracle. For the purposes of this program, I have used a file called cdm_config.csv, but any name will do fine.
+
+You can't peek at my file because it includes confidential information, but here is an example of what that file might look like.
+
+account,password,access
+
+GeorgeBrett,secret_password,//pointer_to_database_location
+
+Make sure there is a line in the file .gitignore reading
+
+cdm_config.csv
+
+or your private password will be posted on a public repository.
+
+```{r login-to-oracle}
+library("ROracle")
+cdm_config <- read.csv('../cdm_config.csv', stringsAsFactors=FALSE)
+c_connect <-
+  dbConnect(Oracle(), cdm_config$account, cdm_config$password, cdm_config$access)
+```
+
+If your connection works then the following code will count the number of records in the observation_fact table. On my system, this produces a number in the low billions.
+
+```{r simple-test}
+dbGetQuery(c_connect, "SELECT COUNT(patient_num) FROM blueherondata.observation_fact")
+```
