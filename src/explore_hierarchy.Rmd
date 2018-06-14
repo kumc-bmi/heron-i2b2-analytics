@@ -122,7 +122,7 @@ setdiff(medication_paths$concept_cd, medication_metadata$c_basecode)
 setdiff(medication_metadata$c_basecode, medication_paths$concept_cd)
 ```
 
-but name_char and c_name don't seem to line up as nicely.
+but name_char and c_name don't seem to line up as nicely. Part of this is the information like "300 facts; 28 patients]" that is appended to some of the c_name values. Once these are stripped, there is only one discrepancy.
 
 ```{r name}
 library(dplyr)
@@ -133,13 +133,27 @@ length(setdiff(medication_metadata$c_name, medication_paths$name_char))
 medication_paths %>%
   inner_join(medication_metadata, by=c("concept_path"="c_fullname")) %>%
   select(name_char, c_name) %>%
+  mutate(name_char=sub(" \\[.*\\]$", "", name_char)) %>%
+  mutate(c_name=sub(" \\[.*\\]$", "", c_name)) %>%
   filter(name_char != c_name) %>%
-  sample_n(size=100) %>%
   mutate(x=paste(name_char, c_name, sep="||")) %>%
   select(x)
+```
 
-medication_metadata$c_name <- sub(" \\[.*\\]$", "", medication_metadata$c_name)
+The concept_path variable in blueherondata.concept_dimension and c_fullname,.c_dimcode, and c_tooltip variables in blueheronmetadata.heron_terms provide information about the hierarchical structure of the data. The right most segment of these paths represents the most specific category and the segments increase in generality as you read towards the left.
 
-length(setdiff(medication_paths$name_char, medication_metadata$c_name))
-length(setdiff(medication_metadata$c_name, medication_paths$name_char))
+```{r separate}
+library(dplyr)
+library(magrittr)
+library(tidyr)
+medication_paths %>%
+  select(-name_char) %>%
+  mutate(concept_path=sub("^\\\\", "", concept_path)) %>%
+  mutate(concept_path=sub("\\\\$", "", concept_path)) %>%
+  mutate(concept_cd=sub(".*:", "", concept_cd)) %>%
+  sample_n(10) %>%
+  separate(concept_path, into=paste0("x", 101:120), sep="\\\\") %>%
+  gather("y", "z", paste0("x", 101:120), na.rm=TRUE) %>%
+  arrange(concept_cd, y) -> tst1
+head(tst1, n=100)
 ```
