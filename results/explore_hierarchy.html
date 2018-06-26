@@ -134,57 +134,47 @@ c_connect &lt;-
   dbConnect(Oracle(), cdm_config$account, cdm_config$password, cdm_config$access)</code></pre>
 <p>Run a simple test to see that the connection works.</p>
 <pre class="r"><code>dbGetQuery(c_connect, &quot;SELECT * FROM blueherondata.observation_fact WHERE rownum &lt; 5&quot;)</code></pre>
-<pre><code>##   ENCOUNTER_NUM PATIENT_NUM  CONCEPT_CD PROVIDER_ID          START_DATE
-## 1       3117845      313839   CPT:94760           @ 2015-01-11 23:00:00
-## 2       4209255       66661   CPT:96415           @ 2013-12-31 23:00:00
-## 3       5181915       93424 HCPCS:G0431           @ 2015-01-20 23:00:00
-## 4       5181915       93424 HCPCS:G0431           @ 2015-01-20 23:00:00
-##                        MODIFIER_CD INSTANCE_NUM VALTYPE_CD TVAL_CHAR
-## 1 ProcObs:Billing|ResoluteHospital 1.060409e+16          @         @
-## 2 ProcObs:Billing|ResoluteHospital 3.148564e+16          @         @
-## 3 ProcObs:Billing|ResoluteHospital 5.621894e+16          @         @
-## 4 ProcObs:Billing|ResoluteHospital 4.325391e+16          @         @
-##   NVAL_NUM VALUEFLAG_CD QUANTITY_NUM UNITS_CD            END_DATE
-## 1       NA         &lt;NA&gt;           NA     &lt;NA&gt; 2015-01-11 23:00:00
-## 2       NA         &lt;NA&gt;           NA     &lt;NA&gt; 2013-12-31 23:00:00
-## 3       NA         &lt;NA&gt;           NA     &lt;NA&gt; 2015-01-20 23:00:00
-## 4       NA         &lt;NA&gt;           NA     &lt;NA&gt; 2015-01-20 23:00:00
-##   LOCATION_CD OBSERVATION_BLOB CONFIDENCE_NUM         UPDATE_DATE
-## 1        &lt;NA&gt;             &lt;NA&gt;             NA 2015-01-11 23:00:00
-## 2        &lt;NA&gt;             &lt;NA&gt;             NA 2013-12-31 23:00:00
-## 3        &lt;NA&gt;             &lt;NA&gt;             NA 2015-01-20 23:00:00
-## 4        &lt;NA&gt;             &lt;NA&gt;             NA 2015-01-20 23:00:00
-##         DOWNLOAD_DATE         IMPORT_DATE SOURCESYSTEM_CD UPLOAD_ID
-## 1 2018-02-02 11:40:02 2018-03-15 18:50:37  Epic@kumed.com        88
-## 2 2018-02-02 11:40:02 2018-03-15 18:50:37  Epic@kumed.com        88
-## 3 2018-02-02 11:40:02 2018-03-15 18:50:37  Epic@kumed.com        88
-## 4 2018-02-02 11:40:02 2018-03-15 18:50:37  Epic@kumed.com        88
-##   SUB_ENCOUNTER
-## 1    1869459166
-## 2    1212349958
-## 3    3109979113
-## 4    3109979113</code></pre>
+<pre><code>##   ENCOUNTER_NUM PATIENT_NUM                        CONCEPT_CD PROVIDER_ID
+## 1      20629889      578479 KUH|VISITDETAIL|AMBDEPT:102016001           @
+## 2      35060864     1836191 KUH|VISITDETAIL|AMBDEPT:101088270           @
+## 3       4092034     2094891 KUH|VISITDETAIL|HSPDEPT:101088200           @
+## 4      35501059     1867269 KUH|VISITDETAIL|AMBDEPT:203000008           @
+##   START_DATE MODIFIER_CD INSTANCE_NUM VALTYPE_CD TVAL_CHAR NVAL_NUM
+## 1 2014-11-02           @ 3.612809e+16          @         @       NA
+## 2 2014-07-27           @ 1.968610e+16          @         @       NA
+## 3 2015-09-18           @ 4.969481e+16          @         @       NA
+## 4 2015-07-02           @ 4.639129e+16          @         @       NA
+##   VALUEFLAG_CD QUANTITY_NUM UNITS_CD   END_DATE LOCATION_CD
+## 1         &lt;NA&gt;           NA     &lt;NA&gt; 2014-11-02        &lt;NA&gt;
+## 2         &lt;NA&gt;           NA     &lt;NA&gt; 2014-07-27        &lt;NA&gt;
+## 3         &lt;NA&gt;           NA     &lt;NA&gt; 2015-09-18        &lt;NA&gt;
+## 4         &lt;NA&gt;           NA     &lt;NA&gt; 2015-07-02        &lt;NA&gt;
+##   OBSERVATION_BLOB CONFIDENCE_NUM UPDATE_DATE       DOWNLOAD_DATE
+## 1             &lt;NA&gt;             NA  2014-11-02 2018-02-02 11:40:02
+## 2             &lt;NA&gt;             NA  2014-07-27 2018-02-02 11:40:02
+## 3             &lt;NA&gt;             NA  2015-09-18 2018-02-02 11:40:02
+## 4             &lt;NA&gt;             NA  2015-07-02 2018-02-02 11:40:02
+##           IMPORT_DATE SOURCESYSTEM_CD UPLOAD_ID SUB_ENCOUNTER
+## 1 2018-03-18 20:40:36  Epic@kumed.com       102    2596237485
+## 2 2018-03-18 20:40:36  Epic@kumed.com       102    1194958334
+## 3 2018-03-18 20:40:36  Epic@kumed.com       102    3149879078
+## 4 2018-03-18 20:40:36  Epic@kumed.com       102    4208949489</code></pre>
 <pre class="r"><code>dbGetQuery(c_connect, &quot;SELECT * FROM blueherondata.concept_dimension WHERE rownum &lt; 5&quot;)</code></pre>
-<pre><code>##                                                          CONCEPT_PATH
-## 1 \\i2b2\\Alerts\\3\\6\\T\\CC49DEBFC9FFFE249C6D67EB42889D5B8697F787\\
-## 2 \\i2b2\\Alerts\\3\\6\\M\\C38EC4164FBF6FD559921ACB027B40CA6C7F38B5\\
-## 3 \\i2b2\\Alerts\\3\\6\\P\\22E7B3FD38CCB6175E82C725545F7A30E2B658EE\\
-## 4 \\i2b2\\Alerts\\3\\6\\H\\4658F7AA54949A0F72C7A53EFBCA432685CAC3CB\\
-##                                        CONCEPT_CD
-## 1 KUH|DI:CC49DEBFC9FFFE249C6D67EB42889D5B8697F787
-## 2 KUH|DI:C38EC4164FBF6FD559921ACB027B40CA6C7F38B5
-## 3 KUH|DI:22E7B3FD38CCB6175E82C725545F7A30E2B658EE
-## 4 KUH|DI:4658F7AA54949A0F72C7A53EFBCA432685CAC3CB
-##                                                                         NAME_CHAR
-## 1  TEMOZOLOMIDE 20 MG PO CAP: BELOW RECOMMENDED MINIMUM DAILY DOSE BY 55% (97 MG)
-## 2 MAGNESIUM, 46 MEQ, CENTRAL, CONTINUOUS PN&lt;BR&gt;DOSE CHECKING CANNOT BE PERFORMED.
-## 3 PANTOPRAZOLE(#), 3 MG, ORAL, DAILY&lt;BR&gt;DAILY DOSE 3 MG. UNDERDOSE (MIN. 5.82 MG)
-## 4 HEPARIN, 78 UNITS, PERIPHERAL, CONTINUOUS&lt;BR&gt;DOSE CHECKING CANNOT BE PERFORMED.
+<pre><code>##                                                                                                                                                                              CONCEPT_PATH
+## 1           \\i2b2\\Laboratory Tests\\Chemistry\\Lipids\\Fatty acids\\Pristanate (C15:0(CH3)4) | Bld-Ser-Plas\\Pristanate/Phytanate SerPl-sRto (30550-8)\\115: PRISTANIC/PHYTANIC RATIO\\
+## 2                                \\i2b2\\Flowsheet\\KU\\IP\\TMP OB\\LABOR\\FLOWSHEET T:305025\\KU GROUP BISHOP SCORE G:11487 I#29\\KU IP ROW BISHOP SCORE STATION M:11491 I#3\\0=-3 C#1\\
+## 3 \\i2b2\\Flowsheet\\KU\\IP\\TMP OB\\LABOR\\FLOWSHEET T:305025\\KU IP GRP ARTERIAL BLOOD PRESSURE COMPLE G:7460 I#7\\KU IP ROW ARTERIAL LINE LOCATION 2 M:301290 I#4\\Femoral, Left C#3\\
+## 4                                                                                                                              \\i2b2\\Procorders\\Lab\\LABORATORY ORDERABLES\\10271920\\
+##                      CONCEPT_CD                          NAME_CHAR
+## 1          KUH|COMPONENT_ID:115     PRISTANIC/PHYTANIC RATIO(#115)
+## 2  KUH|FLO_MEAS_ID+LINE:11491_1                           01. 0=-3
+## 3 KUH|FLO_MEAS_ID+LINE:301290_3                  03. Femoral, Left
+## 4          KUH|PROC_ID:10271920 VENOUS BG, THERAPEUTIC HYPOTHERMIA
 ##   CONCEPT_BLOB         UPDATE_DATE DOWNLOAD_DATE         IMPORT_DATE
-## 1         &lt;NA&gt; 2018-03-21 10:40:30          &lt;NA&gt; 2018-03-21 18:09:53
-## 2         &lt;NA&gt; 2018-03-21 10:40:30          &lt;NA&gt; 2018-03-21 18:09:53
-## 3         &lt;NA&gt; 2018-03-21 10:40:30          &lt;NA&gt; 2018-03-21 18:09:53
-## 4         &lt;NA&gt; 2018-03-21 10:40:30          &lt;NA&gt; 2018-03-21 18:09:53
+## 1         &lt;NA&gt; 2018-03-21 17:41:17          &lt;NA&gt; 2018-03-21 18:09:53
+## 2         &lt;NA&gt; 2018-03-21 17:34:55          &lt;NA&gt; 2018-03-21 18:09:53
+## 3         &lt;NA&gt; 2018-03-21 17:34:55          &lt;NA&gt; 2018-03-21 18:09:53
+## 4         &lt;NA&gt; 2018-03-21 17:36:51          &lt;NA&gt; 2018-03-21 18:09:53
 ##   SOURCESYSTEM_CD UPLOAD_ID
 ## 1  Epic@kumed.com        NA
 ## 2  Epic@kumed.com        NA
@@ -226,7 +216,31 @@ c_connect &lt;-
 ## 2 DEM2FACT CONVERT         &lt;NA&gt;           &lt;NA&gt;   &lt;NA&gt;     &lt;NA&gt; 8001538
 ## 3 DEM2FACT CONVERT         &lt;NA&gt;           &lt;NA&gt;   &lt;NA&gt;     &lt;NA&gt; 8001539
 ## 4 DEM2FACT CONVERT         &lt;NA&gt;           &lt;NA&gt;   &lt;NA&gt;     &lt;NA&gt; 8001540</code></pre>
-<p>The hierarchical structure of the electronic health record is represented by the concept path, a field in the concept_dimension table. There are similar representations of the hierachical structure in the heron_terms table of the blueheronmetadata database. These include the fields c_fullname, c_dimcode, and c_tooltip.</p>
+<p>The hierarchical structure of the electronic health record is represented by the concept path, a field in the concept_dimension table. There are similar representations of the hierachical structure in the heron_terms table of the blueheronmetadata database. These include the fields c_fullname, c_dimcode, and c_tooltip. Note that c_tooltip has less cryptic names in its hierarchy than the others.</p>
+<p>There is also a correspondance between concept_cd and c_basecode and between name_char and c_name</p>
+<p>This table outlines the relationships.</p>
+<table>
+<thead>
+<tr class="header">
+<th>blueherondata.concept_dimension</th>
+<th>blueheronmetadata.heron_terms</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>concept_path</td>
+<td>c_fullname, c_dimcode, c_tooltip</td>
+</tr>
+<tr class="even">
+<td>concept_cd</td>
+<td>c_basecode</td>
+</tr>
+<tr class="odd">
+<td>name_char</td>
+<td>c_name</td>
+</tr>
+</tbody>
+</table>
 <pre class="r"><code>sql_count_paths &lt;- &quot;
   SELECT COUNT(concept_path) 
     FROM blueherondata.concept_dimension&quot;
@@ -293,6 +307,72 @@ dbGetQuery(c_connect, sql_count_discrepancies)</code></pre>
 <pre class="r"><code>dbGetQuery(c_connect, sql_count_i2b2_discrepancies)</code></pre>
 <pre><code>##   COUNT(C_FULLNAME)
 ## 1                 0</code></pre>
+<pre class="r"><code>sql_concept_cd &lt;- &quot;
+  SELECT COUNT(DISTINCT concept_cd)
+    FROM blueherondata.concept_dimension&quot;
+
+sql_c_basecode &lt;- &quot;
+  SELECT COUNT(DISTINCT c_basecode)
+    FROM blueheronmetadata.heron_terms&quot;
+
+dbGetQuery(c_connect, sql_concept_cd)</code></pre>
+<pre><code>##   COUNT(DISTINCTCONCEPT_CD)
+## 1                   2386843</code></pre>
+<pre class="r"><code>dbGetQuery(c_connect, sql_c_basecode)</code></pre>
+<pre><code>##   COUNT(DISTINCTC_BASECODE)
+## 1                   2271694</code></pre>
+<pre class="r"><code>sql_concept_cd_anti_join &lt;- &quot;
+  SELECT concept_cd
+    FROM blueherondata.concept_dimension
+    LEFT JOIN blueheronmetadata.heron_terms
+    ON concept_cd=c_basecode
+    WHERE
+      c_basecode IS NULL AND
+      ROWNUM &lt; 10&quot;
+
+sql_c_basecode_anti_join &lt;- &quot;
+  SELECT c_basecode
+    FROM blueheronmetadata.heron_terms
+    LEFT JOIN blueherondata.concept_dimension
+    ON concept_cd=c_basecode
+    WHERE
+      concept_cd IS NULL AND
+      ROWNUM &lt; 10&quot;
+  
+dbGetQuery(c_connect, sql_concept_cd_anti_join)</code></pre>
+<pre><code>##                               CONCEPT_CD
+## 1           KUMCRC6297|audit_file:950604
+## 2           KUMCRC6616|celf5_pp_item26:2
+## 3 KUMCRC6784|fu2_mrecist_les5_hh_bc_mi:5
+## 4                   KUMCRC645|kid10agd:8
+## 5        KUMCRC645|tele_drugid_23:200049
+## 6                  KUMCRC645|fu_langa4:1
+## 7      KUMCRC941|sixtymo_famhistchange:0
+## 8            KUMCRC645|tele_sib14ago_:72
+## 9             KUMCRC645|tele_kid10agd:19</code></pre>
+<pre class="r"><code>dbGetQuery(c_connect, sql_c_basecode_anti_join)</code></pre>
+<pre><code>##   C_BASECODE
+## 1       &lt;NA&gt;
+## 2       &lt;NA&gt;
+## 3       &lt;NA&gt;
+## 4       &lt;NA&gt;
+## 5       &lt;NA&gt;
+## 6       &lt;NA&gt;
+## 7       &lt;NA&gt;
+## 8       &lt;NA&gt;
+## 9       &lt;NA&gt;</code></pre>
+<pre class="r"><code>sql_concept_cd_anti_join_2 &lt;- &quot;
+  SELECT concept_cd
+    FROM blueherondata.concept_dimension
+    LEFT JOIN blueheronmetadata.heron_terms
+    ON concept_cd=c_basecode
+    WHERE
+      c_basecode IS NULL AND
+      ROWNUM &lt; 10 AND
+      concept_cd NOT LIKE 'KUMCRC%'&quot;
+dbGetQuery(c_connect, sql_concept_cd_anti_join_2)</code></pre>
+<pre><code>## [1] CONCEPT_CD
+## &lt;0 rows&gt; (or 0-length row.names)</code></pre>
 <p>Let’s explore the hierarchy for medications, as that is a reasonably manageable size.</p>
 <pre class="r"><code>sql_extract_medication_paths &lt;- &quot;
   SELECT concept_path, concept_cd, name_char 
@@ -358,6 +438,8 @@ library(tidyr)</code></pre>
 <pre class="r"><code>medication_paths %&gt;%
   select(-name_char) %&gt;%
   mutate(concept_path=sub(&quot;^\\\\&quot;, &quot;&quot;, concept_path)) %&gt;%
+  mutate(concept_path=sub(&quot;\\\\$&quot;, &quot;&quot;, concept_path)) %&gt;%
+  mutate(concept_cd=sub(&quot;.*:&quot;, &quot;&quot;, concept_cd)) %&gt;%
   sample_n(10) %&gt;%
   separate(concept_path, into=paste0(&quot;x&quot;, 101:120), sep=&quot;\\\\&quot;) %&gt;%
   gather(&quot;y&quot;, &quot;z&quot;, paste0(&quot;x&quot;, 101:120), na.rm=TRUE) %&gt;%
@@ -365,172 +447,125 @@ library(tidyr)</code></pre>
 <pre><code>## Warning: Expected 20 pieces. Missing pieces filled with `NA` in 10 rows [1,
 ## 2, 3, 4, 5, 6, 7, 8, 9, 10].</code></pre>
 <pre class="r"><code>head(tst1, n=100)</code></pre>
-<pre><code>##                  concept_cd    y
-## 1  KUH|MEDICATION_ID:152834 x101
-## 2  KUH|MEDICATION_ID:152834 x102
-## 3  KUH|MEDICATION_ID:152834 x103
-## 4  KUH|MEDICATION_ID:152834 x104
-## 5  KUH|MEDICATION_ID:152834 x105
-## 6  KUH|MEDICATION_ID:152834 x106
-## 7  KUH|MEDICATION_ID:152834 x107
-## 8  KUH|MEDICATION_ID:152834 x108
-## 9  KUH|MEDICATION_ID:324866 x101
-## 10 KUH|MEDICATION_ID:324866 x102
-## 11 KUH|MEDICATION_ID:324866 x103
-## 12 KUH|MEDICATION_ID:324866 x104
-## 13 KUH|MEDICATION_ID:324866 x105
-## 14 KUH|MEDICATION_ID:324866 x106
-## 15 KUH|MEDICATION_ID:324866 x107
-## 16 KUH|MEDICATION_ID:324866 x108
-## 17   KUH|MEDICATION_ID:7616 x101
-## 18   KUH|MEDICATION_ID:7616 x102
-## 19   KUH|MEDICATION_ID:7616 x103
-## 20   KUH|MEDICATION_ID:7616 x104
-## 21   KUH|MEDICATION_ID:7616 x105
-## 22   KUH|MEDICATION_ID:7616 x106
-## 23   KUH|MEDICATION_ID:7616 x107
-## 24   KUH|MEDICATION_ID:7616 x108
-## 25  KUH|MEDICATION_ID:83648 x101
-## 26  KUH|MEDICATION_ID:83648 x102
-## 27  KUH|MEDICATION_ID:83648 x103
-## 28  KUH|MEDICATION_ID:83648 x104
-## 29  KUH|MEDICATION_ID:83648 x105
-## 30  KUH|MEDICATION_ID:83648 x106
-## 31  KUH|MEDICATION_ID:83648 x107
-## 32          NDC:00115169003 x101
-## 33          NDC:00115169003 x102
-## 34          NDC:00115169003 x103
-## 35          NDC:00115169003 x104
-## 36          NDC:00115169003 x105
-## 37          NDC:00115169003 x106
-## 38          NDC:00115169003 x107
-## 39          NDC:00115169003 x108
-## 40          NDC:00115169003 x109
-## 41          NDC:11845071301 x101
-## 42          NDC:11845071301 x102
-## 43          NDC:11845071301 x103
-## 44          NDC:11845071301 x104
-## 45          NDC:11845071301 x105
-## 46          NDC:11845071301 x106
-## 47          NDC:11845071301 x107
-## 48          NDC:11845071301 x108
-## 49          NDC:11845071301 x109
-## 50          NDC:43063070440 x101
-## 51          NDC:43063070440 x102
-## 52          NDC:43063070440 x103
-## 53          NDC:43063070440 x104
-## 54          NDC:43063070440 x105
-## 55          NDC:43063070440 x106
-## 56          NDC:43063070440 x107
-## 57          NDC:43063070440 x108
-## 58          NDC:43063070440 x109
-## 59          NDC:54868626000 x101
-## 60          NDC:54868626000 x102
-## 61          NDC:54868626000 x103
-## 62          NDC:54868626000 x104
-## 63          NDC:54868626000 x105
-## 64          NDC:54868626000 x106
-## 65          NDC:54868626000 x107
-## 66          NDC:54868626000 x108
-## 67          NDC:55390003710 x101
-## 68          NDC:55390003710 x102
-## 69          NDC:55390003710 x103
-## 70          NDC:55390003710 x104
-## 71          NDC:55390003710 x105
-## 72          NDC:55390003710 x106
-## 73          NDC:55390003710 x107
-## 74          NDC:55390003710 x108
-## 75          NDC:69420100101 x101
-## 76          NDC:69420100101 x102
-## 77          NDC:69420100101 x103
-## 78          NDC:69420100101 x104
-## 79          NDC:69420100101 x105
-## 80          NDC:69420100101 x106
-## 81          NDC:69420100101 x107
-## 82          NDC:69420100101 x108
-##                                                      z
-## 1                                                 i2b2
-## 2                                          Medications
-## 3                                        RXAUI:3257617
-## 4                                        RXAUI:3257618
-## 5                                        RXAUI:3257622
-## 6                                        RXAUI:2181311
-## 7                                 MEDICATION_ID:152834
-## 8                                                     
-## 9                                                 i2b2
-## 10                                         Medications
-## 11                                       RXAUI:3257505
-## 12                                       RXAUI:3257510
-## 13                                       RXAUI:3257513
-## 14                                       RXAUI:7702724
-## 15                                MEDICATION_ID:324866
-## 16                                                    
-## 17                                                i2b2
-## 18                                         Medications
-## 19       [RE000] RESPIRATORY TRACT MEDICATIONS #691764
-## 20          [RE500] COLD REMEDIES,COMBINATIONS #691655
-## 21          [RE501] ANTIHISTAMINE/DECONGESTANT #215332
-## 22                 Pseudoephedrine Oral Tablet #373673
-## 23                       SUPHEDRINE 30 MG PO TAB #7616
-## 24                                                    
-## 25                                                i2b2
-## 26                                         Medications
-## 27                      [AM000] ANTIMICROBIALS #337867
-## 28  [AM650] SULFONAMIDE/RELATED ANTIMICROBIALS #691843
-## 29 Sulfamethoxazole / Trimethoprim Oral Tablet #374234
-## 30               BETHAPRIM DS 800-160 MG PO TAB #83648
-## 31                                                    
-## 32                                                i2b2
-## 33                                         Medications
-## 34                                       RXAUI:3257561
-## 35                                       RXAUI:3257574
-## 36                                       RXAUI:3257577
-## 37                                       RXAUI:1576119
-## 38                                  MEDICATION_ID:9324
-## 39                                     NDC:00115169003
-## 40                                                    
-## 41                                                i2b2
-## 42                                         Medications
-## 43                                       RXAUI:3257945
-## 44                                       RXAUI:3257947
-## 45                                       RXAUI:3257953
-## 46                                       RXAUI:1578694
-## 47                                  MEDICATION_ID:8662
-## 48                                     NDC:11845071301
-## 49                                                    
-## 50                                                i2b2
-## 51                                         Medications
-## 52                                       RXAUI:3257505
-## 53                                       RXAUI:3257510
-## 54                                       RXAUI:3257506
-## 55                                       RXAUI:1578204
-## 56                                  MEDICATION_ID:6092
-## 57                                     NDC:43063070440
-## 58                                                    
-## 59                                                i2b2
-## 60                                         Medications
-## 61                                       RXAUI:3257595
-## 62                                       RXAUI:3257604
-## 63                                       RXAUI:8248424
-## 64                                 MEDICATION_ID:81734
-## 65                                     NDC:54868626000
-## 66                                                    
-## 67                                                i2b2
-## 68                                         Medications
-## 69                                       RXAUI:3257818
-## 70                                       RXAUI:3257829
-## 71                                       RXAUI:1581773
-## 72                                MEDICATION_ID:325761
-## 73                                     NDC:55390003710
-## 74                                                    
-## 75                                                i2b2
-## 76                                         Medications
-## 77                                       RXAUI:3257818
-## 78                                       RXAUI:3257827
-## 79                                       RXAUI:1576601
-## 80                                MEDICATION_ID:136841
-## 81                                     NDC:69420100101
-## 82</code></pre>
+<pre><code>##     concept_cd    y                                                  z
+## 1  00093406952 x101                                               i2b2
+## 2  00093406952 x102                                        Medications
+## 3  00093406952 x103                                      RXAUI:3257595
+## 4  00093406952 x104                                      RXAUI:3257598
+## 5  00093406952 x105                                      RXAUI:1578499
+## 6  00093406952 x106                                 MEDICATION_ID:6470
+## 7  00093406952 x107                                    NDC:00093406952
+## 8  00555032304 x101                                               i2b2
+## 9  00555032304 x102                                        Medications
+## 10 00555032304 x103                                      RXAUI:3257496
+## 11 00555032304 x104                                      RXAUI:3257501
+## 12 00555032304 x105                                      RXAUI:1575626
+## 13 00555032304 x106                                 MEDICATION_ID:3777
+## 14 00555032304 x107                                    NDC:00555032304
+## 15      141430 x101                                               i2b2
+## 16      141430 x102                                        Medications
+## 17      141430 x103                                      RXAUI:3257879
+## 18      141430 x104                                      RXAUI:3257893
+## 19      141430 x105                                      RXAUI:3257894
+## 20      141430 x106                                      RXAUI:2062880
+## 21      141430 x107                               MEDICATION_ID:141430
+## 22       27907 x101                                               i2b2
+## 23       27907 x102                                        Medications
+## 24       27907 x103   [CN000] CENTRAL NERVOUS SYSTEM MEDICATIONS #2225
+## 25       27907 x104                            [CN100] ANALGESICS #760
+## 26       27907 x105                     [CN101] OPIOID ANALGESICS #761
+## 27       27907 x106                 Fentanyl Transdermal Patch #377472
+## 28       27907 x107                  FENTANYL 75 MCG/HR TD PT72 #27907
+## 29      312752 x101                                               i2b2
+## 30      312752 x102                                        Medications
+## 31      312752 x103                                      RXAUI:3257561
+## 32      312752 x104                                      RXAUI:3257568
+## 33      312752 x105                                      RXAUI:3257572
+## 34      312752 x106                                      RXAUI:1577541
+## 35      312752 x107                               MEDICATION_ID:312752
+## 36 33358011300 x101                                               i2b2
+## 37 33358011300 x102                                        Medications
+## 38 33358011300 x103                                      RXAUI:3257651
+## 39 33358011300 x104                                      RXAUI:3257664
+## 40 33358011300 x105                                      RXAUI:3257669
+## 41 33358011300 x106                                      RXAUI:2535691
+## 42 33358011300 x107                                 MEDICATION_ID:2566
+## 43 33358011300 x108                                    NDC:33358011300
+## 44 41250037934 x101                                               i2b2
+## 45 41250037934 x102                                        Medications
+## 46 41250037934 x103                                      RXAUI:3257496
+## 47 41250037934 x104                                      RXAUI:3257498
+## 48 41250037934 x105                                      RXAUI:1576828
+## 49 41250037934 x106                                 MEDICATION_ID:1582
+## 50 41250037934 x107                                    NDC:41250037934
+## 51        4462 x101                                               i2b2
+## 52        4462 x102                                        Medications
+## 53        4462 x103    [NT000] NASAL AND THROAT AGENTS,TOPICAL #692023
+## 54        4462 x104                [NT300] ANESTHETICS,MUCOSAL #691942
+## 55        4462 x105 Lidocaine Mucous Membrane Topical Solution #375137
+## 56        4462 x106                LIDOCAINE VISCOUS 2 % MM SOLN #4462
+## 57 66582032230 x101                                               i2b2
+## 58 66582032230 x102                                        Medications
+## 59 66582032230 x103                                      RXAUI:3257595
+## 60 66582032230 x104                                      RXAUI:3257602
+## 61 66582032230 x105                                      RXAUI:5464142
+## 62 66582032230 x106                               MEDICATION_ID:317650
+## 63 66582032230 x107                                    NDC:66582032230
+## 64 68462010630 x101                                               i2b2
+## 65 68462010630 x102                                        Medications
+## 66 68462010630 x103                                      RXAUI:3257651
+## 67 68462010630 x104                                      RXAUI:3257681
+## 68 68462010630 x105                                      RXAUI:1578083
+## 69 68462010630 x106                                MEDICATION_ID:78132
+## 70 68462010630 x107                                    NDC:68462010630</code></pre>
+<pre class="r"><code>medication_metadata %&gt;%
+  select(c_tooltip, c_basecode) %&gt;%
+  mutate(c_tooltip=sub(&quot;^\\\\&quot;, &quot;&quot;, c_tooltip)) %&gt;%
+  mutate(c_tooltip=sub(&quot;\\\\$&quot;, &quot;&quot;, c_tooltip)) %&gt;%
+  mutate(c_basecode=sub(&quot;.*:&quot;, &quot;&quot;, c_basecode)) %&gt;%
+  sample_n(10) %&gt;%
+  separate(c_tooltip, into=paste0(&quot;x&quot;, 101:120), sep=&quot;\\\\&quot;) %&gt;%
+  gather(&quot;y&quot;, &quot;z&quot;, paste0(&quot;x&quot;, 101:120), na.rm=TRUE) %&gt;%
+  arrange(c_basecode, y) -&gt; tst2</code></pre>
+<pre><code>## Warning: Expected 20 pieces. Missing pieces filled with `NA` in 7 rows [1,
+## 2, 3, 6, 7, 8, 10].</code></pre>
+<pre class="r"><code>head(tst2, n=100)</code></pre>
+<pre><code>##     c_basecode    y                                            z
+## 1  00168005515 x101                                 Medications 
+## 2  00168005515 x102               [DE000] DERMATOLOGICAL AGENTS 
+## 3  00168005515 x103           [DE200] ANTI-INFLAMMATORY,TOPICAL 
+## 4  00168005515 x104                 Betamethasone Topical Cream 
+## 5  00168005515 x105    BETAMETHASONE DIPROPIONATE 0.05 % TP CREA
+## 6  00603420921 x101                                 Medications 
+## 7  00603420921 x102          [CV000] CARDIOVASCULAR MEDICATIONS 
+## 8  00603420921 x103                      [CV800] ACE INHIBITORS 
+## 9  00603420921 x104                      Lisinopril Oral Tablet 
+## 10 00603420921 x105                     LISINOPRIL 2.5 MG PO TAB
+## 11      171006 x101                                 Medications 
+## 12      171006 x102     [NT000] NASAL AND THROAT AGENTS,TOPICAL 
+## 13      171006 x103      [NT900] NASAL AND THROAT,TOPICAL,OTHER 
+## 14      171006 x104               Sodium Chloride Nasal Solution
+## 15 25021083301 x101                                 Medications 
+## 16 25021083301 x102  [CN000] CENTRAL NERVOUS SYSTEM MEDICATIONS 
+## 17 25021083301 x103                      [CN700] ANTIPSYCHOTICS 
+## 18 25021083301 x104                [CN709] ANTIPSYCHOTICS,OTHER 
+## 19 25021083301 x105             Haloperidol Injectable Solution 
+## 20 25021083301 x106      HALOPERIDOL DECANOATE 100 MG/ML IM SOLN
+## 21       26215 x101                                 Medications 
+## 22       26215 x102                            [VT000] VITAMINS 
+## 23       26215 x103                           [VT400] VITAMIN C 
+## 24       26215 x104                Ascorbic Acid Chewable Tablet
+## 25 57515044000 x101                                 Medications 
+## 26 57515044000 x102                           Other Medications 
+## 27 57515044000 x103                        ALCOHOL SWABS TP PADM
+## 28 79854030060 x101                                 Medications 
+## 29 79854030060 x102                            [VT000] VITAMINS 
+## 30 79854030060 x103                           [VT400] VITAMIN C 
+## 31 79854030060 x104                   Ascorbic Acid Oral Tablet 
+## 32 79854030060 x105                    VITAMIN C 1,000 MG PO TAB</code></pre>
+<p>Save everything for later use.</p>
+<pre class="r"><code>fn &lt;- &quot;../data/explore_hierarchy.RData&quot;
+save.image(fn)</code></pre>
 
 
 

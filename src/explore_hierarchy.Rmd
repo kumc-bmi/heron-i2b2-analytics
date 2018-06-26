@@ -25,7 +25,19 @@ dbGetQuery(c_connect, "SELECT * FROM blueherondata.concept_dimension WHERE rownu
 dbGetQuery(c_connect, "SELECT * FROM blueheronmetadata.heron_terms WHERE rownum < 5")
 ```
 
-The hierarchical structure of the electronic health record is represented by the concept path, a field in the concept_dimension table. There are similar representations of the hierachical structure in the heron_terms table of the blueheronmetadata database. These include the fields c_fullname, c_dimcode, and c_tooltip.
+The hierarchical structure of the electronic health record is represented by the concept path, a field in the concept_dimension table. There are similar representations of the hierachical structure in the heron_terms table of the blueheronmetadata database. These include the fields c_fullname, c_dimcode, and c_tooltip. Note that c_tooltip has less cryptic names in its hierarchy than the others.
+
+There is also a correspondance between concept_cd and c_basecode and between name_char and c_name
+
+This table outlines the relationships.
+
+blueherondata.concept_dimension  | blueheronmetadata.heron_terms
+-------------------------------- | --------------------------------
+concept_path                     | c_fullname, c_dimcode, c_tooltip
+concept_cd                       | c_basecode
+name_char                        | c_name
+
+
 
 ```{r count-paths}
 sql_count_paths <- "
@@ -88,6 +100,51 @@ dbGetQuery(c_connect, sql_count_discrepancies)
 dbGetQuery(c_connect, sql_count_i2b2_discrepancies)
 ```
 
+```{r concept_cd-and-c_basecode}
+sql_concept_cd <- "
+  SELECT COUNT(DISTINCT concept_cd)
+    FROM blueherondata.concept_dimension"
+
+sql_c_basecode <- "
+  SELECT COUNT(DISTINCT c_basecode)
+    FROM blueheronmetadata.heron_terms"
+
+dbGetQuery(c_connect, sql_concept_cd)
+dbGetQuery(c_connect, sql_c_basecode)
+
+sql_concept_cd_anti_join <- "
+  SELECT concept_cd
+    FROM blueherondata.concept_dimension
+    LEFT JOIN blueheronmetadata.heron_terms
+    ON concept_cd=c_basecode
+    WHERE
+      c_basecode IS NULL AND
+      ROWNUM < 10"
+
+sql_c_basecode_anti_join <- "
+  SELECT c_basecode
+    FROM blueheronmetadata.heron_terms
+    LEFT JOIN blueherondata.concept_dimension
+    ON concept_cd=c_basecode
+    WHERE
+      concept_cd IS NULL AND
+      ROWNUM < 10"
+  
+dbGetQuery(c_connect, sql_concept_cd_anti_join)
+dbGetQuery(c_connect, sql_c_basecode_anti_join)
+
+sql_concept_cd_anti_join_2 <- "
+  SELECT concept_cd
+    FROM blueherondata.concept_dimension
+    LEFT JOIN blueheronmetadata.heron_terms
+    ON concept_cd=c_basecode
+    WHERE
+      c_basecode IS NULL AND
+      ROWNUM < 10 AND
+      concept_cd NOT LIKE 'KUMCRC%'"
+dbGetQuery(c_connect, sql_concept_cd_anti_join_2)
+```
+
 Let's explore the hierarchy for medications, as that is a reasonably manageable size.
 
 ```{r medications}
@@ -142,7 +199,7 @@ medication_paths %>%
 
 The concept_path variable in blueherondata.concept_dimension and c_fullname,.c_dimcode, and c_tooltip variables in blueheronmetadata.heron_terms provide information about the hierarchical structure of the data. The right most segment of these paths represents the most specific category and the segments increase in generality as you read towards the left.
 
-```{r separate}
+```{r separate-medication-paths}
 library(dplyr)
 library(magrittr)
 library(tidyr)
@@ -156,4 +213,24 @@ medication_paths %>%
   gather("y", "z", paste0("x", 101:120), na.rm=TRUE) %>%
   arrange(concept_cd, y) -> tst1
 head(tst1, n=100)
+```
+
+```{r separate-medication-metadata}
+medication_metadata %>%
+  select(c_tooltip, c_basecode) %>%
+  mutate(c_tooltip=sub("^\\\\", "", c_tooltip)) %>%
+  mutate(c_tooltip=sub("\\\\$", "", c_tooltip)) %>%
+  mutate(c_basecode=sub(".*:", "", c_basecode)) %>%
+  sample_n(10) %>%
+  separate(c_tooltip, into=paste0("x", 101:120), sep="\\\\") %>%
+  gather("y", "z", paste0("x", 101:120), na.rm=TRUE) %>%
+  arrange(c_basecode, y) -> tst2
+head(tst2, n=100)
+```
+
+Save everything for later use.
+
+```{r save-everything}
+fn <- "../data/explore_hierarchy.RData"
+save.image(fn)
 ```
