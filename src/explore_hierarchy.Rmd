@@ -12,6 +12,7 @@ Please review open_oracle.Rmd to review how to access information in an Oracle d
 
 ```{r login-to-oracle}
 library("ROracle")
+library("magrittr")
 cdm_config <- read.csv('../cdm_config.csv', stringsAsFactors=FALSE)
 c_connect <-
   dbConnect(Oracle(), cdm_config$account, cdm_config$password, cdm_config$access)
@@ -100,18 +101,11 @@ dbGetQuery(c_connect, sql_count_discrepancies)
 dbGetQuery(c_connect, sql_count_i2b2_discrepancies)
 ```
 
+The variable concept_cd in the blueherondata.concept_dimension table is also almost identical to the variable c_basecode in the blueheronmetadata.heron_terms table. 
+
+Notice that there are some NULL values
+
 ```{r concept_cd-and-c_basecode}
-sql_concept_cd <- "
-  SELECT COUNT(DISTINCT concept_cd)
-    FROM blueherondata.concept_dimension"
-
-sql_c_basecode <- "
-  SELECT COUNT(DISTINCT c_basecode)
-    FROM blueheronmetadata.heron_terms"
-
-dbGetQuery(c_connect, sql_concept_cd)
-dbGetQuery(c_connect, sql_c_basecode)
-
 sql_concept_cd_anti_join <- "
   SELECT concept_cd
     FROM blueherondata.concept_dimension
@@ -120,18 +114,7 @@ sql_concept_cd_anti_join <- "
     WHERE
       c_basecode IS NULL AND
       ROWNUM < 10"
-
-sql_c_basecode_anti_join <- "
-  SELECT c_basecode
-    FROM blueheronmetadata.heron_terms
-    LEFT JOIN blueherondata.concept_dimension
-    ON concept_cd=c_basecode
-    WHERE
-      concept_cd IS NULL AND
-      ROWNUM < 10"
-  
 dbGetQuery(c_connect, sql_concept_cd_anti_join)
-dbGetQuery(c_connect, sql_c_basecode_anti_join)
 
 sql_concept_cd_anti_join_2 <- "
   SELECT concept_cd
@@ -143,6 +126,91 @@ sql_concept_cd_anti_join_2 <- "
       ROWNUM < 10 AND
       concept_cd NOT LIKE 'KUMCRC%'"
 dbGetQuery(c_connect, sql_concept_cd_anti_join_2)
+```
+
+Notice that there are a substantial number of mismatches when you look in the opposite direction.
+
+```{r reverse-left-join}
+sql_c_basecode_anti_join <- "
+  SELECT COUNT(term_id)
+    FROM blueheronmetadata.heron_terms
+    LEFT JOIN blueherondata.concept_dimension
+    ON concept_cd=c_basecode
+    WHERE
+      concept_cd IS NULL"
+dbGetQuery(c_connect, sql_c_basecode_anti_join)
+```
+
+This is because c_basecode is NULL for a large number of records. Note that the COUNT function gives the number of non-null values.
+
+```{r reverse-further-analyses}
+sql_c_basecode_anti_join_2 <- "
+  SELECT COUNT(c_basecode)
+    FROM blueheronmetadata.heron_terms
+    LEFT JOIN blueherondata.concept_dimension
+    ON concept_cd=c_basecode
+    WHERE
+      concept_cd IS NULL"
+dbGetQuery(c_connect, sql_c_basecode_anti_join_2)
+```
+
+It looks like the null values for c_basecode represent metadata for intermediate values in the hierarchy, but it is pretty hard to establish this directly.
+
+```{r intermediate}
+sql_c_basecode_anti_join_3 <- "
+  SELECT c_name, c_fullname
+    FROM blueheronmetadata.heron_terms
+    LEFT JOIN blueherondata.concept_dimension
+    ON concept_cd=c_basecode
+    WHERE
+      concept_cd IS NULL AND
+      ROWNUM < 20"
+dbGetQuery(c_connect, sql_c_basecode_anti_join_3)
+```
+
+Once you remove the NULL values, things match up perfectly.
+
+```{r fix-mismatches}
+sql_c_basecode_anti_join_4 <- "
+  SELECT DISTINCT c_basecode
+    FROM blueheronmetadata.heron_terms
+    LEFT JOIN blueherondata.concept_dimension
+    ON concept_cd=c_basecode
+    WHERE
+      concept_cd IS NULL AND
+      c_basecode IS NOT NULL AND
+      ROWNUM < 10"
+dbGetQuery(c_connect, sql_c_basecode_anti_join_4)
+```
+
+The variable name_char in the blueherondata.concept_dimension table is also almost identical to the variable c_name in the blueheronmetadata.heron_terms table. Most of the discrepancies are caused with by the inclusion of something like [379 facts; 298 patients] in c_name. The remaining discrepancies seem to involve trivial punctuation, capitalization, or word order differences.
+
+```{r name_char-and-c_name}
+sql_name_char_mismatched <- "
+  SELECT name_char, c_name
+    FROM blueherondata.concept_dimension
+    INNER JOIN blueheronmetadata.heron_terms
+    ON concept_cd=c_basecode
+    WHERE
+      name_char != c_name AND
+      ROWNUM < 10000"
+
+mismatched <- dbGetQuery(c_connect, sql_name_char_mismatched)
+names(mismatched) %<>% tolower
+
+mismatched$c_name_x <- sub(" \\[.*?\\]$", "", mismatched$c_name)
+still_mismatched <- mismatched$c_name_x != mismatched$name_char
+table(still_mismatched)
+for (i in which(still_mismatched)) {
+  cat("\n")
+  cat("\nname_char: ")
+  cat(mismatched[i, "name_char"])
+  cat("\nc_name_x:  ")
+  cat(mismatched[i, "c_name_x"])
+  cat("\nc_name:    ")
+  cat(mismatched[i, "c_name"])
+}
+mismatched[still_mismatched, ]
 ```
 
 Let's explore the hierarchy for medications, as that is a reasonably manageable size.
@@ -165,38 +233,6 @@ names(medication_paths) <- tolower(names(medication_paths))
 names(medication_metadata) <- tolower(names(medication_metadata))
 ```
 
-There's a very close correspondance between concept_path and c_fullname.
-
-```{r concept}
-setdiff(medication_paths$concept_path, medication_metadata$c_fullname)
-setdiff(medication_metadata$c_fullname, medication_paths$concept_path)
-```
-
-and for concept_cd and c_basecode
-
-```{r cd}
-setdiff(medication_paths$concept_cd, medication_metadata$c_basecode)
-setdiff(medication_metadata$c_basecode, medication_paths$concept_cd)
-```
-
-but name_char and c_name don't seem to line up as nicely. Part of this is the information like "300 facts; 28 patients]" that is appended to some of the c_name values. Once these are stripped, there is only one discrepancy.
-
-```{r name}
-library(dplyr)
-library(magrittr)
-length(setdiff(medication_paths$name_char, medication_metadata$c_name))
-length(setdiff(medication_metadata$c_name, medication_paths$name_char))
-
-medication_paths %>%
-  inner_join(medication_metadata, by=c("concept_path"="c_fullname")) %>%
-  select(name_char, c_name) %>%
-  mutate(name_char=sub(" \\[.*\\]$", "", name_char)) %>%
-  mutate(c_name=sub(" \\[.*\\]$", "", c_name)) %>%
-  filter(name_char != c_name) %>%
-  mutate(x=paste(name_char, c_name, sep="||")) %>%
-  select(x)
-```
-
 The concept_path variable in blueherondata.concept_dimension and c_fullname,.c_dimcode, and c_tooltip variables in blueheronmetadata.heron_terms provide information about the hierarchical structure of the data. The right most segment of these paths represents the most specific category and the segments increase in generality as you read towards the left.
 
 ```{r separate-medication-paths}
@@ -207,25 +243,54 @@ medication_paths %>%
   select(-name_char) %>%
   mutate(concept_path=sub("^\\\\", "", concept_path)) %>%
   mutate(concept_path=sub("\\\\$", "", concept_path)) %>%
-  mutate(concept_cd=sub(".*:", "", concept_cd)) %>%
   sample_n(10) %>%
   separate(concept_path, into=paste0("x", 101:120), sep="\\\\") %>%
   gather("y", "z", paste0("x", 101:120), na.rm=TRUE) %>%
-  arrange(concept_cd, y) -> tst1
-head(tst1, n=100)
+  arrange(concept_cd, y) -> separated_concept_path
+separated_concept_path
 ```
+
+Notice how c_tooltip tends to provide better descriptions within the hierarchy than either concept_path or c_fullname/c_dimcode.
 
 ```{r separate-medication-metadata}
 medication_metadata %>%
   select(c_tooltip, c_basecode) %>%
   mutate(c_tooltip=sub("^\\\\", "", c_tooltip)) %>%
   mutate(c_tooltip=sub("\\\\$", "", c_tooltip)) %>%
-  mutate(c_basecode=sub(".*:", "", c_basecode)) %>%
   sample_n(10) %>%
   separate(c_tooltip, into=paste0("x", 101:120), sep="\\\\") %>%
   gather("y", "z", paste0("x", 101:120), na.rm=TRUE) %>%
-  arrange(c_basecode, y) -> tst2
-head(tst2, n=100)
+  arrange(c_basecode, y) -> separated_c_fullname
+separated_c_fullname
+
+medication_metadata %>%
+  select(c_tooltip, c_basecode) %>%
+  mutate(c_tooltip=sub("^\\\\", "", c_tooltip)) %>%
+  mutate(c_tooltip=sub("\\\\$", "", c_tooltip)) %>%
+  sample_n(10) %>%
+  separate(c_tooltip, into=paste0("x", 101:120), sep="\\\\") %>%
+  gather("y", "z", paste0("x", 101:120), na.rm=TRUE) %>%
+  arrange(c_basecode, y) -> separated_c_tooltip
+separated_c_tooltip
+```
+
+Let's create a data frame that will allow you to expand any concept_cd value to include all the levels in the hierarchy.
+
+Notice that there seems to be some repetition. This is caused by the c_tooltip not including everything except the most specific value in the hierarchy (the leaf, if you are using a tree/branch/leaf analogy).
+
+```{r expand-data-frame}
+medication_metadata %>%
+  select(c_tooltip, c_basecode) %>%
+  mutate(c_tooltip=sub("^\\\\", "", c_tooltip)) %>%
+  mutate(c_tooltip=sub("\\\\$", "", c_tooltip)) %>%
+  separate(c_tooltip, into=paste0("x", 101:120), sep="\\\\") %>%
+  gather("y", "z", paste0("x", 101:120), na.rm=TRUE) %>%
+  arrange(c_basecode, y) -> hierarchy_c_tooltip
+head(hierarchy_c_tooltip, 100)
+
+medication_paths[!(medication_paths$concept_cd %in% hierarchy_c_tooltip), ]
+
+
 ```
 
 Save everything for later use.
