@@ -82,7 +82,7 @@ dbGetQuery(c_connect, sql_count_metadata_i2b2_paths)
 dbGetQuery(c_connect, sql_count_metadata_medication_paths)
 ```
 
-Note that c_fullname and c_dimcode are almost identical, at least in this particular database.
+Note that c_fullname and c_dimcode are almost identical, at least in this particular database. Once you restrict yourself to paths starting with "i2b2" they match perfectly.
 
 ```{r identical}
 sql_count_discrepancies <- "
@@ -99,6 +99,45 @@ sql_count_i2b2_discrepancies <- "
 
 dbGetQuery(c_connect, sql_count_discrepancies)
 dbGetQuery(c_connect, sql_count_i2b2_discrepancies)
+```
+
+The c_fullname variable in blueheronmetadata and the concept_path in blueherondata also match closely
+
+```{r path-comparisons}
+sql_path_antijoin <- "
+  SELECT COUNT(c_fullname)
+    FROM blueheronmetadata.heron_terms
+    LEFT JOIN blueherondata.concept_dimension
+    ON c_fullname=concept_path
+    WHERE
+      concept_path IS NULL  AND
+      c_fullname LIKE '\\i2b2\\%'"
+dbGetQuery(c_connect, sql_path_antijoin)
+
+sql_path_antijoin_2 <- "
+  SELECT COUNT(concept_path)
+    FROM blueherondata.concept_dimension
+    LEFT JOIN blueheronmetadata.heron_terms
+    ON c_fullname=concept_path
+    WHERE
+      c_fullname IS NULL  AND
+      c_fullname LIKE '\\i2b2\\%'"
+dbGetQuery(c_connect, sql_path_antijoin_2)
+```
+
+It looks like the mismatches represent settings where blueheronmetadata includes information about the higher levels of the hierarchy, but this is difficult to confirm precisely.
+
+```{r path-comparisons-2}
+sql_path_antijoin_3 <- "
+  SELECT c_fullname
+    FROM blueheronmetadata.heron_terms
+    LEFT JOIN blueherondata.concept_dimension
+    ON c_fullname=concept_path
+    WHERE
+      concept_path IS NULL  AND
+      c_fullname LIKE '\\i2b2\\%' AND
+      ROWNUM < 100"
+dbGetQuery(c_connect, sql_path_antijoin_3)
 ```
 
 The variable concept_cd in the blueherondata.concept_dimension table is also almost identical to the variable c_basecode in the blueheronmetadata.heron_terms table. 
@@ -156,18 +195,6 @@ dbGetQuery(c_connect, sql_c_basecode_anti_join_2)
 
 It looks like the null values for c_basecode represent metadata for intermediate values in the hierarchy, but it is pretty hard to establish this directly.
 
-```{r intermediate}
-sql_c_basecode_anti_join_3 <- "
-  SELECT c_name, c_fullname
-    FROM blueheronmetadata.heron_terms
-    LEFT JOIN blueherondata.concept_dimension
-    ON concept_cd=c_basecode
-    WHERE
-      concept_cd IS NULL AND
-      ROWNUM < 20"
-dbGetQuery(c_connect, sql_c_basecode_anti_join_3)
-```
-
 Once you remove the NULL values, things match up perfectly.
 
 ```{r fix-mismatches}
@@ -193,7 +220,7 @@ sql_name_char_mismatched <- "
     ON concept_cd=c_basecode
     WHERE
       name_char != c_name AND
-      ROWNUM < 10000"
+      ROWNUM < 100"
 
 mismatched <- dbGetQuery(c_connect, sql_name_char_mismatched)
 names(mismatched) %<>% tolower
@@ -201,7 +228,7 @@ names(mismatched) %<>% tolower
 mismatched$c_name_x <- sub(" \\[.*?\\]$", "", mismatched$c_name)
 still_mismatched <- mismatched$c_name_x != mismatched$name_char
 table(still_mismatched)
-for (i in which(still_mismatched)) {
+for (i in sample(which(still_mismatched), 100)) {
   cat("\n")
   cat("\nname_char: ")
   cat(mismatched[i, "name_char"])
@@ -210,7 +237,6 @@ for (i in which(still_mismatched)) {
   cat("\nc_name:    ")
   cat(mismatched[i, "c_name"])
 }
-mismatched[still_mismatched, ]
 ```
 
 Let's explore the hierarchy for medications, as that is a reasonably manageable size.
@@ -268,7 +294,7 @@ medication_metadata %>%
   mutate(c_tooltip=sub("^\\\\", "", c_tooltip)) %>%
   mutate(c_tooltip=sub("\\\\$", "", c_tooltip)) %>%
   sample_n(10) %>%
-  separate(c_tooltip, into=paste0("x", 101:120), sep="\\\\") %>%
+  separate(c_tooltip, into=paste0("x", 101:120), sep=" \\\\ ") %>%
   gather("y", "z", paste0("x", 101:120), na.rm=TRUE) %>%
   arrange(c_basecode, y) -> separated_c_tooltip
 separated_c_tooltip
@@ -276,21 +302,62 @@ separated_c_tooltip
 
 Let's create a data frame that will allow you to expand any concept_cd value to include all the levels in the hierarchy.
 
-Notice that there seems to be some repetition. This is caused by the c_tooltip not including everything except the most specific value in the hierarchy (the leaf, if you are using a tree/branch/leaf analogy).
+I have included the c_name value from medication_metadata in the split because c_tooltip does not appear to include the most specific value in the hierarchy (the leaf, if you are using a tree/branch/leaf analogy).
 
 ```{r expand-data-frame}
 medication_metadata %>%
   select(c_tooltip, c_basecode) %>%
   mutate(c_tooltip=sub("^\\\\", "", c_tooltip)) %>%
   mutate(c_tooltip=sub("\\\\$", "", c_tooltip)) %>%
-  separate(c_tooltip, into=paste0("x", 101:120), sep="\\\\") %>%
+  sample_n(100) %>%
+  separate(c_tooltip, into=paste0("x", 101:120), sep=" \\\\ ") %>%
   gather("y", "z", paste0("x", 101:120), na.rm=TRUE) %>%
-  arrange(c_basecode, y) -> hierarchy_c_tooltip
-head(hierarchy_c_tooltip, 100)
+  arrange(c_basecode, desc(y)) -> hierarchy_c_tooltip
+hierarchy_c_tooltip %>%
+  distinct(c_basecode) %>%
+  sample_n(10) %>%
+  use_series(c_basecode) -> sample_list
+for (i in sample_list) {
+  cat("\n\n")
+  cat(i)
+  cat("\n  ")
+  medication_metadata %>%
+    filter(c_basecode==i) %>%
+    distinct(c_name) %>%
+    use_series(c_name) %>%
+    cat
+  cat("\n  ")
+  hierarchy_c_tooltip %>%
+    filter(c_basecode==i) %>%
+    use_series(z) -> z_list
+    cat(z_list, sep="\n  ")
+}
+```
 
-medication_paths[!(medication_paths$concept_cd %in% hierarchy_c_tooltip), ]
+Here's what it would look like using c_fullname. Notice the shorter, but more cryptic names. Also notice that the "leaf" is automatically included with c_fullname, but not with c_tooltip.
 
-
+```{r expand-data-frame-2}
+medication_metadata %>%
+  select(c_fullname, c_basecode) %>%
+  mutate(c_fullname=sub("^\\\\", "", c_fullname)) %>%
+  mutate(c_fullname=sub("\\\\$", "", c_fullname)) %>%
+  sample_n(100) %>%
+  separate(c_fullname, into=paste0("x", 101:120), sep="\\\\") %>%
+  gather("y", "z", paste0("x", 101:120), na.rm=TRUE) %>%
+  arrange(c_basecode, desc(y)) -> hierarchy_c_fullname
+hierarchy_c_fullname %>%
+  distinct(c_basecode) %>%
+  sample_n(10) %>%
+  use_series(c_basecode) -> sample_list
+for (i in sample_list) {
+  cat("\n\n")
+  cat(i)
+  cat("\n  ")
+  hierarchy_c_fullname %>%
+    filter(c_basecode==i) %>%
+    use_series(z) -> z_list
+    cat(z_list, sep="\n  ")
+}
 ```
 
 Save everything for later use.
