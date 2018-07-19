@@ -42,7 +42,7 @@ This SQL snippet adds a restriction to the ICD9 and ICD10 codes associated with 
 ```{r diabetes-1}
 sql_restrict_to_diabetes <- "
   WHERE concept_cd IN (
-    SELECT distinct concept_cd 
+    SELECT DISTINCT concept_cd 
     FROM blueherondata.concept_dimension
     WHERE
       concept_cd LIKE 'ICD9:250%' OR
@@ -182,4 +182,11 @@ cat(sql_combine)
 unique_patients_3 <- dbGetQuery(c_connect, sql_combine)
 head(unique_patients_3)
 dim(unique_patients_3)
+```
+
+Save everything for possible re-sue
+
+```{r save-everything}
+fn <- "../data/extract_diabetes_patient_numbers.RData"
+save.image(fn)
 ```

@@ -3,5 +3,5 @@
 .RData
 .Ruserdata
 *.Rproj
-cdm_config.csv
+cdm_config*.csv
 data/*.RData

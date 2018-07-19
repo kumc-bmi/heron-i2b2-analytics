@@ -1,0 +1,139 @@
+---
+title: "Create a sparse matrix from EHR data"
+author: "Steve Simon"
+date: "6/5/2018"
+output: html_document
+---
+
+This program shows how to take information in the electronic health record and convert it to a sparse matrix format.
+
+Please review open_oracle.Rmd to review how to access information in an Oracle database.
+
+```{r login-to-oracle}
+library("ROracle")
+library("magrittr")
+library("tictoc")
+tic("Full program time")
+cdm_config <- read.csv('../cdm_config_B2.csv', stringsAsFactors=FALSE)
+c_connect <-
+  dbConnect(Oracle(), cdm_config$account, cdm_config$password, cdm_config$access)
+```
+
+Run a simple test to see that the connection works. 
+
+```{r simple-test}
+dbGetQuery(c_connect, "SELECT * FROM blueherondata.observation_fact WHERE rownum < 5")
+dbGetQuery(c_connect, "SELECT * FROM blueherondata.concept_dimension WHERE rownum < 5")
+dbGetQuery(c_connect, "SELECT * FROM blueheronmetadata.heron_terms WHERE rownum < 5")
+```
+
+
+```{r build-query}
+sql_medication_concepts <- "
+      SELECT DISTINCT concept_cd FROM blueherondata.concept_dimension
+        WHERE concept_path LIKE '\\i2b2\\Medications\\%'
+        ORDER BY concept_cd
+"
+
+sql_diabetes_concepts <- "
+          SELECT distinct concept_cd 
+          FROM blueherondata.concept_dimension
+          WHERE
+            concept_cd LIKE 'ICD9:250%' OR
+            concept_cd LIKE 'ICD10:E08%' OR
+            concept_cd LIKE 'ICD10:E09%' OR
+            concept_cd LIKE 'ICD10:E10%' OR
+            concept_cd LIKE 'ICD10:E11%' OR
+            concept_cd LIKE 'ICD10:E12%' OR
+            concept_cd LIKE 'ICD10:E13%'
+            ORDER BY concept_cd
+"
+
+dbGetQuery(c_connect, sql_diabetes_concepts)
+sql_female_patients <- "
+            SELECT DISTINCT patient_num
+            FROM blueherondata.observation_fact
+            WHERE concept_cd = 'DEM|SEX:f'
+            ORDER BY patient_num
+"
+
+tic("Diabetes patients")
+sql_diabetes_patients <- "
+      SELECT DISTINCT patient_num
+        FROM blueherondata.observation_fact
+      WHERE
+        concept_cd IN (
+          SELECT distinct concept_cd 
+          FROM blueherondata.concept_dimension
+          WHERE
+            concept_cd LIKE 'ICD9:250%' OR
+            concept_cd LIKE 'ICD10:E08%' OR
+            concept_cd LIKE 'ICD10:E09%' OR
+            concept_cd LIKE 'ICD10:E10%' OR
+            concept_cd LIKE 'ICD10:E11%' OR
+            concept_cd LIKE 'ICD10:E12%' OR
+            concept_cd LIKE 'ICD10:E13%'
+          )
+        AND TO_CHAR(start_date, 'yyyy-mm-dd') > '2010-01-01'
+        AND patient_num IN (
+          SELECT DISTINCT patient_num
+          FROM blueherondata.observation_fact
+          WHERE concept_cd = 'DEM|SEX:f'
+        )
+        AND ROWNUM < 100
+"
+
+dbGetQuery(c_connect, sql_diabetes_patients) -> diabetes_patients
+dim(diabetes_patients)
+toc()
+```
+
+
+```{r select-diabetes-patients, eval=FALSE}
+sql_patients <- "
+  SELECT patient_num, concept_cd
+    FROM blueherondata.observation_fact
+  WHERE TO_CHAR(start_date, 'yyyy-mm-dd') > '2010-01-01'
+    AND concept_cd IN (
+      SELECT DISTINCT concept_cd FROM blueherondata.concept_dimension
+        WHERE concept_path LIKE '\\i2b2\\Medications\\%'
+    )
+    AND patient_num IN (
+      SELECT DISTINCT patient_num
+        FROM blueherondata.observation_fact
+      WHERE
+        concept_cd IN (
+          SELECT distinct concept_cd 
+          FROM blueherondata.concept_dimension
+          WHERE
+            concept_cd LIKE 'ICD9:250%' OR
+            concept_cd LIKE 'ICD10:E08%' OR
+            concept_cd LIKE 'ICD10:E09%' OR
+            concept_cd LIKE 'ICD10:E10%' OR
+            concept_cd LIKE 'ICD10:E11%' OR
+            concept_cd LIKE 'ICD10:E12%' OR
+            concept_cd LIKE 'ICD10:E13%'
+          )
+          AND TO_CHAR(start_date, 'yyyy-mm-dd') > '2010-01-01'
+          AND patient_num IN (
+            SELECT DISTINCT patient_num
+            FROM blueherondata.observation_fact
+            WHERE concept_cd = 'DEM|SEX:f'
+          )
+          AND ROWNUM < 100
+        )
+"
+
+tst1 <- dbGetQuery(c_connect, sql_patients)
+head(tst1)
+dim(tst1)
+
+```
+
+Save everything for later use.
+
+```{r save-everything}
+fn <- "../data/create_sparse_matrix.RData"
+save.image(fn)
+toc()
+```
