@@ -9,8 +9,22 @@ This program shows how to extract the patient numbers for diabetes patients subj
 
 Please review open_oracle.Rmd to review how to access information in an Oracle database.
 
+```{r timing-functions}
+program_name <- "extract_diabetes_patient_numbers"
+timing_file <- paste0("../src/", program_name, "_timing.txt")
+image_file <- paste0("../data/", program_name, ".RData")
+
+library(knitr)
+log_time <- function(first=FALSE) {
+  current_chunk <- opts_current$get("label")
+  current_time <- as.character(Sys.time())
+  cat(current_time, current_chunk, "began.\n", file=timing_file, append=!first)
+}
+```
+
 
 ```{r login-to-oracle}
+log_time(first=TRUE)
 library("ROracle")
 cdm_config <- read.csv('../cdm_config.csv', stringsAsFactors=FALSE)
 c_connect <-
@@ -20,6 +34,7 @@ c_connect <-
 Run a simple test to see that the connection works. 
 
 ```{r simple-test}
+log_time()
 dbGetQuery(c_connect, "select count(patient_num) from blueherondata.observation_fact")
 ```
 ```
@@ -29,6 +44,7 @@ The SQL code to count and extract patient numbers can get quite long. It helps t
 The following SQL snippet counts the distinct number of patients. You can combine with additional SQL code to place restrictions on the types of patients.
 
 ```{r count}
+log_time()
 sql_count_patients <- "
   SELECT COUNT(DISTINCT patient_num)
     FROM blueherondata.observation_fact
@@ -40,6 +56,7 @@ dbGetQuery(c_connect, sql_count_patients)
 This SQL snippet adds a restriction to the ICD9 and ICD10 codes associated with diabetes.
 
 ```{r diabetes-1}
+log_time()
 sql_restrict_to_diabetes <- "
   WHERE concept_cd IN (
     SELECT DISTINCT concept_cd 
@@ -59,6 +76,7 @@ sql_restrict_to_diabetes <- "
 Combine this with the previous string.
 
 ```{r diabetes-2}
+log_time()
 sql_combine <- paste(
   sql_count_patients, 
   sql_restrict_to_diabetes)
@@ -69,6 +87,7 @@ dbGetQuery(c_connect, sql_combine)
 This snippet adds a date restriction.
 
 ```{r dates-1}
+log_time()
 sql_restrict_dates <- "
   AND TO_CHAR(start_date, 'yyyy-mm-dd') > '2010-01-01'
 "
@@ -77,6 +96,7 @@ sql_restrict_dates <- "
 Here's what the combination of all three strings looks like.
 
 ```{r dates-2}
+log_time()
 sql_combine <- paste(
   sql_count_patients, 
   sql_restrict_to_diabetes,
@@ -88,6 +108,7 @@ dbGetQuery(c_connect, sql_combine)
 This snippet restricts to patients to females only. This represents a self-join.
 
 ```{r females-1}
+log_time()
 sql_restrict_to_females <- "
   AND patient_num IN (
     SELECT DISTINCT patient_num
@@ -100,6 +121,7 @@ sql_restrict_to_females <- "
 
 
 ```{r females-2}
+log_time()
 sql_combine <- paste(
   sql_count_patients, 
   sql_restrict_to_diabetes,
@@ -112,6 +134,7 @@ dbGetQuery(c_connect, sql_combine)
 Extracting all the patient numbers requires a different start to the SQL query.
 
 ```{r extract-1}
+log_time()
 sql_extract_patients <- "
   SELECT patient_num, start_date AS pdate
     FROM blueherondata.observation_fact
@@ -121,6 +144,7 @@ sql_extract_patients <- "
 This is what the combined query looks like.
 
 ```{r extract-2}
+log_time()
 sql_combine <- paste(
   sql_extract_patients,
   sql_restrict_to_diabetes)
@@ -137,6 +161,7 @@ Notice that patients appear more often than once in the query. To get a distinct
 you can do this within R, but be careful, because some of the base R functions that you'd be tempted to use, such as unique or duplicated can be very inefficient with large data frames. The distinct or summarize functions in dplyr are a better choice.
 
 ```{r distinct-1}
+log_time()
 library(dplyr)
 library(magrittr)
 patient_list                   %>% 
@@ -150,6 +175,7 @@ dim(unique_patients_1)
 This method also works.
 
 ```{r distinct-2}
+log_time()
 library(dplyr)
 library(magrittr)
 patient_list                             %>% 
@@ -163,6 +189,7 @@ dim(unique_patients_2)
 You can also get the same effect using just SQL code.
 
 ```{r distinct-3}
+log_time()
 sql_extract_unique_patients <- "
   SELECT patient_num, MIN(start_date) AS pdate
     FROM blueherondata.observation_fact
@@ -174,6 +201,7 @@ sql_group <- "
 ```
 
 ```{r distinct-4}
+log_time()
 sql_combine <- paste(
   sql_extract_unique_patients,
   sql_restrict_to_diabetes,
@@ -187,6 +215,7 @@ dim(unique_patients_3)
 Save everything for possible re-sue
 
 ```{r save-everything}
-fn <- "../data/extract_diabetes_patient_numbers.RData"
-save.image(fn)
+log_time()
+read.table(timing_file) 
+save.image(image_file)
 ```

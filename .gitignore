@@ -5,3 +5,4 @@
 *.Rproj
 cdm_config*.csv
 data/*.RData
+src/*timing.txt

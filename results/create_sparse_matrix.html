@@ -127,16 +127,35 @@ $(document).ready(function () {
 
 <p>This program shows how to take information in the electronic health record and convert it to a sparse matrix format.</p>
 <p>Please review open_oracle.Rmd to review how to access information in an Oracle database.</p>
-<pre class="r"><code>library(&quot;ROracle&quot;)</code></pre>
-<pre><code>## Loading required package: DBI</code></pre>
+<pre class="r"><code>program_name &lt;- &quot;create_sparse_matrix&quot;
+timing_file &lt;- paste0(&quot;../src/&quot;, program_name, &quot;_timing.txt&quot;)
+image_file &lt;- paste0(&quot;../data/&quot;, program_name, &quot;.RData&quot;)
+
+library(knitr)
+log_time &lt;- function(first=FALSE) {
+  current_chunk &lt;- opts_current$get(&quot;label&quot;)
+  current_time &lt;- as.character(Sys.time())
+  cat(current_time, current_chunk, &quot;began.\n&quot;, file=timing_file, append=!first)
+}</code></pre>
+<pre class="r"><code>log_time(first=TRUE)
+library(&quot;dplyr&quot;)</code></pre>
+<pre><code>## 
+## Attaching package: 'dplyr'</code></pre>
+<pre><code>## The following objects are masked from 'package:stats':
+## 
+##     filter, lag</code></pre>
+<pre><code>## The following objects are masked from 'package:base':
+## 
+##     intersect, setdiff, setequal, union</code></pre>
 <pre class="r"><code>library(&quot;magrittr&quot;)
-library(&quot;tictoc&quot;)
-tic(&quot;Full program time&quot;)
-cdm_config &lt;- read.csv('../cdm_config_B2.csv', stringsAsFactors=FALSE)
+library(&quot;ROracle&quot;)</code></pre>
+<pre><code>## Loading required package: DBI</code></pre>
+<pre class="r"><code>cdm_config &lt;- read.csv('../cdm_config_B2.csv', stringsAsFactors=FALSE)
 c_connect &lt;-
   dbConnect(Oracle(), cdm_config$account, cdm_config$password, cdm_config$access)</code></pre>
 <p>Run a simple test to see that the connection works.</p>
-<pre class="r"><code>dbGetQuery(c_connect, &quot;SELECT * FROM blueherondata.observation_fact WHERE rownum &lt; 5&quot;)</code></pre>
+<pre class="r"><code>log_time()
+dbGetQuery(c_connect, &quot;SELECT * FROM blueherondata.observation_fact WHERE rownum &lt; 5&quot;)</code></pre>
 <pre><code>##   ENCOUNTER_NUM PATIENT_NUM                    CONCEPT_CD PROVIDER_ID
 ## 1      22962343      644910 KUH|FLO_MEAS_ID+LINE:602139_2           @
 ## 2      22962343      644910 KUH|FLO_MEAS_ID+LINE:602105_1           @
@@ -234,449 +253,90 @@ c_connect &lt;-
 ## 2            RPDR         &lt;NA&gt;           &lt;NA&gt;   &lt;NA&gt;     &lt;NA&gt; 4125698
 ## 3            RPDR         &lt;NA&gt;           &lt;NA&gt;   &lt;NA&gt;     &lt;NA&gt; 4125699
 ## 4            RPDR         &lt;NA&gt;           &lt;NA&gt;   &lt;NA&gt;     &lt;NA&gt; 4125700</code></pre>
-<pre class="r"><code>sql_medication_concepts &lt;- &quot;
-      SELECT DISTINCT concept_cd FROM blueherondata.concept_dimension
-        WHERE concept_path LIKE '\\i2b2\\Medications\\%'
-        ORDER BY concept_cd
+<p>Start samll.</p>
+<pre class="r"><code>log_time()
+sql_medication_concepts &lt;- &quot;
+  SELECT DISTINCT concept_cd FROM blueherondata.concept_dimension
+  WHERE concept_path LIKE '\\i2b2\\Medications\\%'
+  ORDER BY concept_cd
 &quot;
-
+db_medication_concepts &lt;- dbGetQuery(c_connect, sql_medication_concepts)
+sample_n(db_medication_concepts, size=10)</code></pre>
+<pre><code>##                      CONCEPT_CD
+## 36046  KUH|MEDICATION_ID:319734
+## 98388           NDC:44206031091
+## 62726           NDC:00143126201
+## 31970  KUH|MEDICATION_ID:309270
+## 80069           NDC:11917010133
+## 41964  KUH|MEDICATION_ID:335023
+## 71109           NDC:00591273639
+## 139824          NDC:67546011112
+## 54273   KUH|MEDICATION_ID:86121
+## 157919             RXCUI:830676</code></pre>
+<pre class="r"><code>dim(db_medication_concepts)</code></pre>
+<pre><code>## [1] 158693      1</code></pre>
+<pre class="r"><code>log_time()
 sql_diabetes_concepts &lt;- &quot;
-          SELECT distinct concept_cd 
-          FROM blueherondata.concept_dimension
-          WHERE
-            concept_cd LIKE 'ICD9:250%' OR
-            concept_cd LIKE 'ICD10:E08%' OR
-            concept_cd LIKE 'ICD10:E09%' OR
-            concept_cd LIKE 'ICD10:E10%' OR
-            concept_cd LIKE 'ICD10:E11%' OR
-            concept_cd LIKE 'ICD10:E12%' OR
-            concept_cd LIKE 'ICD10:E13%'
-            ORDER BY concept_cd
+  SELECT distinct concept_cd FROM blueherondata.concept_dimension
+  WHERE
+    concept_cd LIKE 'ICD9:250%' OR
+    concept_cd LIKE 'ICD10:E08%' OR
+    concept_cd LIKE 'ICD10:E09%' OR
+    concept_cd LIKE 'ICD10:E10%' OR
+    concept_cd LIKE 'ICD10:E11%' OR
+    concept_cd LIKE 'ICD10:E12%' OR
+    concept_cd LIKE 'ICD10:E13%'
+  ORDER BY concept_cd
 &quot;
-
-dbGetQuery(c_connect, sql_diabetes_concepts)</code></pre>
+db_diabetes_concepts &lt;- dbGetQuery(c_connect, sql_diabetes_concepts)
+sample_n(db_diabetes_concepts, size=10)</code></pre>
 <pre><code>##        CONCEPT_CD
-## 1       ICD10:E08
-## 2   ICD10:E08-E13
-## 3     ICD10:E08.0
-## 4    ICD10:E08.00
-## 5    ICD10:E08.01
-## 6     ICD10:E08.1
-## 7    ICD10:E08.10
-## 8    ICD10:E08.11
-## 9     ICD10:E08.2
-## 10   ICD10:E08.21
-## 11   ICD10:E08.22
-## 12   ICD10:E08.29
-## 13    ICD10:E08.3
-## 14   ICD10:E08.31
-## 15  ICD10:E08.311
-## 16  ICD10:E08.319
-## 17   ICD10:E08.32
-## 18  ICD10:E08.321
-## 19  ICD10:E08.329
 ## 20   ICD10:E08.33
-## 21  ICD10:E08.331
-## 22  ICD10:E08.339
-## 23   ICD10:E08.34
-## 24  ICD10:E08.341
-## 25  ICD10:E08.349
-## 26   ICD10:E08.35
-## 27  ICD10:E08.351
-## 28  ICD10:E08.359
-## 29   ICD10:E08.36
-## 30   ICD10:E08.39
-## 31    ICD10:E08.4
-## 32   ICD10:E08.40
-## 33   ICD10:E08.41
-## 34   ICD10:E08.42
-## 35   ICD10:E08.43
-## 36   ICD10:E08.44
-## 37   ICD10:E08.49
-## 38    ICD10:E08.5
-## 39   ICD10:E08.51
-## 40   ICD10:E08.52
-## 41   ICD10:E08.59
-## 42    ICD10:E08.6
-## 43   ICD10:E08.61
-## 44  ICD10:E08.610
-## 45  ICD10:E08.618
-## 46   ICD10:E08.62
-## 47  ICD10:E08.620
-## 48  ICD10:E08.621
-## 49  ICD10:E08.622
-## 50  ICD10:E08.628
-## 51   ICD10:E08.63
-## 52  ICD10:E08.630
-## 53  ICD10:E08.638
-## 54   ICD10:E08.64
-## 55  ICD10:E08.641
-## 56  ICD10:E08.649
-## 57   ICD10:E08.65
-## 58   ICD10:E08.69
-## 59    ICD10:E08.8
-## 60    ICD10:E08.9
-## 61      ICD10:E09
-## 62    ICD10:E09.0
 ## 63   ICD10:E09.00
-## 64   ICD10:E09.01
-## 65    ICD10:E09.1
-## 66   ICD10:E09.10
-## 67   ICD10:E09.11
-## 68    ICD10:E09.2
-## 69   ICD10:E09.21
-## 70   ICD10:E09.22
-## 71   ICD10:E09.29
-## 72    ICD10:E09.3
-## 73   ICD10:E09.31
-## 74  ICD10:E09.311
-## 75  ICD10:E09.319
-## 76   ICD10:E09.32
-## 77  ICD10:E09.321
-## 78  ICD10:E09.329
-## 79   ICD10:E09.33
-## 80  ICD10:E09.331
-## 81  ICD10:E09.339
-## 82   ICD10:E09.34
-## 83  ICD10:E09.341
-## 84  ICD10:E09.349
-## 85   ICD10:E09.35
-## 86  ICD10:E09.351
-## 87  ICD10:E09.359
-## 88   ICD10:E09.36
-## 89   ICD10:E09.39
-## 90    ICD10:E09.4
-## 91   ICD10:E09.40
-## 92   ICD10:E09.41
-## 93   ICD10:E09.42
-## 94   ICD10:E09.43
-## 95   ICD10:E09.44
-## 96   ICD10:E09.49
-## 97    ICD10:E09.5
-## 98   ICD10:E09.51
-## 99   ICD10:E09.52
-## 100  ICD10:E09.59
-## 101   ICD10:E09.6
-## 102  ICD10:E09.61
-## 103 ICD10:E09.610
 ## 104 ICD10:E09.618
-## 105  ICD10:E09.62
-## 106 ICD10:E09.620
-## 107 ICD10:E09.621
-## 108 ICD10:E09.622
-## 109 ICD10:E09.628
-## 110  ICD10:E09.63
-## 111 ICD10:E09.630
-## 112 ICD10:E09.638
-## 113  ICD10:E09.64
-## 114 ICD10:E09.641
-## 115 ICD10:E09.649
-## 116  ICD10:E09.65
-## 117  ICD10:E09.69
-## 118   ICD10:E09.8
-## 119   ICD10:E09.9
-## 120     ICD10:E10
-## 121   ICD10:E10.1
-## 122  ICD10:E10.10
-## 123  ICD10:E10.11
-## 124   ICD10:E10.2
-## 125  ICD10:E10.21
-## 126  ICD10:E10.22
-## 127  ICD10:E10.29
-## 128   ICD10:E10.3
-## 129  ICD10:E10.31
-## 130 ICD10:E10.311
-## 131 ICD10:E10.319
-## 132  ICD10:E10.32
-## 133 ICD10:E10.321
-## 134 ICD10:E10.329
-## 135  ICD10:E10.33
-## 136 ICD10:E10.331
-## 137 ICD10:E10.339
-## 138  ICD10:E10.34
-## 139 ICD10:E10.341
-## 140 ICD10:E10.349
-## 141  ICD10:E10.35
-## 142 ICD10:E10.351
-## 143 ICD10:E10.359
-## 144  ICD10:E10.36
-## 145  ICD10:E10.39
-## 146   ICD10:E10.4
-## 147  ICD10:E10.40
-## 148  ICD10:E10.41
-## 149  ICD10:E10.42
-## 150  ICD10:E10.43
-## 151  ICD10:E10.44
-## 152  ICD10:E10.49
-## 153   ICD10:E10.5
-## 154  ICD10:E10.51
-## 155  ICD10:E10.52
-## 156  ICD10:E10.59
-## 157   ICD10:E10.6
-## 158  ICD10:E10.61
-## 159 ICD10:E10.610
-## 160 ICD10:E10.618
-## 161  ICD10:E10.62
-## 162 ICD10:E10.620
-## 163 ICD10:E10.621
-## 164 ICD10:E10.622
-## 165 ICD10:E10.628
-## 166  ICD10:E10.63
-## 167 ICD10:E10.630
-## 168 ICD10:E10.638
-## 169  ICD10:E10.64
-## 170 ICD10:E10.641
-## 171 ICD10:E10.649
-## 172  ICD10:E10.65
-## 173  ICD10:E10.69
-## 174   ICD10:E10.8
-## 175   ICD10:E10.9
-## 176     ICD10:E11
-## 177   ICD10:E11.0
-## 178  ICD10:E11.00
-## 179  ICD10:E11.01
-## 180   ICD10:E11.2
-## 181  ICD10:E11.21
-## 182  ICD10:E11.22
-## 183  ICD10:E11.29
-## 184   ICD10:E11.3
-## 185  ICD10:E11.31
-## 186 ICD10:E11.311
-## 187 ICD10:E11.319
-## 188  ICD10:E11.32
-## 189 ICD10:E11.321
-## 190 ICD10:E11.329
-## 191  ICD10:E11.33
-## 192 ICD10:E11.331
-## 193 ICD10:E11.339
-## 194  ICD10:E11.34
-## 195 ICD10:E11.341
-## 196 ICD10:E11.349
-## 197  ICD10:E11.35
-## 198 ICD10:E11.351
-## 199 ICD10:E11.359
-## 200  ICD10:E11.36
-## 201  ICD10:E11.39
-## 202   ICD10:E11.4
-## 203  ICD10:E11.40
-## 204  ICD10:E11.41
-## 205  ICD10:E11.42
-## 206  ICD10:E11.43
-## 207  ICD10:E11.44
-## 208  ICD10:E11.49
-## 209   ICD10:E11.5
-## 210  ICD10:E11.51
-## 211  ICD10:E11.52
-## 212  ICD10:E11.59
-## 213   ICD10:E11.6
-## 214  ICD10:E11.61
-## 215 ICD10:E11.610
-## 216 ICD10:E11.618
-## 217  ICD10:E11.62
-## 218 ICD10:E11.620
-## 219 ICD10:E11.621
-## 220 ICD10:E11.622
-## 221 ICD10:E11.628
-## 222  ICD10:E11.63
-## 223 ICD10:E11.630
-## 224 ICD10:E11.638
-## 225  ICD10:E11.64
-## 226 ICD10:E11.641
-## 227 ICD10:E11.649
-## 228  ICD10:E11.65
-## 229  ICD10:E11.69
-## 230   ICD10:E11.8
-## 231   ICD10:E11.9
-## 232     ICD10:E13
-## 233   ICD10:E13.0
-## 234  ICD10:E13.00
-## 235  ICD10:E13.01
-## 236   ICD10:E13.1
-## 237  ICD10:E13.10
-## 238  ICD10:E13.11
-## 239   ICD10:E13.2
-## 240  ICD10:E13.21
-## 241  ICD10:E13.22
-## 242  ICD10:E13.29
-## 243   ICD10:E13.3
-## 244  ICD10:E13.31
-## 245 ICD10:E13.311
-## 246 ICD10:E13.319
-## 247  ICD10:E13.32
-## 248 ICD10:E13.321
-## 249 ICD10:E13.329
-## 250  ICD10:E13.33
-## 251 ICD10:E13.331
-## 252 ICD10:E13.339
-## 253  ICD10:E13.34
-## 254 ICD10:E13.341
-## 255 ICD10:E13.349
-## 256  ICD10:E13.35
-## 257 ICD10:E13.351
-## 258 ICD10:E13.359
-## 259  ICD10:E13.36
-## 260  ICD10:E13.39
-## 261   ICD10:E13.4
-## 262  ICD10:E13.40
-## 263  ICD10:E13.41
-## 264  ICD10:E13.42
-## 265  ICD10:E13.43
-## 266  ICD10:E13.44
-## 267  ICD10:E13.49
-## 268   ICD10:E13.5
-## 269  ICD10:E13.51
-## 270  ICD10:E13.52
-## 271  ICD10:E13.59
-## 272   ICD10:E13.6
-## 273  ICD10:E13.61
-## 274 ICD10:E13.610
-## 275 ICD10:E13.618
-## 276  ICD10:E13.62
-## 277 ICD10:E13.620
-## 278 ICD10:E13.621
-## 279 ICD10:E13.622
-## 280 ICD10:E13.628
-## 281  ICD10:E13.63
+## 43   ICD10:E08.61
 ## 282 ICD10:E13.630
-## 283 ICD10:E13.638
-## 284  ICD10:E13.64
-## 285 ICD10:E13.641
-## 286 ICD10:E13.649
-## 287  ICD10:E13.65
-## 288  ICD10:E13.69
-## 289   ICD10:E13.8
-## 290   ICD10:E13.9
 ## 291      ICD9:250
-## 292    ICD9:250.0
-## 293   ICD9:250.00
-## 294   ICD9:250.01
-## 295   ICD9:250.02
-## 296   ICD9:250.03
-## 297    ICD9:250.1
-## 298   ICD9:250.10
-## 299   ICD9:250.11
-## 300   ICD9:250.12
-## 301   ICD9:250.13
-## 302    ICD9:250.2
-## 303   ICD9:250.20
-## 304   ICD9:250.21
-## 305   ICD9:250.22
-## 306   ICD9:250.23
-## 307    ICD9:250.3
-## 308   ICD9:250.30
-## 309   ICD9:250.31
-## 310   ICD9:250.32
-## 311   ICD9:250.33
-## 312    ICD9:250.4
-## 313   ICD9:250.40
-## 314   ICD9:250.41
-## 315   ICD9:250.42
-## 316   ICD9:250.43
-## 317    ICD9:250.5
-## 318   ICD9:250.50
-## 319   ICD9:250.51
-## 320   ICD9:250.52
-## 321   ICD9:250.53
-## 322    ICD9:250.6
-## 323   ICD9:250.60
-## 324   ICD9:250.61
-## 325   ICD9:250.62
-## 326   ICD9:250.63
-## 327    ICD9:250.7
-## 328   ICD9:250.70
-## 329   ICD9:250.71
-## 330   ICD9:250.72
-## 331   ICD9:250.73
-## 332    ICD9:250.8
-## 333   ICD9:250.80
-## 334   ICD9:250.81
-## 335   ICD9:250.82
-## 336   ICD9:250.83
-## 337    ICD9:250.9
-## 338   ICD9:250.90
-## 339   ICD9:250.91
-## 340   ICD9:250.92
-## 341   ICD9:250.93</code></pre>
-<pre class="r"><code>sql_female_patients &lt;- &quot;
-            SELECT DISTINCT patient_num
-            FROM blueherondata.observation_fact
-            WHERE concept_cd = 'DEM|SEX:f'
-            ORDER BY patient_num
+## 66   ICD10:E09.10
+## 123  ICD10:E10.11
+## 151  ICD10:E10.44
+## 236   ICD10:E13.1</code></pre>
+<pre class="r"><code>dim(db_diabetes_concepts)</code></pre>
+<pre><code>## [1] 341   1</code></pre>
+<pre class="r"><code>log_time()
+indent_sql &lt;- function(sql_string) {gsub(&quot;\n&quot;, &quot;\n  &quot;, sql_string)}
+sql_diabetes_patients &lt;- paste0(&quot;
+  SELECT DISTINCT patient_num FROM blueherondata.observation_fact
+  WHERE concept_cd IN (&quot;, indent_sql(sql_diabetes_concepts), &quot;)&quot;)
+cat(sql_diabetes_patients)
+dbGetQuery(c_connect, sql_diabetes_patients)</code></pre>
+<pre class="r"><code>log_time()
+sql_female_patients &lt;- &quot;
+  SELECT DISTINCT patient_num FROM blueherondata.observation_fact
+  WHERE concept_cd = 'DEM|SEX:f'
+  ORDER BY patient_num
 &quot;
-
-tic(&quot;Diabetes patients&quot;)
-sql_diabetes_patients &lt;- &quot;
-      SELECT DISTINCT patient_num
-        FROM blueherondata.observation_fact
-      WHERE
-        concept_cd IN (
-          SELECT distinct concept_cd 
-          FROM blueherondata.concept_dimension
-          WHERE
-            concept_cd LIKE 'ICD9:250%' OR
-            concept_cd LIKE 'ICD10:E08%' OR
-            concept_cd LIKE 'ICD10:E09%' OR
-            concept_cd LIKE 'ICD10:E10%' OR
-            concept_cd LIKE 'ICD10:E11%' OR
-            concept_cd LIKE 'ICD10:E12%' OR
-            concept_cd LIKE 'ICD10:E13%'
-          )
-        AND TO_CHAR(start_date, 'yyyy-mm-dd') &gt; '2010-01-01'
-        AND patient_num IN (
-          SELECT DISTINCT patient_num
-          FROM blueherondata.observation_fact
-          WHERE concept_cd = 'DEM|SEX:f'
-        )
-        AND ROWNUM &lt; 100
-&quot;
-
-dbGetQuery(c_connect, sql_diabetes_patients) -&gt; diabetes_patients
-dim(diabetes_patients)</code></pre>
-<pre><code>## [1] 6 1</code></pre>
-<pre class="r"><code>toc()</code></pre>
-<pre><code>## Diabetes patients: 22.023 sec elapsed</code></pre>
-<pre class="r"><code>sql_patients &lt;- &quot;
-  SELECT patient_num, concept_cd
-    FROM blueherondata.observation_fact
-  WHERE TO_CHAR(start_date, 'yyyy-mm-dd') &gt; '2010-01-01'
-    AND concept_cd IN (
-      SELECT DISTINCT concept_cd FROM blueherondata.concept_dimension
-        WHERE concept_path LIKE '\\i2b2\\Medications\\%'
-    )
-    AND patient_num IN (
-      SELECT DISTINCT patient_num
-        FROM blueherondata.observation_fact
-      WHERE
-        concept_cd IN (
-          SELECT distinct concept_cd 
-          FROM blueherondata.concept_dimension
-          WHERE
-            concept_cd LIKE 'ICD9:250%' OR
-            concept_cd LIKE 'ICD10:E08%' OR
-            concept_cd LIKE 'ICD10:E09%' OR
-            concept_cd LIKE 'ICD10:E10%' OR
-            concept_cd LIKE 'ICD10:E11%' OR
-            concept_cd LIKE 'ICD10:E12%' OR
-            concept_cd LIKE 'ICD10:E13%'
-          )
-          AND TO_CHAR(start_date, 'yyyy-mm-dd') &gt; '2010-01-01'
-          AND patient_num IN (
-            SELECT DISTINCT patient_num
-            FROM blueherondata.observation_fact
-            WHERE concept_cd = 'DEM|SEX:f'
-          )
-          AND ROWNUM &lt; 100
-        )
-&quot;
+dbGetQuery(c_connect, sql_female_patients)</code></pre>
+<pre class="r"><code>log_time()
+sql_patients &lt;- paste0(&quot;
+  SELECT patient_num, concept_cd FROM blueherondata.observation_fact
+  WHERE
+    patient_num IN (&quot;, indent_sql(sql_diabetes_patients), &quot;)&quot;)
+cat(sql_patients)
 
 tst1 &lt;- dbGetQuery(c_connect, sql_patients)
 head(tst1)
 dim(tst1)</code></pre>
 <p>Save everything for later use.</p>
-<pre class="r"><code>fn &lt;- &quot;../data/create_sparse_matrix.RData&quot;
-save.image(fn)
-toc()</code></pre>
-<pre><code>## Full program time: 25.736 sec elapsed</code></pre>
+<pre class="r"><code>log_time()
+read.table(timing_file) </code></pre>
+<pre><code>##           V1       V2                  V3     V4
+## 1 2018-07-26 16:16:36     login-to-oracle began.
+## 2 2018-07-26 16:16:37         simple-test began.
+## 3 2018-07-26 16:16:37 medication-concepts began.
+## 4 2018-07-26 16:16:37   diabetes_concepts began.
+## 5 2018-07-26 16:16:38     save-everything began.</code></pre>
+<pre class="r"><code>save.image(image_file)</code></pre>
 
 
 
