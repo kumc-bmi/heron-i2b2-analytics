@@ -1,0 +1,56 @@
+---
+title: "Extract information using the dbplyr library"
+author: "Steve Simon"
+date: "7/31/2018"
+output: html_document
+---
+
+This program shows how to use the dbplyr library to extract information from the electronic health record. The dbplyr library takes commands in the dplyr library like filter and arrange and converts it to SQL code which it passes back to your SQL database. It uses lazy evaluation, meaning that your code does not execute until it is needed. This allows you to simplify your coding by creating and storing intermediate files. You don't pay a storage or speed penalty for these intermediate files, if you are careful to craft them in a way that does not force their immediate evaluation.
+
+
+
+The dbplyr does not work yet with Oracle, so I'm going to leave this stub of a program largely incomplete until that work is done.
+
+```{r timing-functions}
+program_name <- "extract_using_dbplyr"
+timing_file <- paste0("../src/", program_name, "_timing.txt")
+image_file <- paste0("../data/", program_name, ".RData")
+
+library(knitr)
+log_time <- function(first=FALSE) {
+  current_chunk <- opts_current$get("label")
+  current_time <- as.character(Sys.time())
+  cat(current_time, current_chunk, "began.\n", file=timing_file, append=!first)
+}
+```
+
+Please review open_oracle.Rmd to see how to access information in an Oracle database.
+
+```{r login-to-oracle}
+log_time(first=TRUE)
+library("dplyr")
+library("magrittr")
+library("ROracle")
+cdm_config <- read.csv('../cdm_config_B2.csv', stringsAsFactors=FALSE)
+c_connect <-
+  dbConnect(Oracle(), cdm_config$account, cdm_config$password, cdm_config$access)
+```
+
+Run a simple test to see that the connection works. 
+
+```{r simple-test}
+log_time()
+dbGetQuery(c_connect, "SELECT * FROM blueherondata.observation_fact WHERE rownum < 5")
+dbGetQuery(c_connect, "SELECT * FROM blueherondata.concept_dimension WHERE rownum < 5")
+dbGetQuery(c_connect, "SELECT * FROM blueheronmetadata.heron_terms WHERE rownum < 5")
+```
+
+Here is where I plan to illustrate some examples that use dbplyr.
+
+Save everything for later use.
+
+```{r save-everything}
+log_time()
+read.table(timing_file) 
+save.image(image_file)
+```

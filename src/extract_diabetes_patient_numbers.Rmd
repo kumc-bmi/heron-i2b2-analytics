@@ -7,6 +7,15 @@ output: html_document
 
 This program shows how to extract the patient numbers for diabetes patients subject to a variety of restrictions.
 
+Load the relevant libraries.
+
+```{r libraries}
+library(dplyr)
+library(knitr)
+library(magrittr)
+library("ROracle")
+```
+
 Please review open_oracle.Rmd to review how to access information in an Oracle database.
 
 ```{r timing-functions}
@@ -14,7 +23,6 @@ program_name <- "extract_diabetes_patient_numbers"
 timing_file <- paste0("../src/", program_name, "_timing.txt")
 image_file <- paste0("../data/", program_name, ".RData")
 
-library(knitr)
 log_time <- function(first=FALSE) {
   current_chunk <- opts_current$get("label")
   current_time <- as.character(Sys.time())
@@ -25,19 +33,11 @@ log_time <- function(first=FALSE) {
 
 ```{r login-to-oracle}
 log_time(first=TRUE)
-library("ROracle")
 cdm_config <- read.csv('../cdm_config.csv', stringsAsFactors=FALSE)
 c_connect <-
   dbConnect(Oracle(), cdm_config$account, cdm_config$password, cdm_config$access)
 ```
 
-Run a simple test to see that the connection works. 
-
-```{r simple-test}
-log_time()
-dbGetQuery(c_connect, "select count(patient_num) from blueherondata.observation_fact")
-```
-```
 
 The SQL code to count and extract patient numbers can get quite long. It helps to break the code into distinct pieces.
 
@@ -46,42 +46,55 @@ The following SQL snippet counts the distinct number of patients. You can combin
 ```{r count}
 log_time()
 sql_count_patients <- "
-  SELECT COUNT(DISTINCT patient_num)
-    FROM blueherondata.observation_fact
+SELECT COUNT(DISTINCT patient_num)
+FROM blueherondata.observation_fact
 "
 
 dbGetQuery(c_connect, sql_count_patients)
+```
+
+To make the SQL code look nicer, here is a function that indents a piece of SQL code nested between two other pieces.
+
+```{r nest}
+nest <- function(sql1, sql2, sql3="") {
+  paste0(
+    sql1,
+    gsub("\n", "\n  ", sql2),
+    sql3)
+}
 ```
 
 This SQL snippet adds a restriction to the ICD9 and ICD10 codes associated with diabetes.
 
 ```{r diabetes-1}
 log_time()
-sql_restrict_to_diabetes <- "
-  WHERE concept_cd IN (
-    SELECT DISTINCT concept_cd 
-    FROM blueherondata.concept_dimension
-    WHERE
-      concept_cd LIKE 'ICD9:250%' OR
-      concept_cd LIKE 'ICD10:E08%' OR
-      concept_cd LIKE 'ICD10:E09%' OR
-      concept_cd LIKE 'ICD10:E10%' OR
-      concept_cd LIKE 'ICD10:E11%' OR
-      concept_cd LIKE 'ICD10:E12%' OR
-      concept_cd LIKE 'ICD10:E13%'
-  )
+
+sql_select_diabetes_codes <- "
+SELECT DISTINCT concept_cd 
+FROM blueherondata.concept_dimension
+WHERE
+  concept_cd LIKE 'ICD9:250%' OR
+  concept_cd LIKE 'ICD10:E08%' OR
+  concept_cd LIKE 'ICD10:E09%' OR
+  concept_cd LIKE 'ICD10:E10%' OR
+  concept_cd LIKE 'ICD10:E11%' OR
+  concept_cd LIKE 'ICD10:E12%' OR
+  concept_cd LIKE 'ICD10:E13%'
 "
+
+dbGetQuery(c_connect, sql_select_diabetes_codes)
+
+sql_restrict_to_diabetes <- nest("WHERE concept_cd IN (", sql_select_diabetes_codes, ")")
+cat(sql_restrict_to_diabetes)
 ```
 
 Combine this with the previous string.
 
 ```{r diabetes-2}
 log_time()
-sql_combine <- paste(
-  sql_count_patients, 
-  sql_restrict_to_diabetes)
-cat(sql_combine)
-dbGetQuery(c_connect, sql_combine)
+sql_count_diabetics <- nest(sql_count_patients, sql_restrict_to_diabetes)
+cat(sql_count_diabetics)
+dbGetQuery(c_connect, sql_count_diabetics)
 ```
 
 This snippet adds a date restriction.
@@ -89,7 +102,7 @@ This snippet adds a date restriction.
 ```{r dates-1}
 log_time()
 sql_restrict_dates <- "
-  AND TO_CHAR(start_date, 'yyyy-mm-dd') > '2010-01-01'
+AND TO_CHAR(start_date, 'yyyy-mm-dd') > '2010-01-01'
 "
 ```
 
@@ -97,12 +110,10 @@ Here's what the combination of all three strings looks like.
 
 ```{r dates-2}
 log_time()
-sql_combine <- paste(
-  sql_count_patients, 
-  sql_restrict_to_diabetes,
-  sql_restrict_dates)
-cat(sql_combine)
-dbGetQuery(c_connect, sql_combine)
+sql_count_date_restricted <- 
+  nest(sql_count_diabetics, sql_restrict_dates)
+cat(sql_count_date_restricted)
+dbGetQuery(c_connect, sql_count_date_restricted)
 ```
 
 This snippet restricts to patients to females only. This represents a self-join.
@@ -110,24 +121,20 @@ This snippet restricts to patients to females only. This represents a self-join.
 ```{r females-1}
 log_time()
 sql_restrict_to_females <- "
-  AND patient_num IN (
-    SELECT DISTINCT patient_num
-    FROM blueherondata.observation_fact
-    WHERE
-      concept_cd = 'DEM|SEX:f'
-  )
-"
+AND patient_num IN (
+  SELECT DISTINCT patient_num
+  FROM blueherondata.observation_fact
+  WHERE
+    concept_cd = 'DEM|SEX:f'
+)"
+sql_count_female_diabetics <- nest(sql_count_date_restricted, sql_restrict_to_females)
+cat(sql_count_female_diabetics)
 ```
 
+Unfortunately, it is rather slow, so I do not recommend that you use this approach.
 
-```{r females-2}
+```{r females-2, eval=FALSE}
 log_time()
-sql_combine <- paste(
-  sql_count_patients, 
-  sql_restrict_to_diabetes,
-  sql_restrict_dates,
-  sql_restrict_to_females)
-cat(sql_combine)
 dbGetQuery(c_connect, sql_combine)
 ```
 
@@ -136,8 +143,8 @@ Extracting all the patient numbers requires a different start to the SQL query.
 ```{r extract-1}
 log_time()
 sql_extract_patients <- "
-  SELECT patient_num, start_date AS pdate
-    FROM blueherondata.observation_fact
+SELECT patient_num, start_date AS pdate
+  FROM blueherondata.observation_fact
 "
 ```
 
@@ -145,13 +152,12 @@ This is what the combined query looks like.
 
 ```{r extract-2}
 log_time()
-sql_combine <- paste(
-  sql_extract_patients,
-  sql_restrict_to_diabetes)
-cat(sql_combine)
+sql_extract_diabetics <- nest(sql_extract_patients, sql_restrict_to_diabetes)
+cat(sql_extract_diabetics)
 
-patient_list <- dbGetQuery(c_connect, sql_combine)
+patient_list <- dbGetQuery(c_connect, sql_extract_diabetics)
 names(patient_list) <- tolower(names(patient_list))
+patient_list %<>% arrange(patient_num)
 head(patient_list)
 dim(patient_list)
 ```
@@ -191,28 +197,51 @@ You can also get the same effect using just SQL code.
 ```{r distinct-3}
 log_time()
 sql_extract_unique_patients <- "
-  SELECT patient_num, MIN(start_date) AS pdate
-    FROM blueherondata.observation_fact
+SELECT patient_num, MIN(start_date) AS pdate
+FROM blueherondata.observation_fact
 "
 
 sql_group <- "
-  GROUP BY patient_num
-  ORDER BY patient_num"
+GROUP BY patient_num
+ORDER BY patient_num"
 ```
 
 ```{r distinct-4}
 log_time()
-sql_combine <- paste(
-  sql_extract_unique_patients,
-  sql_restrict_to_diabetes,
-  sql_group)
-cat(sql_combine)
-unique_patients_3 <- dbGetQuery(c_connect, sql_combine)
+sql_extract_unique_diabetics <- nest(sql_extract_unique_patients, sql_restrict_to_diabetes, sql_group)
+cat(sql_extract_unique_diabetics)
+unique_patients_3 <- dbGetQuery(c_connect, sql_extract_unique_diabetics)
 head(unique_patients_3)
 dim(unique_patients_3)
 ```
 
-Save everything for possible re-sue
+Now, let's take things one step further. For these unique patients, let's pull any record associated with medications.
+
+```{r medication}
+sql_extract_medications_prefix <- "
+SELECT patient_num, concept_cd, start_date AS edate
+FROM blueherondata.observation_fact
+
+WHERE patient_num IN ("
+  
+sql_extract_medications_postfix <- "
+) AND 
+
+concept_cd IN (
+SELECT DISTINCT concept_cd FROM blueherondata.concept_dimension
+  WHERE concept_path LIKE '\\i2b2\\Medications\\%'
+  ORDER BY concept_cd)"
+
+sql_extract_medications <- paste(
+  sql_extract_medications_prefix,
+  sql_extract_unique_patients,
+  sql_restrict_to_diabetes,
+  sql_group,
+  sql_extract_medications_postfix)
+cat(sql_extract_medications)
+```
+
+Save everything for possible re-use
 
 ```{r save-everything}
 log_time()

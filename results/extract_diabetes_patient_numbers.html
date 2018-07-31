@@ -126,180 +126,7 @@ $(document).ready(function () {
 
 
 <p>This program shows how to extract the patient numbers for diabetes patients subject to a variety of restrictions.</p>
-<p>Please review open_oracle.Rmd to review how to access information in an Oracle database.</p>
-<pre class="r"><code>library(&quot;ROracle&quot;)</code></pre>
-<pre><code>## Loading required package: DBI</code></pre>
-<pre class="r"><code>cdm_config &lt;- read.csv('../cdm_config.csv', stringsAsFactors=FALSE)
-c_connect &lt;-
-  dbConnect(Oracle(), cdm_config$account, cdm_config$password, cdm_config$access)</code></pre>
-<p>Run a simple test to see that the connection works.</p>
-<pre class="r"><code>dbGetQuery(c_connect, &quot;select count(patient_num) from blueherondata.observation_fact&quot;)</code></pre>
-<pre><code>##   COUNT(PATIENT_NUM)
-## 1         3623353581</code></pre>
-<p>```</p>
-<p>The SQL code to count and extract patient numbers can get quite long. It helps to break the code into distinct pieces.</p>
-<p>The following SQL snippet counts the distinct number of patients. You can combine with additional SQL code to place restrictions on the types of patients.</p>
-<pre class="r"><code>sql_count_patients &lt;- &quot;
-  SELECT COUNT(DISTINCT patient_num)
-    FROM blueherondata.observation_fact
-&quot;
-
-dbGetQuery(c_connect, sql_count_patients)</code></pre>
-<pre><code>##   COUNT(DISTINCTPATIENT_NUM)
-## 1                    2346649</code></pre>
-<p>This SQL snippet adds a restriction to the ICD9 and ICD10 codes associated with diabetes.</p>
-<pre class="r"><code>sql_restrict_to_diabetes &lt;- &quot;
-  WHERE concept_cd IN (
-    SELECT DISTINCT concept_cd 
-    FROM blueherondata.concept_dimension
-    WHERE
-      concept_cd LIKE 'ICD9:250%' OR
-      concept_cd LIKE 'ICD10:E08%' OR
-      concept_cd LIKE 'ICD10:E09%' OR
-      concept_cd LIKE 'ICD10:E10%' OR
-      concept_cd LIKE 'ICD10:E11%' OR
-      concept_cd LIKE 'ICD10:E12%' OR
-      concept_cd LIKE 'ICD10:E13%'
-  )
-&quot;</code></pre>
-<p>Combine this with the previous string.</p>
-<pre class="r"><code>sql_combine &lt;- paste(
-  sql_count_patients, 
-  sql_restrict_to_diabetes)
-cat(sql_combine)</code></pre>
-<pre><code>## 
-##   SELECT COUNT(DISTINCT patient_num)
-##     FROM blueherondata.observation_fact
-##  
-##   WHERE concept_cd IN (
-##     SELECT DISTINCT concept_cd 
-##     FROM blueherondata.concept_dimension
-##     WHERE
-##       concept_cd LIKE 'ICD9:250%' OR
-##       concept_cd LIKE 'ICD10:E08%' OR
-##       concept_cd LIKE 'ICD10:E09%' OR
-##       concept_cd LIKE 'ICD10:E10%' OR
-##       concept_cd LIKE 'ICD10:E11%' OR
-##       concept_cd LIKE 'ICD10:E12%' OR
-##       concept_cd LIKE 'ICD10:E13%'
-##   )</code></pre>
-<pre class="r"><code>dbGetQuery(c_connect, sql_combine)</code></pre>
-<pre><code>##   COUNT(DISTINCTPATIENT_NUM)
-## 1                      55585</code></pre>
-<p>This snippet adds a date restriction.</p>
-<pre class="r"><code>sql_restrict_dates &lt;- &quot;
-  AND TO_CHAR(start_date, 'yyyy-mm-dd') &gt; '2010-01-01'
-&quot;</code></pre>
-<p>Here’s what the combination of all three strings looks like.</p>
-<pre class="r"><code>sql_combine &lt;- paste(
-  sql_count_patients, 
-  sql_restrict_to_diabetes,
-  sql_restrict_dates)
-cat(sql_combine)</code></pre>
-<pre><code>## 
-##   SELECT COUNT(DISTINCT patient_num)
-##     FROM blueherondata.observation_fact
-##  
-##   WHERE concept_cd IN (
-##     SELECT DISTINCT concept_cd 
-##     FROM blueherondata.concept_dimension
-##     WHERE
-##       concept_cd LIKE 'ICD9:250%' OR
-##       concept_cd LIKE 'ICD10:E08%' OR
-##       concept_cd LIKE 'ICD10:E09%' OR
-##       concept_cd LIKE 'ICD10:E10%' OR
-##       concept_cd LIKE 'ICD10:E11%' OR
-##       concept_cd LIKE 'ICD10:E12%' OR
-##       concept_cd LIKE 'ICD10:E13%'
-##   )
-##  
-##   AND TO_CHAR(start_date, 'yyyy-mm-dd') &gt; '2010-01-01'</code></pre>
-<pre class="r"><code>dbGetQuery(c_connect, sql_combine)</code></pre>
-<pre><code>##   COUNT(DISTINCTPATIENT_NUM)
-## 1                      40172</code></pre>
-<p>This snippet restricts to patients to females only. This represents a self-join.</p>
-<pre class="r"><code>sql_restrict_to_females &lt;- &quot;
-  AND patient_num IN (
-    SELECT DISTINCT patient_num
-    FROM blueherondata.observation_fact
-    WHERE
-      concept_cd = 'DEM|SEX:f'
-  )
-&quot;</code></pre>
-<pre class="r"><code>sql_combine &lt;- paste(
-  sql_count_patients, 
-  sql_restrict_to_diabetes,
-  sql_restrict_dates,
-  sql_restrict_to_females)
-cat(sql_combine)</code></pre>
-<pre><code>## 
-##   SELECT COUNT(DISTINCT patient_num)
-##     FROM blueherondata.observation_fact
-##  
-##   WHERE concept_cd IN (
-##     SELECT DISTINCT concept_cd 
-##     FROM blueherondata.concept_dimension
-##     WHERE
-##       concept_cd LIKE 'ICD9:250%' OR
-##       concept_cd LIKE 'ICD10:E08%' OR
-##       concept_cd LIKE 'ICD10:E09%' OR
-##       concept_cd LIKE 'ICD10:E10%' OR
-##       concept_cd LIKE 'ICD10:E11%' OR
-##       concept_cd LIKE 'ICD10:E12%' OR
-##       concept_cd LIKE 'ICD10:E13%'
-##   )
-##  
-##   AND TO_CHAR(start_date, 'yyyy-mm-dd') &gt; '2010-01-01'
-##  
-##   AND patient_num IN (
-##     SELECT DISTINCT patient_num
-##     FROM blueherondata.observation_fact
-##     WHERE
-##       concept_cd = 'DEM|SEX:f'
-##   )</code></pre>
-<pre class="r"><code>dbGetQuery(c_connect, sql_combine)</code></pre>
-<pre><code>##   COUNT(DISTINCTPATIENT_NUM)
-## 1                      19368</code></pre>
-<p>Extracting all the patient numbers requires a different start to the SQL query.</p>
-<pre class="r"><code>sql_extract_patients &lt;- &quot;
-  SELECT patient_num, start_date AS pdate
-    FROM blueherondata.observation_fact
-&quot;</code></pre>
-<p>This is what the combined query looks like.</p>
-<pre class="r"><code>sql_combine &lt;- paste(
-  sql_extract_patients,
-  sql_restrict_to_diabetes)
-cat(sql_combine)</code></pre>
-<pre><code>## 
-##   SELECT patient_num, start_date AS pdate
-##     FROM blueherondata.observation_fact
-##  
-##   WHERE concept_cd IN (
-##     SELECT DISTINCT concept_cd 
-##     FROM blueherondata.concept_dimension
-##     WHERE
-##       concept_cd LIKE 'ICD9:250%' OR
-##       concept_cd LIKE 'ICD10:E08%' OR
-##       concept_cd LIKE 'ICD10:E09%' OR
-##       concept_cd LIKE 'ICD10:E10%' OR
-##       concept_cd LIKE 'ICD10:E11%' OR
-##       concept_cd LIKE 'ICD10:E12%' OR
-##       concept_cd LIKE 'ICD10:E13%'
-##   )</code></pre>
-<pre class="r"><code>patient_list &lt;- dbGetQuery(c_connect, sql_combine)
-names(patient_list) &lt;- tolower(names(patient_list))
-head(patient_list)</code></pre>
-<pre><code>##   patient_num               pdate
-## 1     1075136 2016-07-30 00:00:00
-## 2     1075136 2016-07-29 00:00:00
-## 3     1023210 2016-11-09 23:00:00
-## 4     1023210 2016-11-09 23:00:00
-## 5     1695955 2015-12-14 23:00:00
-## 6     1695955 2015-12-14 23:00:00</code></pre>
-<pre class="r"><code>dim(patient_list)</code></pre>
-<pre><code>## [1] 1000042       2</code></pre>
-<p>Notice that patients appear more often than once in the query. To get a distinct set of patients, you need to group by patient number and then choose only one record. The simplest choice is the record with the smallest start-date.</p>
-<p>you can do this within R, but be careful, because some of the base R functions that you’d be tempted to use, such as unique or duplicated can be very inefficient with large data frames. The distinct or summarize functions in dplyr are a better choice.</p>
+<p>Load the relevant libraries.</p>
 <pre class="r"><code>library(dplyr)</code></pre>
 <pre><code>## 
 ## Attaching package: 'dplyr'</code></pre>
@@ -309,7 +136,547 @@ head(patient_list)</code></pre>
 <pre><code>## The following objects are masked from 'package:base':
 ## 
 ##     intersect, setdiff, setequal, union</code></pre>
-<pre class="r"><code>library(magrittr)
+<pre class="r"><code>library(knitr)
+library(magrittr)
+library(&quot;ROracle&quot;)</code></pre>
+<pre><code>## Loading required package: DBI</code></pre>
+<p>Please review open_oracle.Rmd to review how to access information in an Oracle database.</p>
+<pre class="r"><code>program_name &lt;- &quot;extract_diabetes_patient_numbers&quot;
+timing_file &lt;- paste0(&quot;../src/&quot;, program_name, &quot;_timing.txt&quot;)
+image_file &lt;- paste0(&quot;../data/&quot;, program_name, &quot;.RData&quot;)
+
+log_time &lt;- function(first=FALSE) {
+  current_chunk &lt;- opts_current$get(&quot;label&quot;)
+  current_time &lt;- as.character(Sys.time())
+  cat(current_time, current_chunk, &quot;began.\n&quot;, file=timing_file, append=!first)
+}</code></pre>
+<pre class="r"><code>log_time(first=TRUE)
+cdm_config &lt;- read.csv('../cdm_config.csv', stringsAsFactors=FALSE)
+c_connect &lt;-
+  dbConnect(Oracle(), cdm_config$account, cdm_config$password, cdm_config$access)</code></pre>
+<p>The SQL code to count and extract patient numbers can get quite long. It helps to break the code into distinct pieces.</p>
+<p>The following SQL snippet counts the distinct number of patients. You can combine with additional SQL code to place restrictions on the types of patients.</p>
+<pre class="r"><code>log_time()
+sql_count_patients &lt;- &quot;
+SELECT COUNT(DISTINCT patient_num)
+FROM blueherondata.observation_fact
+&quot;
+
+dbGetQuery(c_connect, sql_count_patients)</code></pre>
+<pre><code>##   COUNT(DISTINCTPATIENT_NUM)
+## 1                    2346649</code></pre>
+<p>To make the SQL code look nicer, here is a function that indents a piece of SQL code nested between two other pieces.</p>
+<pre class="r"><code>nest &lt;- function(sql1, sql2, sql3=&quot;&quot;) {
+  paste0(
+    sql1,
+    gsub(&quot;\n&quot;, &quot;\n  &quot;, sql2),
+    sql3)
+}</code></pre>
+<p>This SQL snippet adds a restriction to the ICD9 and ICD10 codes associated with diabetes.</p>
+<pre class="r"><code>log_time()
+
+sql_select_diabetes_codes &lt;- &quot;
+SELECT DISTINCT concept_cd 
+FROM blueherondata.concept_dimension
+WHERE
+  concept_cd LIKE 'ICD9:250%' OR
+  concept_cd LIKE 'ICD10:E08%' OR
+  concept_cd LIKE 'ICD10:E09%' OR
+  concept_cd LIKE 'ICD10:E10%' OR
+  concept_cd LIKE 'ICD10:E11%' OR
+  concept_cd LIKE 'ICD10:E12%' OR
+  concept_cd LIKE 'ICD10:E13%'
+&quot;
+
+dbGetQuery(c_connect, sql_select_diabetes_codes)</code></pre>
+<pre><code>##        CONCEPT_CD
+## 1   ICD10:E11.620
+## 2     ICD9:250.91
+## 3      ICD9:250.5
+## 4     ICD10:E10.3
+## 5   ICD10:E10.321
+## 6   ICD10:E10.341
+## 7   ICD10:E10.319
+## 8   ICD10:E11.351
+## 9    ICD10:E11.33
+## 10  ICD10:E11.341
+## 11  ICD10:E11.349
+## 12    ICD10:E08.2
+## 13   ICD10:E08.21
+## 14  ICD10:E08.641
+## 15  ICD10:E08.610
+## 16    ICD10:E13.3
+## 17   ICD10:E13.34
+## 18  ICD10:E13.329
+## 19  ICD10:E13.339
+## 20  ICD10:E13.628
+## 21     ICD9:250.1
+## 22  ICD10:E08-E13
+## 23   ICD10:E10.62
+## 24   ICD10:E08.51
+## 25   ICD10:E08.43
+## 26   ICD10:E09.32
+## 27  ICD10:E09.329
+## 28   ICD10:E09.31
+## 29  ICD10:E09.311
+## 30   ICD10:E09.35
+## 31   ICD10:E09.36
+## 32   ICD10:E09.52
+## 33   ICD10:E11.59
+## 34   ICD10:E10.41
+## 35   ICD10:E10.43
+## 36   ICD10:E11.29
+## 37  ICD10:E11.610
+## 38  ICD10:E11.649
+## 39   ICD10:E13.61
+## 40  ICD10:E13.618
+## 41   ICD10:E13.52
+## 42    ICD10:E09.6
+## 43  ICD10:E09.649
+## 44   ICD10:E09.65
+## 45   ICD10:E09.29
+## 46  ICD10:E11.329
+## 47    ICD10:E08.3
+## 48  ICD10:E08.319
+## 49   ICD10:E11.00
+## 50   ICD10:E11.01
+## 51  ICD10:E10.359
+## 52  ICD10:E10.339
+## 53   ICD10:E10.39
+## 54    ICD9:250.21
+## 55    ICD9:250.22
+## 56  ICD10:E10.329
+## 57    ICD9:250.82
+## 58   ICD10:E08.10
+## 59  ICD10:E08.649
+## 60   ICD10:E08.63
+## 61  ICD10:E08.638
+## 62   ICD10:E13.33
+## 63   ICD10:E13.62
+## 64     ICD9:250.3
+## 65    ICD9:250.30
+## 66    ICD9:250.42
+## 67      ICD10:E11
+## 68   ICD10:E10.64
+## 69  ICD10:E10.630
+## 70  ICD10:E10.620
+## 71  ICD10:E08.321
+## 72    ICD10:E09.3
+## 73  ICD10:E09.341
+## 74    ICD10:E11.9
+## 75   ICD10:E11.44
+## 76   ICD10:E13.64
+## 77  ICD10:E13.649
+## 78   ICD10:E13.69
+## 79   ICD10:E09.64
+## 80  ICD10:E09.638
+## 81   ICD10:E09.44
+## 82   ICD10:E09.00
+## 83    ICD10:E09.1
+## 84   ICD10:E09.10
+## 85   ICD10:E09.11
+## 86   ICD10:E13.10
+## 87    ICD10:E11.3
+## 88  ICD10:E08.622
+## 89    ICD10:E11.0
+## 90   ICD10:E10.59
+## 91    ICD10:E10.2
+## 92   ICD10:E10.21
+## 93    ICD9:250.20
+## 94   ICD10:E10.32
+## 95  ICD10:E10.311
+## 96  ICD10:E08.620
+## 97  ICD10:E13.341
+## 98   ICD10:E13.35
+## 99    ICD10:E13.6
+## 100   ICD9:250.33
+## 101    ICD9:250.4
+## 102  ICD10:E11.69
+## 103  ICD10:E11.40
+## 104  ICD10:E10.61
+## 105 ICD10:E10.618
+## 106 ICD10:E10.641
+## 107  ICD10:E10.63
+## 108 ICD10:E08.329
+## 109 ICD10:E08.331
+## 110 ICD10:E08.351
+## 111   ICD10:E08.5
+## 112  ICD10:E08.44
+## 113   ICD10:E08.9
+## 114     ICD10:E09
+## 115 ICD10:E09.359
+## 116 ICD10:E09.349
+## 117   ICD10:E11.8
+## 118  ICD10:E10.44
+## 119 ICD10:E13.610
+## 120   ICD10:E13.8
+## 121   ICD10:E13.9
+## 122 ICD10:E09.620
+## 123 ICD10:E09.630
+## 124  ICD10:E09.22
+## 125   ICD10:E09.0
+## 126 ICD10:E11.622
+## 127 ICD10:E11.638
+## 128  ICD10:E11.65
+## 129   ICD10:E10.8
+## 130   ICD10:E10.9
+## 131 ICD10:E11.321
+## 132  ICD10:E10.35
+## 133  ICD10:E10.36
+## 134      ICD9:250
+## 135    ICD9:250.0
+## 136    ICD9:250.9
+## 137   ICD9:250.93
+## 138   ICD9:250.23
+## 139  ICD10:E10.69
+## 140   ICD10:E10.1
+## 141   ICD9:250.61
+## 142  ICD10:E08.64
+## 143 ICD10:E13.311
+## 144  ICD10:E13.36
+## 145  ICD10:E13.40
+## 146  ICD10:E13.21
+## 147 ICD10:E13.620
+## 148   ICD9:250.03
+## 149   ICD9:250.11
+## 150   ICD9:250.41
+## 151   ICD9:250.51
+## 152  ICD10:E11.42
+## 153 ICD10:E10.649
+## 154  ICD10:E10.65
+## 155 ICD10:E08.339
+## 156   ICD10:E08.4
+## 157  ICD10:E08.49
+## 158  ICD10:E09.59
+## 159 ICD10:E13.641
+## 160 ICD10:E13.630
+## 161  ICD10:E09.69
+## 162  ICD10:E09.41
+## 163   ICD10:E09.8
+## 164  ICD10:E13.11
+## 165 ICD10:E11.319
+## 166  ICD10:E08.31
+## 167   ICD10:E11.2
+## 168  ICD10:E11.22
+## 169 ICD10:E10.331
+## 170   ICD10:E10.5
+## 171     ICD10:E08
+## 172   ICD10:E08.0
+## 173  ICD10:E11.39
+## 174   ICD9:250.50
+## 175  ICD10:E10.11
+## 176   ICD9:250.53
+## 177    ICD9:250.6
+## 178  ICD10:E11.35
+## 179 ICD10:E11.359
+## 180 ICD10:E11.331
+## 181   ICD9:250.81
+## 182   ICD10:E08.6
+## 183  ICD10:E08.61
+## 184  ICD10:E08.62
+## 185 ICD10:E13.349
+## 186  ICD10:E13.39
+## 187  ICD10:E13.42
+## 188  ICD10:E13.29
+## 189   ICD9:250.73
+## 190    ICD9:250.8
+## 191   ICD9:250.80
+## 192   ICD9:250.12
+## 193 ICD10:E10.621
+## 194 ICD10:E08.359
+## 195  ICD10:E08.52
+## 196  ICD10:E08.59
+## 197  ICD10:E08.42
+## 198 ICD10:E09.321
+## 199 ICD10:E09.351
+## 200 ICD10:E09.331
+## 201 ICD10:E09.339
+## 202  ICD10:E11.52
+## 203 ICD10:E11.618
+## 204  ICD10:E11.64
+## 205 ICD10:E13.638
+## 206  ICD10:E09.21
+## 207  ICD10:E09.40
+## 208  ICD10:E09.01
+## 209   ICD10:E09.9
+## 210     ICD10:E13
+## 211  ICD10:E11.31
+## 212 ICD10:E08.628
+## 213  ICD10:E11.21
+## 214  ICD10:E10.52
+## 215  ICD10:E11.51
+## 216   ICD9:250.00
+## 217    ICD9:250.2
+## 218  ICD10:E10.34
+## 219 ICD10:E10.349
+## 220 ICD10:E11.339
+## 221  ICD10:E11.36
+## 222   ICD10:E08.1
+## 223  ICD10:E08.11
+## 224 ICD10:E08.630
+## 225  ICD10:E13.32
+## 226 ICD10:E13.321
+## 227   ICD10:E13.4
+## 228  ICD10:E13.41
+## 229  ICD10:E13.49
+## 230 ICD10:E13.621
+## 231 ICD10:E13.622
+## 232   ICD9:250.02
+## 233   ICD9:250.62
+## 234   ICD9:250.71
+## 235   ICD10:E11.4
+## 236  ICD10:E11.43
+## 237     ICD10:E10
+## 238 ICD10:E10.610
+## 239 ICD10:E10.638
+## 240 ICD10:E08.341
+## 241  ICD10:E08.39
+## 242  ICD10:E08.40
+## 243  ICD10:E08.41
+## 244 ICD10:E09.319
+## 245   ICD10:E09.5
+## 246  ICD10:E09.51
+## 247   ICD10:E10.4
+## 248  ICD10:E10.40
+## 249  ICD10:E11.49
+## 250 ICD10:E11.641
+## 251  ICD10:E13.63
+## 252  ICD10:E13.00
+## 253  ICD10:E13.01
+## 254  ICD10:E13.59
+## 255  ICD10:E09.62
+## 256  ICD10:E09.63
+## 257  ICD10:E09.61
+## 258  ICD10:E09.49
+## 259 ICD10:E11.628
+## 260  ICD10:E11.63
+## 261 ICD10:E10.351
+## 262  ICD10:E10.22
+## 263  ICD10:E08.00
+## 264   ICD10:E11.5
+## 265  ICD10:E11.62
+## 266   ICD9:250.90
+## 267  ICD10:E11.34
+## 268   ICD9:250.01
+## 269   ICD9:250.83
+## 270  ICD10:E08.22
+## 271 ICD10:E08.618
+## 272 ICD10:E13.359
+## 273  ICD10:E13.22
+## 274   ICD9:250.13
+## 275   ICD9:250.40
+## 276   ICD9:250.43
+## 277   ICD9:250.63
+## 278   ICD10:E10.6
+## 279 ICD10:E10.622
+## 280 ICD10:E10.628
+## 281  ICD10:E08.33
+## 282  ICD10:E08.35
+## 283  ICD10:E08.34
+## 284   ICD10:E08.8
+## 285  ICD10:E09.34
+## 286  ICD10:E10.29
+## 287  ICD10:E10.49
+## 288   ICD10:E11.6
+## 289  ICD10:E11.61
+## 290  ICD10:E13.65
+## 291   ICD10:E13.0
+## 292   ICD10:E13.5
+## 293  ICD10:E13.51
+## 294 ICD10:E09.621
+## 295 ICD10:E09.618
+## 296   ICD10:E13.1
+## 297  ICD10:E11.32
+## 298 ICD10:E08.311
+## 299  ICD10:E08.01
+## 300 ICD10:E11.621
+## 301   ICD9:250.92
+## 302  ICD10:E10.10
+## 303  ICD10:E10.31
+## 304   ICD9:250.52
+## 305   ICD9:250.60
+## 306  ICD10:E08.29
+## 307 ICD10:E08.621
+## 308  ICD10:E13.31
+## 309 ICD10:E13.319
+## 310 ICD10:E13.351
+## 311 ICD10:E13.331
+## 312  ICD10:E13.43
+## 313  ICD10:E13.44
+## 314   ICD10:E13.2
+## 315   ICD9:250.31
+## 316   ICD9:250.32
+## 317   ICD9:250.72
+## 318   ICD9:250.10
+## 319    ICD9:250.7
+## 320   ICD9:250.70
+## 321  ICD10:E11.41
+## 322  ICD10:E08.32
+## 323 ICD10:E08.349
+## 324  ICD10:E08.36
+## 325  ICD10:E09.33
+## 326  ICD10:E09.39
+## 327  ICD10:E10.42
+## 328 ICD10:E09.641
+## 329 ICD10:E09.622
+## 330 ICD10:E09.628
+## 331 ICD10:E09.610
+## 332   ICD10:E09.2
+## 333   ICD10:E09.4
+## 334  ICD10:E09.42
+## 335  ICD10:E09.43
+## 336 ICD10:E11.630
+## 337 ICD10:E11.311
+## 338  ICD10:E08.65
+## 339  ICD10:E08.69
+## 340  ICD10:E10.33
+## 341  ICD10:E10.51</code></pre>
+<pre class="r"><code>sql_restrict_to_diabetes &lt;- nest(&quot;WHERE concept_cd IN (&quot;, sql_select_diabetes_codes, &quot;)&quot;)
+cat(sql_restrict_to_diabetes)</code></pre>
+<pre><code>## WHERE concept_cd IN (
+##   SELECT DISTINCT concept_cd 
+##   FROM blueherondata.concept_dimension
+##   WHERE
+##     concept_cd LIKE 'ICD9:250%' OR
+##     concept_cd LIKE 'ICD10:E08%' OR
+##     concept_cd LIKE 'ICD10:E09%' OR
+##     concept_cd LIKE 'ICD10:E10%' OR
+##     concept_cd LIKE 'ICD10:E11%' OR
+##     concept_cd LIKE 'ICD10:E12%' OR
+##     concept_cd LIKE 'ICD10:E13%'
+##   )</code></pre>
+<p>Combine this with the previous string.</p>
+<pre class="r"><code>log_time()
+sql_count_diabetics &lt;- nest(sql_count_patients, sql_restrict_to_diabetes)
+cat(sql_count_diabetics)</code></pre>
+<pre><code>## 
+## SELECT COUNT(DISTINCT patient_num)
+## FROM blueherondata.observation_fact
+## WHERE concept_cd IN (
+##     SELECT DISTINCT concept_cd 
+##     FROM blueherondata.concept_dimension
+##     WHERE
+##       concept_cd LIKE 'ICD9:250%' OR
+##       concept_cd LIKE 'ICD10:E08%' OR
+##       concept_cd LIKE 'ICD10:E09%' OR
+##       concept_cd LIKE 'ICD10:E10%' OR
+##       concept_cd LIKE 'ICD10:E11%' OR
+##       concept_cd LIKE 'ICD10:E12%' OR
+##       concept_cd LIKE 'ICD10:E13%'
+##     )</code></pre>
+<pre class="r"><code>dbGetQuery(c_connect, sql_count_diabetics)</code></pre>
+<pre><code>##   COUNT(DISTINCTPATIENT_NUM)
+## 1                      55585</code></pre>
+<p>This snippet adds a date restriction.</p>
+<pre class="r"><code>log_time()
+sql_restrict_dates &lt;- &quot;
+AND TO_CHAR(start_date, 'yyyy-mm-dd') &gt; '2010-01-01'
+&quot;</code></pre>
+<p>Here’s what the combination of all three strings looks like.</p>
+<pre class="r"><code>log_time()
+sql_count_date_restricted &lt;- 
+  nest(sql_count_diabetics, sql_restrict_dates)
+cat(sql_count_date_restricted)</code></pre>
+<pre><code>## 
+## SELECT COUNT(DISTINCT patient_num)
+## FROM blueherondata.observation_fact
+## WHERE concept_cd IN (
+##     SELECT DISTINCT concept_cd 
+##     FROM blueherondata.concept_dimension
+##     WHERE
+##       concept_cd LIKE 'ICD9:250%' OR
+##       concept_cd LIKE 'ICD10:E08%' OR
+##       concept_cd LIKE 'ICD10:E09%' OR
+##       concept_cd LIKE 'ICD10:E10%' OR
+##       concept_cd LIKE 'ICD10:E11%' OR
+##       concept_cd LIKE 'ICD10:E12%' OR
+##       concept_cd LIKE 'ICD10:E13%'
+##     )
+##   AND TO_CHAR(start_date, 'yyyy-mm-dd') &gt; '2010-01-01'
+## </code></pre>
+<pre class="r"><code>dbGetQuery(c_connect, sql_count_date_restricted)</code></pre>
+<pre><code>##   COUNT(DISTINCTPATIENT_NUM)
+## 1                      40172</code></pre>
+<p>This snippet restricts to patients to females only. This represents a self-join.</p>
+<pre class="r"><code>log_time()
+sql_restrict_to_females &lt;- &quot;
+AND patient_num IN (
+  SELECT DISTINCT patient_num
+  FROM blueherondata.observation_fact
+  WHERE
+    concept_cd = 'DEM|SEX:f'
+)&quot;
+sql_count_female_diabetics &lt;- nest(sql_count_date_restricted, sql_restrict_to_females)
+cat(sql_count_female_diabetics)</code></pre>
+<pre><code>## 
+## SELECT COUNT(DISTINCT patient_num)
+## FROM blueherondata.observation_fact
+## WHERE concept_cd IN (
+##     SELECT DISTINCT concept_cd 
+##     FROM blueherondata.concept_dimension
+##     WHERE
+##       concept_cd LIKE 'ICD9:250%' OR
+##       concept_cd LIKE 'ICD10:E08%' OR
+##       concept_cd LIKE 'ICD10:E09%' OR
+##       concept_cd LIKE 'ICD10:E10%' OR
+##       concept_cd LIKE 'ICD10:E11%' OR
+##       concept_cd LIKE 'ICD10:E12%' OR
+##       concept_cd LIKE 'ICD10:E13%'
+##     )
+##   AND TO_CHAR(start_date, 'yyyy-mm-dd') &gt; '2010-01-01'
+##   
+##   AND patient_num IN (
+##     SELECT DISTINCT patient_num
+##     FROM blueherondata.observation_fact
+##     WHERE
+##       concept_cd = 'DEM|SEX:f'
+##   )</code></pre>
+<p>Unfortunately, it is rather slow, so I do not recommend that you use this approach.</p>
+<pre class="r"><code>log_time()
+dbGetQuery(c_connect, sql_combine)</code></pre>
+<p>Extracting all the patient numbers requires a different start to the SQL query.</p>
+<pre class="r"><code>log_time()
+sql_extract_patients &lt;- &quot;
+SELECT patient_num, start_date AS pdate
+  FROM blueherondata.observation_fact
+&quot;</code></pre>
+<p>This is what the combined query looks like.</p>
+<pre class="r"><code>log_time()
+sql_extract_diabetics &lt;- nest(sql_extract_patients, sql_restrict_to_diabetes)
+cat(sql_extract_diabetics)</code></pre>
+<pre><code>## 
+## SELECT patient_num, start_date AS pdate
+##   FROM blueherondata.observation_fact
+## WHERE concept_cd IN (
+##     SELECT DISTINCT concept_cd 
+##     FROM blueherondata.concept_dimension
+##     WHERE
+##       concept_cd LIKE 'ICD9:250%' OR
+##       concept_cd LIKE 'ICD10:E08%' OR
+##       concept_cd LIKE 'ICD10:E09%' OR
+##       concept_cd LIKE 'ICD10:E10%' OR
+##       concept_cd LIKE 'ICD10:E11%' OR
+##       concept_cd LIKE 'ICD10:E12%' OR
+##       concept_cd LIKE 'ICD10:E13%'
+##     )</code></pre>
+<pre class="r"><code>patient_list &lt;- dbGetQuery(c_connect, sql_extract_diabetics)
+names(patient_list) &lt;- tolower(names(patient_list))
+patient_list %&lt;&gt;% arrange(patient_num)
+head(patient_list)</code></pre>
+<pre><code>##   patient_num               pdate
+## 1          12 2008-06-13 00:00:00
+## 2          14 2014-07-20 00:00:00
+## 3          14 2014-07-20 00:00:00
+## 4          47 2001-01-18 23:00:00
+## 5          71 2016-01-01 23:00:00
+## 6          71 2016-01-01 23:00:00</code></pre>
+<pre class="r"><code>dim(patient_list)</code></pre>
+<pre><code>## [1] 1000042       2</code></pre>
+<p>Notice that patients appear more often than once in the query. To get a distinct set of patients, you need to group by patient number and then choose only one record. The simplest choice is the record with the smallest start-date.</p>
+<p>you can do this within R, but be careful, because some of the base R functions that you’d be tempted to use, such as unique or duplicated can be very inefficient with large data frames. The distinct or summarize functions in dplyr are a better choice.</p>
+<pre class="r"><code>log_time()
+library(dplyr)
+library(magrittr)
 patient_list                   %&gt;% 
   group_by(patient_num)        %&gt;%
   summarize(pdate=min(pdate))  %&gt;%
@@ -327,7 +694,8 @@ head(unique_patients_1)</code></pre>
 <pre class="r"><code>dim(unique_patients_1)</code></pre>
 <pre><code>## [1] 55585     2</code></pre>
 <p>This method also works.</p>
-<pre class="r"><code>library(dplyr)
+<pre class="r"><code>log_time()
+library(dplyr)
 library(magrittr)
 patient_list                             %&gt;% 
   arrange(patient_num, pdate)            %&gt;%
@@ -344,24 +712,22 @@ head(unique_patients_2)</code></pre>
 <pre class="r"><code>dim(unique_patients_2)</code></pre>
 <pre><code>## [1] 55585     2</code></pre>
 <p>You can also get the same effect using just SQL code.</p>
-<pre class="r"><code>sql_extract_unique_patients &lt;- &quot;
-  SELECT patient_num, MIN(start_date) AS pdate
-    FROM blueherondata.observation_fact
+<pre class="r"><code>log_time()
+sql_extract_unique_patients &lt;- &quot;
+SELECT patient_num, MIN(start_date) AS pdate
+FROM blueherondata.observation_fact
 &quot;
 
 sql_group &lt;- &quot;
-  GROUP BY patient_num
-  ORDER BY patient_num&quot;</code></pre>
-<pre class="r"><code>sql_combine &lt;- paste(
-  sql_extract_unique_patients,
-  sql_restrict_to_diabetes,
-  sql_group)
-cat(sql_combine)</code></pre>
+GROUP BY patient_num
+ORDER BY patient_num&quot;</code></pre>
+<pre class="r"><code>log_time()
+sql_extract_unique_diabetics &lt;- nest(sql_extract_unique_patients, sql_restrict_to_diabetes, sql_group)
+cat(sql_extract_unique_diabetics)</code></pre>
 <pre><code>## 
-##   SELECT patient_num, MIN(start_date) AS pdate
-##     FROM blueherondata.observation_fact
-##  
-##   WHERE concept_cd IN (
+## SELECT patient_num, MIN(start_date) AS pdate
+## FROM blueherondata.observation_fact
+## WHERE concept_cd IN (
 ##     SELECT DISTINCT concept_cd 
 ##     FROM blueherondata.concept_dimension
 ##     WHERE
@@ -372,11 +738,10 @@ cat(sql_combine)</code></pre>
 ##       concept_cd LIKE 'ICD10:E11%' OR
 ##       concept_cd LIKE 'ICD10:E12%' OR
 ##       concept_cd LIKE 'ICD10:E13%'
-##   )
-##  
-##   GROUP BY patient_num
-##   ORDER BY patient_num</code></pre>
-<pre class="r"><code>unique_patients_3 &lt;- dbGetQuery(c_connect, sql_combine)
+##     )
+## GROUP BY patient_num
+## ORDER BY patient_num</code></pre>
+<pre class="r"><code>unique_patients_3 &lt;- dbGetQuery(c_connect, sql_extract_unique_diabetics)
 head(unique_patients_3)</code></pre>
 <pre><code>##   PATIENT_NUM               PDATE
 ## 1          12 2008-06-13 00:00:00
@@ -387,9 +752,74 @@ head(unique_patients_3)</code></pre>
 ## 6          78 2000-07-01 00:00:00</code></pre>
 <pre class="r"><code>dim(unique_patients_3)</code></pre>
 <pre><code>## [1] 55585     2</code></pre>
-<p>Save everything for possible re-sue</p>
-<pre class="r"><code>fn &lt;- &quot;../data/extract_diabetes_patient_numbers.RData&quot;
-save.image(fn)</code></pre>
+<p>Now, let’s take things one step further. For these unique patients, let’s pull any record associated with medications.</p>
+<pre class="r"><code>sql_extract_medications_prefix &lt;- &quot;
+SELECT patient_num, concept_cd, start_date AS edate
+FROM blueherondata.observation_fact
+
+WHERE patient_num IN (&quot;
+  
+sql_extract_medications_postfix &lt;- &quot;
+) AND 
+
+concept_cd IN (
+SELECT DISTINCT concept_cd FROM blueherondata.concept_dimension
+  WHERE concept_path LIKE '\\i2b2\\Medications\\%'
+  ORDER BY concept_cd)&quot;
+
+sql_extract_medications &lt;- paste(
+  sql_extract_medications_prefix,
+  sql_extract_unique_patients,
+  sql_restrict_to_diabetes,
+  sql_group,
+  sql_extract_medications_postfix)
+cat(sql_extract_medications)</code></pre>
+<pre><code>## 
+## SELECT patient_num, concept_cd, start_date AS edate
+## FROM blueherondata.observation_fact
+## 
+## WHERE patient_num IN ( 
+## SELECT patient_num, MIN(start_date) AS pdate
+## FROM blueherondata.observation_fact
+##  WHERE concept_cd IN (
+##   SELECT DISTINCT concept_cd 
+##   FROM blueherondata.concept_dimension
+##   WHERE
+##     concept_cd LIKE 'ICD9:250%' OR
+##     concept_cd LIKE 'ICD10:E08%' OR
+##     concept_cd LIKE 'ICD10:E09%' OR
+##     concept_cd LIKE 'ICD10:E10%' OR
+##     concept_cd LIKE 'ICD10:E11%' OR
+##     concept_cd LIKE 'ICD10:E12%' OR
+##     concept_cd LIKE 'ICD10:E13%'
+##   ) 
+## GROUP BY patient_num
+## ORDER BY patient_num 
+## ) AND 
+## 
+## concept_cd IN (
+## SELECT DISTINCT concept_cd FROM blueherondata.concept_dimension
+##   WHERE concept_path LIKE '\i2b2\Medications\%'
+##   ORDER BY concept_cd)</code></pre>
+<p>Save everything for possible re-use</p>
+<pre class="r"><code>log_time()
+read.table(timing_file) </code></pre>
+<pre><code>##            V1       V2              V3     V4
+## 1  2018-07-31 16:28:46 login-to-oracle began.
+## 2  2018-07-31 16:28:46           count began.
+## 3  2018-07-31 16:28:50      diabetes-1 began.
+## 4  2018-07-31 16:28:51      diabetes-2 began.
+## 5  2018-07-31 16:28:55         dates-1 began.
+## 6  2018-07-31 16:28:55         dates-2 began.
+## 7  2018-07-31 16:28:59       females-1 began.
+## 8  2018-07-31 16:28:59       extract-1 began.
+## 9  2018-07-31 16:28:59       extract-2 began.
+## 10 2018-07-31 16:29:06      distinct-1 began.
+## 11 2018-07-31 16:29:06      distinct-2 began.
+## 12 2018-07-31 16:29:07      distinct-3 began.
+## 13 2018-07-31 16:29:07      distinct-4 began.
+## 14 2018-07-31 16:29:16 save-everything began.</code></pre>
+<pre class="r"><code>save.image(image_file)</code></pre>
 
 
 
