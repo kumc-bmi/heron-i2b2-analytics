@@ -215,9 +215,29 @@ head(unique_patients_3)
 dim(unique_patients_3)
 ```
 
+Suppose we want to know the gender of all these patients.
+
+```{r gender-1}
+log_time()
+sql_extract_gender <- "
+SELECT patient_num, concept_cd
+FROM blueherondata.observation_fact
+WHERE patient_num IN (
+  SELECT DISTINCT patient_num 
+  FROM blueherondata.observation_fact
+  WHERE concept_cd LIKE '%E11.2%' 
+  AND rownum < 100
+) AND concept_cd LIKE 'DEM|SEX:%'"
+gender_list <- dbGetQuery(c_connect, sql_extract_gender)
+head(gender_list)
+dim(gender_list)
+table(gender_list$CONCEPT_CD)
+```
+
 Now, let's take things one step further. For these unique patients, let's pull any record associated with medications.
 
 ```{r medication}
+log_time()
 sql_extract_medications_prefix <- "
 SELECT patient_num, concept_cd, start_date AS edate
 FROM blueherondata.observation_fact

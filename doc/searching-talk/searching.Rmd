@@ -1,0 +1,30 @@
+---
+title: "Searching for specific information in the electronic health record."
+author: "Steve Simon, Department of Biomedical and Health Informatics, UMKC"
+date: "8/16/2018"
+output: ioslides_presentation
+---
+
+## Abstract
+
+Navigating through an electronic health record database can be daunting. Here are a few tips illustrated by a search for records associated with the drug Tamoxifen.
+
+## i2b2 Query & Analysis Tool
+
+![](~/heron-i2b2-analytics/doc/searching-talk/images/heron01.PNG)
+
+<div class="notes">
+
+The query and analysis tool that comes with i2b2 is a nice starting point. Here is what the upper left panel of the opening screen looks like. At this point, you could open the 
+
+</div>
+
+## i2b2 Query & Analysis Tool -- Browsing
+
+![](~/heron-i2b2-analytics/doc/searching-talk/images/heron01a.PNG)
+
+<div class="notes">
+
+At this point, you could open the Medications folder and wander around until you find Tamoxifen.
+</div>
+
