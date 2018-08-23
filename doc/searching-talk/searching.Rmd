@@ -26,5 +26,135 @@ The query and analysis tool that comes with i2b2 is a nice starting point. Here 
 <div class="notes">
 
 At this point, you could open the Medications folder and wander around until you find Tamoxifen.
+
 </div>
 
+## i2b2 Query & Analysis Tool -- Searching
+
+![](~/heron-i2b2-analytics/doc/searching-talk/images/heron02.PNG)
+
+<div class="notes">
+
+You could use the search function, but be careful. Tamoxifen appears in a lot of strange places, such as under medication allergies.
+
+</div>
+
+## i2b2 Query & Analysis Tool -- Restricting the search
+
+![](~/heron-i2b2-analytics/doc/searching-talk/images/heron03.PNG)
+
+<div class="notes">
+
+You can shorten the list substantially by restricting the search to entries within the Medicaiton category.
+
+</div>
+
+## i2b2 Query & Analysis Tool -- Restricting the search
+
+![](~/heron-i2b2-analytics/doc/searching-talk/images/heron04.PNG)
+
+<div class="notes">
+
+Notice that each of these Tamoxifen entries is a folder, with other folders within them. You can shorten the list substantially by restricting the search to entries within the Medication category.
+
+</div>
+
+## Searching via metadata
+
+```{r setup, echo=FALSE}
+library(dplyr, quietly=TRUE)
+library(knitr, quietly=TRUE)
+library(magrittr, quietly=TRUE)
+library(ROracle, quietly=TRUE)
+cdm_config <- read.csv('../../cdm_config.csv', stringsAsFactors=FALSE)
+c_connect <-
+  dbConnect(Oracle(), cdm_config$account, cdm_config$password, cdm_config$access)
+```
+
+You can find Tamoxifen entries by searching the concept_dimension table.
+
+## Searching via metadata
+
+```{r concept_dimension}
+sql1 <- "
+SELECT concept_cd
+FROM blueherondata.concept_dimension
+WHERE concept_path LIKE '%Tamoxifen%'"
+
+db1 <- dbGetQuery(c_connect, sql1)
+names(db1) <- tolower(names(db1))
+dim(db1)
+```
+
+## Here's what the first ten data values look like.
+
+
+```{r print-1}
+head(db1, n=10)
+```
+
+## Restricting your search
+
+Note the LOINC prefixes, which represent laboratory test values. You might be okay with these, but if not, then you can restrict the search.
+
+```{r concept_dimension-restricted}
+sql2 <- "
+SELECT concept_cd FROM blueherondata.concept_dimension
+WHERE concept_path LIKE '\\i2b2\\Medications%Tamoxifen%'"
+
+db2 <- dbGetQuery(c_connect, sql2)
+names(db2) <- tolower(names(db2))
+dim(db2)
+```
+
+## Here's what the first ten data values look like.
+
+```{r print-2, echo=FALSE}
+head(db2, n=10)
+```
+
+## The search is case specific, so look for all caps and all lower case.
+
+```{r case-search}
+sql3a <- "
+SELECT COUNT(concept_cd) FROM blueherondata.concept_dimension
+WHERE concept_path LIKE '\\i2b2\\Medications%TAMOXIFEN%'"
+
+dbGetQuery(c_connect, sql3a)
+
+sql3b <- "
+SELECT COUNT(concept_cd) FROM blueherondata.concept_dimension
+WHERE concept_path LIKE '\\i2b2\\Medications%Tamoxifen%'"
+
+dbGetQuery(c_connect, sql3b)
+
+sql3c <- "
+SELECT COUNT(concept_cd) FROM blueherondata.concept_dimension
+WHERE concept_path LIKE '\\i2b2\\Medications%tamoxifen%'"
+
+dbGetQuery(c_connect, sql3c)
+```
+
+## Notice that the search finds cases where trade names are used instead of Tamoxifen
+
+```{r name_char}
+sql4 <- "
+SELECT name_char FROM blueherondata.concept_dimension
+WHERE
+  (concept_path LIKE '\\i2b2\\Medications%tamoxifen%' OR
+   concept_path LIKE '\\i2b2\\Medications%Tamoxifen%' OR
+   concept_path LIKE '\\i2b2\\Medications%TAMOXIFEN%') AND 
+  (name_char NOT LIKE '%tamoxifen%' AND
+   name_char NOT LIKE '%Tamoxifen%' AND
+   name_char NOT LIKE '%TAMOXIFEN%')"
+
+db4 <- dbGetQuery(c_connect, sql4)
+names(db4) <- tolower(names(db4))
+dim(db4)
+```
+
+## Here are some examples
+
+```{r print-4}
+head(db4, n=10)
+```
