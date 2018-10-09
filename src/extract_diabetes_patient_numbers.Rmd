@@ -33,9 +33,17 @@ log_time <- function(first=FALSE) {
 
 ```{r login-to-oracle}
 log_time(first=TRUE)
-cdm_config <- read.csv('../cdm_config.csv', stringsAsFactors=FALSE)
+cdm_config <- read.csv('../cdm_config_A1.csv', stringsAsFactors=FALSE)
 c_connect <-
   dbConnect(Oracle(), cdm_config$account, cdm_config$password, cdm_config$access)
+```
+
+Quick test
+
+```{r quick-test}
+dbGetQuery(c_connect, "SELECT * FROM blueherondata.observation_fact WHERE ROWNUM < 5")
+dbGetQuery(c_connect, "SELECT * FROM blueherondata.concept_dimension WHERE ROWNUM < 5")
+dbGetQuery(c_connect, "SELECT * FROM blueheronmetadata.heron_terms WHERE ROWNUM < 5")
 ```
 
 
@@ -50,7 +58,8 @@ SELECT COUNT(DISTINCT patient_num)
 FROM blueherondata.observation_fact
 "
 
-dbGetQuery(c_connect, sql_count_patients)
+dbGetQuery(c_connect, sql_count_patients) %>%
+  format(big.mark=",")
 ```
 
 To make the SQL code look nicer, here is a function that indents a piece of SQL code nested between two other pieces.
@@ -64,37 +73,125 @@ nest <- function(sql1, sql2, sql3="") {
 }
 ```
 
-This SQL snippet adds a restriction to the ICD9 and ICD10 codes associated with diabetes.
+This SQL snippet lists all the ICD9 and ICD10 codes associated with diabetes.
 
-```{r diabetes-1}
+```{r diabetes-codes}
 log_time()
 
-sql_select_diabetes_codes <- "
+sql_list_diabetes_codes <- "
 SELECT DISTINCT concept_cd 
 FROM blueherondata.concept_dimension
 WHERE
-  concept_cd LIKE 'ICD9:250%' OR
-  concept_cd LIKE 'ICD10:E08%' OR
-  concept_cd LIKE 'ICD10:E09%' OR
-  concept_cd LIKE 'ICD10:E10%' OR
-  concept_cd LIKE 'ICD10:E11%' OR
-  concept_cd LIKE 'ICD10:E12%' OR
-  concept_cd LIKE 'ICD10:E13%'
+  concept_cd LIKE '%ICD9:250%' OR
+  concept_cd LIKE '%ICD10:E08%' OR
+  concept_cd LIKE '%ICD10:E09%' OR
+  concept_cd LIKE '%ICD10:E10%' OR
+  concept_cd LIKE '%ICD10:E11%' OR
+  concept_cd LIKE '%ICD10:E12%' OR
+  concept_cd LIKE '%ICD10:E13%'
 "
 
-dbGetQuery(c_connect, sql_select_diabetes_codes)
+diabetes_codes <- dbGetQuery(c_connect, sql_list_diabetes_codes)
+diabetes_codes %>%
+  dim
+diabetes_codes %>%
+  sample_n(20) %>%
+  arrange(CONCEPT_CD)
+diabetes_codes %>%
+  unlist %>%
+  sub(":.*$", "", .) %>%
+  table
 
-sql_restrict_to_diabetes <- nest("WHERE concept_cd IN (", sql_select_diabetes_codes, ")")
-cat(sql_restrict_to_diabetes)
+sql_select_diabetes <- nest("WHERE concept_cd IN (", sql_list_diabetes_codes, ")")
+sql_count_diabetics <- nest(sql_count_patients, sql_select_diabetes)
+cat(sql_count_diabetics)
+dbGetQuery(c_connect, sql_count_diabetics) %>%
+  format(big.mark=",")
 ```
 
-Combine this with the previous string.
+Information about diabetes codes is also available through the concept_path variable found in the concept_dimension table.
 
-```{r diabetes-2}
+```{r explore-path}
 log_time()
-sql_count_diabetics <- nest(sql_count_patients, sql_restrict_to_diabetes)
-cat(sql_count_diabetics)
-dbGetQuery(c_connect, sql_count_diabetics)
+
+sql_explore_concept_path <- "
+SELECT DISTINCT concept_path
+FROM blueherondata.concept_dimension
+WHERE
+  concept_cd LIKE '%ICD9:250%' OR
+  concept_cd LIKE '%ICD10:E08%' OR
+  concept_cd LIKE '%ICD10:E09%' OR
+  concept_cd LIKE '%ICD10:E10%' OR
+  concept_cd LIKE '%ICD10:E11%' OR
+  concept_cd LIKE '%ICD10:E12%' OR
+  concept_cd LIKE '%ICD10:E13%'
+ORDER BY concept_path
+"
+
+paths <- dbGetQuery(c_connect, sql_explore_concept_path)
+paths %>%
+  unlist %>%
+  cat(sep="\n")
+```
+
+Unfortunately, the concept_path variable is mostly coded using cryptic values. You can find cleaner descriptions using c_tooltip in blueheronmetadata.heron_terms. The halibut system uses c_tooltip for tool tip displays, so this value is almost always easier to read.
+
+```{r explore-tooltip}
+sql_explore_tooltip <- "
+SELECT DISTINCT c_tooltip 
+FROM blueheronmetadata.heron_terms
+WHERE
+  c_basecode LIKE '%ICD9:250%' OR
+  c_basecode LIKE '%ICD10:E08%' OR
+  c_basecode LIKE '%ICD10:E09%' OR
+  c_basecode LIKE '%ICD10:E10%' OR
+  c_basecode LIKE '%ICD10:E11%' OR
+  c_basecode LIKE '%ICD10:E12%' OR
+  c_basecode LIKE '%ICD10:E13%'
+ORDER BY c_tooltip
+"
+
+tooltips <- dbGetQuery(c_connect, sql_explore_tooltip)
+tooltips %>%
+  unlist %>%
+  cat(sep="\n")
+
+```
+
+Let's flip this around and find if there are any other concept_cd/c_basecode values associated with c_tooltip values containing diabetes codes.
+
+```{r alternate-codes}
+log_time()
+sql_alternate_diabetes_codes <- "
+SELECT DISTINCT c_basecode 
+FROM blueheronmetadata.heron_terms
+WHERE
+  c_tooltip LIKE '%250 Diabetes mellitus%' OR
+  c_tooltip LIKE '%E08-E13 Diabetes mellitus%'
+"
+
+alternate_codes <- dbGetQuery(c_connect, sql_alternate_diabetes_codes)
+alternate_codes %>% 
+  dim
+alternate_codes %>%
+  sample_n(20) %>%
+  arrange(C_BASECODE)
+
+alternate_codes %>%
+  unlist %>%
+  sub(":.*$", "", .) %>%
+  table
+```
+
+```{r alternate-count}
+log_time()
+
+sql_alternate_select <- nest("WHERE concept_cd IN (", sql_alternate_diabetes_codes, ")")
+sql_alternate_count <- nest(sql_count_patients, sql_alternate_select)
+cat(sql_alternate_count)
+
+dbGetQuery(c_connect, sql_alternate_count) %>%
+  format(big.mark=",")
 ```
 
 This snippet adds a date restriction.
@@ -152,7 +249,7 @@ This is what the combined query looks like.
 
 ```{r extract-2}
 log_time()
-sql_extract_diabetics <- nest(sql_extract_patients, sql_restrict_to_diabetes)
+sql_extract_diabetics <- nest(sql_extract_patients, sql_select_diabetes)
 cat(sql_extract_diabetics)
 
 patient_list <- dbGetQuery(c_connect, sql_extract_diabetics)
@@ -208,7 +305,7 @@ ORDER BY patient_num"
 
 ```{r distinct-4}
 log_time()
-sql_extract_unique_diabetics <- nest(sql_extract_unique_patients, sql_restrict_to_diabetes, sql_group)
+sql_extract_unique_diabetics <- nest(sql_extract_unique_patients, sql_select_diabetes, sql_group)
 cat(sql_extract_unique_diabetics)
 unique_patients_3 <- dbGetQuery(c_connect, sql_extract_unique_diabetics)
 head(unique_patients_3)
@@ -217,7 +314,7 @@ dim(unique_patients_3)
 
 Suppose we want to know the gender of all these patients.
 
-```{r gender-1}
+```{r gender-1, eval=FALSE}
 log_time()
 sql_extract_gender <- "
 SELECT patient_num, concept_cd
@@ -255,7 +352,7 @@ SELECT DISTINCT concept_cd FROM blueherondata.concept_dimension
 sql_extract_medications <- paste(
   sql_extract_medications_prefix,
   sql_extract_unique_patients,
-  sql_restrict_to_diabetes,
+  sql_select_diabetes,
   sql_group,
   sql_extract_medications_postfix)
 cat(sql_extract_medications)

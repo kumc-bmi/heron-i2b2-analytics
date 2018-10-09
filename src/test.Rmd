@@ -1,0 +1,30 @@
+---
+title: "Quick test"
+author: "Steve Simon"
+date: "5/31/2018"
+output: html_document
+---
+
+This program checks quickly that you can access the first few rows of the observation_fact and concept_dimension tables.
+
+
+Load the relevant libraries.
+
+```{r libraries}
+library("ROracle")
+```
+
+
+```{r login-to-oracle}
+cdm_config <- read.csv('../cdm_config_B2.csv', stringsAsFactors=FALSE)
+c_connect <-
+  dbConnect(Oracle(), cdm_config$account, cdm_config$password, cdm_config$access)
+```
+
+Quick test
+
+```{r quick-test}
+dbGetQuery(c_connect, "SELECT * FROM blueherondata.observation_fact WHERE ROWNUM < 5")
+dbGetQuery(c_connect, "SELECT * FROM blueherondata.concept_dimension WHERE ROWNUM < 5")
+```
+

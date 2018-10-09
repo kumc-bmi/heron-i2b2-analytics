@@ -15,13 +15,13 @@ Navigating through an electronic health record database can be daunting. Here ar
 
 <div class="notes">
 
-The query and analysis tool that comes with i2b2 is a nice starting point. Here is what the upper left panel of the opening screen looks like. At this point, you could open the 
+The query and analysis tool that comes with i2b2 is a nice starting point. Here is what the upper left panel of the opening screen looks like.
 
 </div>
 
-## i2b2 Query & Analysis Tool -- Browsing
+## i2b2 Query & Analysis Tool
 
-![](~/heron-i2b2-analytics/doc/searching-talk/images/heron01a.PNG)
+![](~/heron-i2b2-analytics/doc/searching-talk/images/heron02.PNG)
 
 <div class="notes">
 
@@ -29,9 +29,9 @@ At this point, you could open the Medications folder and wander around until you
 
 </div>
 
-## i2b2 Query & Analysis Tool -- Searching
+## i2b2 Query & Analysis Tool
 
-![](~/heron-i2b2-analytics/doc/searching-talk/images/heron02.PNG)
+![](~/heron-i2b2-analytics/doc/searching-talk/images/heron03.PNG)
 
 <div class="notes">
 
@@ -39,30 +39,22 @@ You could use the search function, but be careful. Tamoxifen appears in a lot of
 
 </div>
 
-## i2b2 Query & Analysis Tool -- Restricting the search
-
-![](~/heron-i2b2-analytics/doc/searching-talk/images/heron03.PNG)
-
-<div class="notes">
-
-You can shorten the list substantially by restricting the search to entries within the Medicaiton category.
-
-</div>
-
-## i2b2 Query & Analysis Tool -- Restricting the search
+## i2b2 Query & Analysis Tool
 
 ![](~/heron-i2b2-analytics/doc/searching-talk/images/heron04.PNG)
 
 <div class="notes">
 
-Notice that each of these Tamoxifen entries is a folder, with other folders within them. You can shorten the list substantially by restricting the search to entries within the Medication category.
+You can shorten the list substantially by restricting the search to entries within the Medicaiton category.
+
+Notice that each of these Tamoxifen entries is a folder, with other folders within them.
 
 </div>
 
 ## Searching via metadata
 
 ```{r setup, echo=FALSE}
-library(dplyr, quietly=TRUE)
+library(dplyr, quietly=TRUE, warn.conflicts=FALSE)
 library(knitr, quietly=TRUE)
 library(magrittr, quietly=TRUE)
 library(ROracle, quietly=TRUE)
@@ -70,10 +62,6 @@ cdm_config <- read.csv('../../cdm_config.csv', stringsAsFactors=FALSE)
 c_connect <-
   dbConnect(Oracle(), cdm_config$account, cdm_config$password, cdm_config$access)
 ```
-
-You can find Tamoxifen entries by searching the concept_dimension table.
-
-## Searching via metadata
 
 ```{r concept_dimension}
 sql1 <- "
@@ -86,6 +74,12 @@ names(db1) <- tolower(names(db1))
 dim(db1)
 ```
 
+<div class="notes">
+
+You can find Tamoxifen entries by searching the concept_dimension table.
+
+</div>
+
 ## Here's what the first ten data values look like.
 
 
@@ -93,9 +87,13 @@ dim(db1)
 head(db1, n=10)
 ```
 
-## Restricting your search
+<div class="notes">
 
 Note the LOINC prefixes, which represent laboratory test values. You might be okay with these, but if not, then you can restrict the search.
+
+</div>
+
+## Restricting your search
 
 ```{r concept_dimension-restricted}
 sql2 <- "
@@ -107,33 +105,65 @@ names(db2) <- tolower(names(db2))
 dim(db2)
 ```
 
+<div class="notes">
+
+The string in the third line of SQL code is requesting records that start with \\i2b2\\Medications and are followed by some unspecified characters (the first percentage sign) which is then followed by the string Tamoxifen and then by some more unspecified characters (the second percentage sign).
+
+</div>
+
 ## Here's what the first ten data values look like.
 
 ```{r print-2, echo=FALSE}
 head(db2, n=10)
 ```
 
-## The search is case specific, so look for all caps and all lower case.
+## Don't forget to look for all caps, ...
 
-```{r case-search}
+```{r upper-case}
 sql3a <- "
 SELECT COUNT(concept_cd) FROM blueherondata.concept_dimension
 WHERE concept_path LIKE '\\i2b2\\Medications%TAMOXIFEN%'"
 
 dbGetQuery(c_connect, sql3a)
+```
 
+<div class="notes">
+
+Apparently, there are five records where the medication is coded as TAMOXIFEN (all upper case)
+
+</div>
+
+## ... title case, ...
+
+```{r title-case}
 sql3b <- "
 SELECT COUNT(concept_cd) FROM blueherondata.concept_dimension
 WHERE concept_path LIKE '\\i2b2\\Medications%Tamoxifen%'"
 
 dbGetQuery(c_connect, sql3b)
+```
 
+<div class="notes">
+
+...in addition to the 14 we already found with an initial capital.
+
+</div>
+
+## ... and lower case.
+
+```{r lower-case}
 sql3c <- "
 SELECT COUNT(concept_cd) FROM blueherondata.concept_dimension
 WHERE concept_path LIKE '\\i2b2\\Medications%tamoxifen%'"
 
 dbGetQuery(c_connect, sql3c)
 ```
+
+<div class="notes">
+
+There are no additional records with all lower case, but it costs nothing to check other than a few electrons.
+
+</div>
 
 ## Notice that the search finds cases where trade names are used instead of Tamoxifen
 
@@ -150,7 +180,6 @@ WHERE
 
 db4 <- dbGetQuery(c_connect, sql4)
 names(db4) <- tolower(names(db4))
-dim(db4)
 ```
 
 ## Here are some examples

@@ -151,9 +151,103 @@ log_time &lt;- function(first=FALSE) {
   cat(current_time, current_chunk, &quot;began.\n&quot;, file=timing_file, append=!first)
 }</code></pre>
 <pre class="r"><code>log_time(first=TRUE)
-cdm_config &lt;- read.csv('../cdm_config.csv', stringsAsFactors=FALSE)
+cdm_config &lt;- read.csv('../cdm_config_A1.csv', stringsAsFactors=FALSE)
 c_connect &lt;-
   dbConnect(Oracle(), cdm_config$account, cdm_config$password, cdm_config$access)</code></pre>
+<p>Quick test</p>
+<pre class="r"><code>dbGetQuery(c_connect, &quot;SELECT * FROM blueherondata.observation_fact WHERE ROWNUM &lt; 5&quot;)</code></pre>
+<pre><code>##   ENCOUNTER_NUM PATIENT_NUM            CONCEPT_CD PROVIDER_ID
+## 1      30467373     1386185 KUH|COMPONENT_ID:3052           @
+## 2      30467373     1386185 KUH|COMPONENT_ID:3055           @
+## 3      30467373     1386185 KUH|COMPONENT_ID:3070           @
+## 4      30467373     1386185 KUH|COMPONENT_ID:3082           @
+##            START_DATE         MODIFIER_CD INSTANCE_NUM VALTYPE_CD
+## 1 2004-01-22 07:20:00 Labs|Aggregate:Last 2.356666e+14          T
+## 2 2004-01-22 07:20:00 Labs|Aggregate:Last 3.772472e+16          T
+## 3 2003-12-26 04:40:00 Labs|Aggregate:Last 2.334251e+15          T
+## 4 2003-12-26 04:40:00 Labs|Aggregate:Last 3.532647e+16          T
+##   TVAL_CHAR NVAL_NUM VALUEFLAG_CD QUANTITY_NUM UNITS_CD
+## 1  TOX GRAN       NA         &lt;NA&gt;           NA     &lt;NA&gt;
+## 2  TEARDROP       NA         &lt;NA&gt;           NA     &lt;NA&gt;
+## 3   PRESENT       NA         &lt;NA&gt;           NA     &lt;NA&gt;
+## 4   PRESENT       NA         &lt;NA&gt;           NA     &lt;NA&gt;
+##              END_DATE LOCATION_CD OBSERVATION_BLOB CONFIDENCE_NUM
+## 1 2004-01-22 07:20:00        &lt;NA&gt;             &lt;NA&gt;             NA
+## 2 2004-01-22 07:20:00        &lt;NA&gt;             &lt;NA&gt;             NA
+## 3 2003-12-26 04:40:00        &lt;NA&gt;             &lt;NA&gt;             NA
+## 4 2003-12-26 04:40:00        &lt;NA&gt;             &lt;NA&gt;             NA
+##   UPDATE_DATE       DOWNLOAD_DATE         IMPORT_DATE SOURCESYSTEM_CD
+## 1        &lt;NA&gt; 2018-07-10 08:28:04 2018-07-21 15:51:45  Epic@kumed.com
+## 2        &lt;NA&gt; 2018-07-10 08:28:04 2018-07-21 15:51:45  Epic@kumed.com
+## 3        &lt;NA&gt; 2018-07-10 08:28:04 2018-07-21 15:51:45  Epic@kumed.com
+## 4        &lt;NA&gt; 2018-07-10 08:28:04 2018-07-21 15:51:45  Epic@kumed.com
+##   UPLOAD_ID SUB_ENCOUNTER
+## 1        39    3965887560
+## 2        39    3965887560
+## 3        39    3965887560
+## 4        39    3965887560</code></pre>
+<pre class="r"><code>dbGetQuery(c_connect, &quot;SELECT * FROM blueherondata.concept_dimension WHERE ROWNUM &lt; 5&quot;)</code></pre>
+<pre><code>##                                                                                                             CONCEPT_PATH
+## 1               \\i2b2\\Medications\\RXAUI:3257595\\RXAUI:3257602\\RXAUI:1577594\\MEDICATION_ID:10471\\NDC:60429040290\\
+## 2               \\i2b2\\Medications\\RXAUI:3257595\\RXAUI:3257602\\RXAUI:1578800\\MEDICATION_ID:79077\\NDC:67544085745\\
+## 3              \\i2b2\\Medications\\RXAUI:3257617\\RXAUI:3257629\\RXAUI:1582406\\MEDICATION_ID:309253\\NDC:50428615013\\
+## 4 \\i2b2\\Medications\\RXAUI:3257561\\RXAUI:3257574\\RXAUI:3257576\\RXAUI:1576346\\MEDICATION_ID:1624\\NDC:60429055401\\
+##        CONCEPT_CD                 NAME_CHAR CONCEPT_BLOB
+## 1 NDC:60429040290      GSMS, INC. (90 Each)         &lt;NA&gt;
+## 2 NDC:67544085745 APHENA PHARMA S (45 Each)         &lt;NA&gt;
+## 3 NDC:50428615013              CVS (177 mL)         &lt;NA&gt;
+## 4 NDC:60429055401     GSMS, INC. (100 Each)         &lt;NA&gt;
+##           UPDATE_DATE DOWNLOAD_DATE         IMPORT_DATE SOURCESYSTEM_CD
+## 1 2018-07-29 22:59:02          &lt;NA&gt; 2018-07-29 23:18:02  Epic@kumed.com
+## 2 2018-07-29 22:59:02          &lt;NA&gt; 2018-07-29 23:18:02  Epic@kumed.com
+## 3 2018-07-29 22:59:02          &lt;NA&gt; 2018-07-29 23:18:02  Epic@kumed.com
+## 4 2018-07-29 22:59:02          &lt;NA&gt; 2018-07-29 23:18:02  Epic@kumed.com
+##   UPLOAD_ID
+## 1        NA
+## 2        NA
+## 3        NA
+## 4        NA</code></pre>
+<pre class="r"><code>dbGetQuery(c_connect, &quot;SELECT * FROM blueheronmetadata.heron_terms WHERE ROWNUM &lt; 5&quot;)</code></pre>
+<pre><code>##   C_HLEVEL
+## 1        6
+## 2        6
+## 3        6
+## 4        6
+##                                                                                                                                                                                        C_FULLNAME
+## 1 \\i2b2\\Procedures\\PRC\\ICD9 (Inpatient)\\(42-54) Operations on digestive system\\(p45) Incision, excision, and ana~\\(p45-6) Other excision of small i~\\(p45-63) Total removal of small i~\\
+## 2                        \\i2b2\\Procedures\\PRC\\ICD9 (Inpatient)\\(08-16) Operations on eye\\(p13) Operations on lens\\(p13-0) Removal of foreign body f~\\(p13-01) Removal of foreign body ~\\
+## 3                          \\i2b2\\Procedures\\PRC\\ICD9 (Inpatient)\\(08-16) Operations on eye\\(p10) Operations on conjunctiva\\(p10-4) Conjunctivoplasty\\(p10-44) Other free graft to conj~\\
+## 4                     \\i2b2\\Procedures\\PRC\\ICD9 (Inpatient)\\(08-16) Operations on eye\\(p10) Operations on conjunctiva\\(p10-2) Diagnostic procedures on ~\\(p10-21) Biopsy of conjunctiva\\
+##                                                 C_NAME C_SYNONYM_CD
+## 1         Total removal of small intestine [&lt;10 facts]            N
+## 2 Removal of foreign body from lens with use of magnet            N
+## 3                      Other free graft to conjunctiva            N
+## 4                                Biopsy of conjunctiva            N
+##   C_VISUALATTRIBUTES C_TOTALNUM C_BASECODE C_METADATAXML C_FACTTABLECOLUMN
+## 1                LA          NA ICD9:45.63          &lt;NA&gt;        concept_cd
+## 2                LA          NA ICD9:13.01          &lt;NA&gt;        concept_cd
+## 3                LA          NA ICD9:10.44          &lt;NA&gt;        concept_cd
+## 4                LA          NA ICD9:10.21          &lt;NA&gt;        concept_cd
+##         C_TABLENAME C_COLUMNNAME C_COLUMNDATATYPE C_OPERATOR
+## 1 concept_dimension concept_path                T       LIKE
+## 2 concept_dimension concept_path                T       LIKE
+## 3 concept_dimension concept_path                T       LIKE
+## 4 concept_dimension concept_path                T       LIKE
+##                                                                                                                                                                                         C_DIMCODE
+## 1 \\i2b2\\Procedures\\PRC\\ICD9 (Inpatient)\\(42-54) Operations on digestive system\\(p45) Incision, excision, and ana~\\(p45-6) Other excision of small i~\\(p45-63) Total removal of small i~\\
+## 2                        \\i2b2\\Procedures\\PRC\\ICD9 (Inpatient)\\(08-16) Operations on eye\\(p13) Operations on lens\\(p13-0) Removal of foreign body f~\\(p13-01) Removal of foreign body ~\\
+## 3                          \\i2b2\\Procedures\\PRC\\ICD9 (Inpatient)\\(08-16) Operations on eye\\(p10) Operations on conjunctiva\\(p10-4) Conjunctivoplasty\\(p10-44) Other free graft to conj~\\
+## 4                     \\i2b2\\Procedures\\PRC\\ICD9 (Inpatient)\\(08-16) Operations on eye\\(p10) Operations on conjunctiva\\(p10-2) Diagnostic procedures on ~\\(p10-21) Biopsy of conjunctiva\\
+##   C_COMMENT C_TOOLTIP M_APPLIED_PATH UPDATE_DATE DOWNLOAD_DATE IMPORT_DATE
+## 1      &lt;NA&gt;      &lt;NA&gt;              @  2006-04-17    2006-04-17  2006-04-17
+## 2      &lt;NA&gt;      &lt;NA&gt;              @  2006-04-17    2006-04-17  2006-04-17
+## 3      &lt;NA&gt;      &lt;NA&gt;              @  2006-04-17    2006-04-17  2006-04-17
+## 4      &lt;NA&gt;      &lt;NA&gt;              @  2006-04-17    2006-04-17  2006-04-17
+##   SOURCESYSTEM_CD VALUETYPE_CD M_EXCLUSION_CD C_PATH C_SYMBOL TERM_ID
+## 1            RPDR         &lt;NA&gt;           &lt;NA&gt;   &lt;NA&gt;     &lt;NA&gt;       1
+## 2            RPDR         &lt;NA&gt;           &lt;NA&gt;   &lt;NA&gt;     &lt;NA&gt;       2
+## 3            RPDR         &lt;NA&gt;           &lt;NA&gt;   &lt;NA&gt;     &lt;NA&gt;       3
+## 4            RPDR         &lt;NA&gt;           &lt;NA&gt;   &lt;NA&gt;     &lt;NA&gt;       4</code></pre>
 <p>The SQL code to count and extract patient numbers can get quite long. It helps to break the code into distinct pieces.</p>
 <p>The following SQL snippet counts the distinct number of patients. You can combine with additional SQL code to place restrictions on the types of patients.</p>
 <pre class="r"><code>log_time()
@@ -162,9 +256,10 @@ SELECT COUNT(DISTINCT patient_num)
 FROM blueherondata.observation_fact
 &quot;
 
-dbGetQuery(c_connect, sql_count_patients)</code></pre>
+dbGetQuery(c_connect, sql_count_patients) %&gt;%
+  format(big.mark=&quot;,&quot;)</code></pre>
 <pre><code>##   COUNT(DISTINCTPATIENT_NUM)
-## 1                    2346649</code></pre>
+## 1                  2,359,360</code></pre>
 <p>To make the SQL code look nicer, here is a function that indents a piece of SQL code nested between two other pieces.</p>
 <pre class="r"><code>nest &lt;- function(sql1, sql2, sql3=&quot;&quot;) {
   paste0(
@@ -172,382 +267,59 @@ dbGetQuery(c_connect, sql_count_patients)</code></pre>
     gsub(&quot;\n&quot;, &quot;\n  &quot;, sql2),
     sql3)
 }</code></pre>
-<p>This SQL snippet adds a restriction to the ICD9 and ICD10 codes associated with diabetes.</p>
+<p>This SQL snippet lists all the ICD9 and ICD10 codes associated with diabetes.</p>
 <pre class="r"><code>log_time()
 
-sql_select_diabetes_codes &lt;- &quot;
+sql_list_diabetes_codes &lt;- &quot;
 SELECT DISTINCT concept_cd 
 FROM blueherondata.concept_dimension
 WHERE
-  concept_cd LIKE 'ICD9:250%' OR
-  concept_cd LIKE 'ICD10:E08%' OR
-  concept_cd LIKE 'ICD10:E09%' OR
-  concept_cd LIKE 'ICD10:E10%' OR
-  concept_cd LIKE 'ICD10:E11%' OR
-  concept_cd LIKE 'ICD10:E12%' OR
-  concept_cd LIKE 'ICD10:E13%'
+  concept_cd LIKE '%ICD9:250%' OR
+  concept_cd LIKE '%ICD10:E08%' OR
+  concept_cd LIKE '%ICD10:E09%' OR
+  concept_cd LIKE '%ICD10:E10%' OR
+  concept_cd LIKE '%ICD10:E11%' OR
+  concept_cd LIKE '%ICD10:E12%' OR
+  concept_cd LIKE '%ICD10:E13%'
 &quot;
 
-dbGetQuery(c_connect, sql_select_diabetes_codes)</code></pre>
-<pre><code>##        CONCEPT_CD
-## 1   ICD10:E11.620
-## 2     ICD9:250.91
-## 3      ICD9:250.5
-## 4     ICD10:E10.3
-## 5   ICD10:E10.321
-## 6   ICD10:E10.341
-## 7   ICD10:E10.319
-## 8   ICD10:E11.351
-## 9    ICD10:E11.33
-## 10  ICD10:E11.341
-## 11  ICD10:E11.349
-## 12    ICD10:E08.2
-## 13   ICD10:E08.21
-## 14  ICD10:E08.641
-## 15  ICD10:E08.610
-## 16    ICD10:E13.3
-## 17   ICD10:E13.34
-## 18  ICD10:E13.329
-## 19  ICD10:E13.339
-## 20  ICD10:E13.628
-## 21     ICD9:250.1
-## 22  ICD10:E08-E13
-## 23   ICD10:E10.62
-## 24   ICD10:E08.51
-## 25   ICD10:E08.43
-## 26   ICD10:E09.32
-## 27  ICD10:E09.329
-## 28   ICD10:E09.31
-## 29  ICD10:E09.311
-## 30   ICD10:E09.35
-## 31   ICD10:E09.36
-## 32   ICD10:E09.52
-## 33   ICD10:E11.59
-## 34   ICD10:E10.41
-## 35   ICD10:E10.43
-## 36   ICD10:E11.29
-## 37  ICD10:E11.610
-## 38  ICD10:E11.649
-## 39   ICD10:E13.61
-## 40  ICD10:E13.618
-## 41   ICD10:E13.52
-## 42    ICD10:E09.6
-## 43  ICD10:E09.649
-## 44   ICD10:E09.65
-## 45   ICD10:E09.29
-## 46  ICD10:E11.329
-## 47    ICD10:E08.3
-## 48  ICD10:E08.319
-## 49   ICD10:E11.00
-## 50   ICD10:E11.01
-## 51  ICD10:E10.359
-## 52  ICD10:E10.339
-## 53   ICD10:E10.39
-## 54    ICD9:250.21
-## 55    ICD9:250.22
-## 56  ICD10:E10.329
-## 57    ICD9:250.82
-## 58   ICD10:E08.10
-## 59  ICD10:E08.649
-## 60   ICD10:E08.63
-## 61  ICD10:E08.638
-## 62   ICD10:E13.33
-## 63   ICD10:E13.62
-## 64     ICD9:250.3
-## 65    ICD9:250.30
-## 66    ICD9:250.42
-## 67      ICD10:E11
-## 68   ICD10:E10.64
-## 69  ICD10:E10.630
-## 70  ICD10:E10.620
-## 71  ICD10:E08.321
-## 72    ICD10:E09.3
-## 73  ICD10:E09.341
-## 74    ICD10:E11.9
-## 75   ICD10:E11.44
-## 76   ICD10:E13.64
-## 77  ICD10:E13.649
-## 78   ICD10:E13.69
-## 79   ICD10:E09.64
-## 80  ICD10:E09.638
-## 81   ICD10:E09.44
-## 82   ICD10:E09.00
-## 83    ICD10:E09.1
-## 84   ICD10:E09.10
-## 85   ICD10:E09.11
-## 86   ICD10:E13.10
-## 87    ICD10:E11.3
-## 88  ICD10:E08.622
-## 89    ICD10:E11.0
-## 90   ICD10:E10.59
-## 91    ICD10:E10.2
-## 92   ICD10:E10.21
-## 93    ICD9:250.20
-## 94   ICD10:E10.32
-## 95  ICD10:E10.311
-## 96  ICD10:E08.620
-## 97  ICD10:E13.341
-## 98   ICD10:E13.35
-## 99    ICD10:E13.6
-## 100   ICD9:250.33
-## 101    ICD9:250.4
-## 102  ICD10:E11.69
-## 103  ICD10:E11.40
-## 104  ICD10:E10.61
-## 105 ICD10:E10.618
-## 106 ICD10:E10.641
-## 107  ICD10:E10.63
-## 108 ICD10:E08.329
-## 109 ICD10:E08.331
-## 110 ICD10:E08.351
-## 111   ICD10:E08.5
-## 112  ICD10:E08.44
-## 113   ICD10:E08.9
-## 114     ICD10:E09
-## 115 ICD10:E09.359
-## 116 ICD10:E09.349
-## 117   ICD10:E11.8
-## 118  ICD10:E10.44
-## 119 ICD10:E13.610
-## 120   ICD10:E13.8
-## 121   ICD10:E13.9
-## 122 ICD10:E09.620
-## 123 ICD10:E09.630
-## 124  ICD10:E09.22
-## 125   ICD10:E09.0
-## 126 ICD10:E11.622
-## 127 ICD10:E11.638
-## 128  ICD10:E11.65
-## 129   ICD10:E10.8
-## 130   ICD10:E10.9
-## 131 ICD10:E11.321
-## 132  ICD10:E10.35
-## 133  ICD10:E10.36
-## 134      ICD9:250
-## 135    ICD9:250.0
-## 136    ICD9:250.9
-## 137   ICD9:250.93
-## 138   ICD9:250.23
-## 139  ICD10:E10.69
-## 140   ICD10:E10.1
-## 141   ICD9:250.61
-## 142  ICD10:E08.64
-## 143 ICD10:E13.311
-## 144  ICD10:E13.36
-## 145  ICD10:E13.40
-## 146  ICD10:E13.21
-## 147 ICD10:E13.620
-## 148   ICD9:250.03
-## 149   ICD9:250.11
-## 150   ICD9:250.41
-## 151   ICD9:250.51
-## 152  ICD10:E11.42
-## 153 ICD10:E10.649
-## 154  ICD10:E10.65
-## 155 ICD10:E08.339
-## 156   ICD10:E08.4
-## 157  ICD10:E08.49
-## 158  ICD10:E09.59
-## 159 ICD10:E13.641
-## 160 ICD10:E13.630
-## 161  ICD10:E09.69
-## 162  ICD10:E09.41
-## 163   ICD10:E09.8
-## 164  ICD10:E13.11
-## 165 ICD10:E11.319
-## 166  ICD10:E08.31
-## 167   ICD10:E11.2
-## 168  ICD10:E11.22
-## 169 ICD10:E10.331
-## 170   ICD10:E10.5
-## 171     ICD10:E08
-## 172   ICD10:E08.0
-## 173  ICD10:E11.39
-## 174   ICD9:250.50
-## 175  ICD10:E10.11
-## 176   ICD9:250.53
-## 177    ICD9:250.6
-## 178  ICD10:E11.35
-## 179 ICD10:E11.359
-## 180 ICD10:E11.331
-## 181   ICD9:250.81
-## 182   ICD10:E08.6
-## 183  ICD10:E08.61
-## 184  ICD10:E08.62
-## 185 ICD10:E13.349
-## 186  ICD10:E13.39
-## 187  ICD10:E13.42
-## 188  ICD10:E13.29
-## 189   ICD9:250.73
-## 190    ICD9:250.8
-## 191   ICD9:250.80
-## 192   ICD9:250.12
-## 193 ICD10:E10.621
-## 194 ICD10:E08.359
-## 195  ICD10:E08.52
-## 196  ICD10:E08.59
-## 197  ICD10:E08.42
-## 198 ICD10:E09.321
-## 199 ICD10:E09.351
-## 200 ICD10:E09.331
-## 201 ICD10:E09.339
-## 202  ICD10:E11.52
-## 203 ICD10:E11.618
-## 204  ICD10:E11.64
-## 205 ICD10:E13.638
-## 206  ICD10:E09.21
-## 207  ICD10:E09.40
-## 208  ICD10:E09.01
-## 209   ICD10:E09.9
-## 210     ICD10:E13
-## 211  ICD10:E11.31
-## 212 ICD10:E08.628
-## 213  ICD10:E11.21
-## 214  ICD10:E10.52
-## 215  ICD10:E11.51
-## 216   ICD9:250.00
-## 217    ICD9:250.2
-## 218  ICD10:E10.34
-## 219 ICD10:E10.349
-## 220 ICD10:E11.339
-## 221  ICD10:E11.36
-## 222   ICD10:E08.1
-## 223  ICD10:E08.11
-## 224 ICD10:E08.630
-## 225  ICD10:E13.32
-## 226 ICD10:E13.321
-## 227   ICD10:E13.4
-## 228  ICD10:E13.41
-## 229  ICD10:E13.49
-## 230 ICD10:E13.621
-## 231 ICD10:E13.622
-## 232   ICD9:250.02
-## 233   ICD9:250.62
-## 234   ICD9:250.71
-## 235   ICD10:E11.4
-## 236  ICD10:E11.43
-## 237     ICD10:E10
-## 238 ICD10:E10.610
-## 239 ICD10:E10.638
-## 240 ICD10:E08.341
-## 241  ICD10:E08.39
-## 242  ICD10:E08.40
-## 243  ICD10:E08.41
-## 244 ICD10:E09.319
-## 245   ICD10:E09.5
-## 246  ICD10:E09.51
-## 247   ICD10:E10.4
-## 248  ICD10:E10.40
-## 249  ICD10:E11.49
-## 250 ICD10:E11.641
-## 251  ICD10:E13.63
-## 252  ICD10:E13.00
-## 253  ICD10:E13.01
-## 254  ICD10:E13.59
-## 255  ICD10:E09.62
-## 256  ICD10:E09.63
-## 257  ICD10:E09.61
-## 258  ICD10:E09.49
-## 259 ICD10:E11.628
-## 260  ICD10:E11.63
-## 261 ICD10:E10.351
-## 262  ICD10:E10.22
-## 263  ICD10:E08.00
-## 264   ICD10:E11.5
-## 265  ICD10:E11.62
-## 266   ICD9:250.90
-## 267  ICD10:E11.34
-## 268   ICD9:250.01
-## 269   ICD9:250.83
-## 270  ICD10:E08.22
-## 271 ICD10:E08.618
-## 272 ICD10:E13.359
-## 273  ICD10:E13.22
-## 274   ICD9:250.13
-## 275   ICD9:250.40
-## 276   ICD9:250.43
-## 277   ICD9:250.63
-## 278   ICD10:E10.6
-## 279 ICD10:E10.622
-## 280 ICD10:E10.628
-## 281  ICD10:E08.33
-## 282  ICD10:E08.35
-## 283  ICD10:E08.34
-## 284   ICD10:E08.8
-## 285  ICD10:E09.34
-## 286  ICD10:E10.29
-## 287  ICD10:E10.49
-## 288   ICD10:E11.6
-## 289  ICD10:E11.61
-## 290  ICD10:E13.65
-## 291   ICD10:E13.0
-## 292   ICD10:E13.5
-## 293  ICD10:E13.51
-## 294 ICD10:E09.621
-## 295 ICD10:E09.618
-## 296   ICD10:E13.1
-## 297  ICD10:E11.32
-## 298 ICD10:E08.311
-## 299  ICD10:E08.01
-## 300 ICD10:E11.621
-## 301   ICD9:250.92
-## 302  ICD10:E10.10
-## 303  ICD10:E10.31
-## 304   ICD9:250.52
-## 305   ICD9:250.60
-## 306  ICD10:E08.29
-## 307 ICD10:E08.621
-## 308  ICD10:E13.31
-## 309 ICD10:E13.319
-## 310 ICD10:E13.351
-## 311 ICD10:E13.331
-## 312  ICD10:E13.43
-## 313  ICD10:E13.44
-## 314   ICD10:E13.2
-## 315   ICD9:250.31
-## 316   ICD9:250.32
-## 317   ICD9:250.72
-## 318   ICD9:250.10
-## 319    ICD9:250.7
-## 320   ICD9:250.70
-## 321  ICD10:E11.41
-## 322  ICD10:E08.32
-## 323 ICD10:E08.349
-## 324  ICD10:E08.36
-## 325  ICD10:E09.33
-## 326  ICD10:E09.39
-## 327  ICD10:E10.42
-## 328 ICD10:E09.641
-## 329 ICD10:E09.622
-## 330 ICD10:E09.628
-## 331 ICD10:E09.610
-## 332   ICD10:E09.2
-## 333   ICD10:E09.4
-## 334  ICD10:E09.42
-## 335  ICD10:E09.43
-## 336 ICD10:E11.630
-## 337 ICD10:E11.311
-## 338  ICD10:E08.65
-## 339  ICD10:E08.69
-## 340  ICD10:E10.33
-## 341  ICD10:E10.51</code></pre>
-<pre class="r"><code>sql_restrict_to_diabetes &lt;- nest(&quot;WHERE concept_cd IN (&quot;, sql_select_diabetes_codes, &quot;)&quot;)
-cat(sql_restrict_to_diabetes)</code></pre>
-<pre><code>## WHERE concept_cd IN (
-##   SELECT DISTINCT concept_cd 
-##   FROM blueherondata.concept_dimension
-##   WHERE
-##     concept_cd LIKE 'ICD9:250%' OR
-##     concept_cd LIKE 'ICD10:E08%' OR
-##     concept_cd LIKE 'ICD10:E09%' OR
-##     concept_cd LIKE 'ICD10:E10%' OR
-##     concept_cd LIKE 'ICD10:E11%' OR
-##     concept_cd LIKE 'ICD10:E12%' OR
-##     concept_cd LIKE 'ICD10:E13%'
-##   )</code></pre>
-<p>Combine this with the previous string.</p>
-<pre class="r"><code>log_time()
-sql_count_diabetics &lt;- nest(sql_count_patients, sql_restrict_to_diabetes)
+diabetes_codes &lt;- dbGetQuery(c_connect, sql_list_diabetes_codes)
+diabetes_codes %&gt;%
+  dim</code></pre>
+<pre><code>## [1] 341   1</code></pre>
+<pre class="r"><code>diabetes_codes %&gt;%
+  sample_n(20) %&gt;%
+  arrange(CONCEPT_CD)</code></pre>
+<pre><code>##       CONCEPT_CD
+## 1   ICD10:E08.43
+## 2   ICD10:E08.62
+## 3  ICD10:E08.628
+## 4   ICD10:E08.63
+## 5    ICD10:E09.1
+## 6    ICD10:E09.3
+## 7  ICD10:E09.319
+## 8  ICD10:E09.349
+## 9   ICD10:E09.35
+## 10  ICD10:E09.41
+## 11 ICD10:E10.329
+## 12 ICD10:E10.618
+## 13 ICD10:E10.638
+## 14  ICD10:E11.32
+## 15  ICD10:E11.35
+## 16  ICD10:E11.51
+## 17 ICD10:E13.319
+## 18 ICD10:E13.329
+## 19 ICD10:E13.649
+## 20   ICD9:250.11</code></pre>
+<pre class="r"><code>diabetes_codes %&gt;%
+  unlist %&gt;%
+  sub(&quot;:.*$&quot;, &quot;&quot;, .) %&gt;%
+  table</code></pre>
+<pre><code>## .
+## ICD10  ICD9 
+##   290    51</code></pre>
+<pre class="r"><code>sql_select_diabetes &lt;- nest(&quot;WHERE concept_cd IN (&quot;, sql_list_diabetes_codes, &quot;)&quot;)
+sql_count_diabetics &lt;- nest(sql_count_patients, sql_select_diabetes)
 cat(sql_count_diabetics)</code></pre>
 <pre><code>## 
 ## SELECT COUNT(DISTINCT patient_num)
@@ -556,17 +328,664 @@ cat(sql_count_diabetics)</code></pre>
 ##     SELECT DISTINCT concept_cd 
 ##     FROM blueherondata.concept_dimension
 ##     WHERE
-##       concept_cd LIKE 'ICD9:250%' OR
-##       concept_cd LIKE 'ICD10:E08%' OR
-##       concept_cd LIKE 'ICD10:E09%' OR
-##       concept_cd LIKE 'ICD10:E10%' OR
-##       concept_cd LIKE 'ICD10:E11%' OR
-##       concept_cd LIKE 'ICD10:E12%' OR
-##       concept_cd LIKE 'ICD10:E13%'
+##       concept_cd LIKE '%ICD9:250%' OR
+##       concept_cd LIKE '%ICD10:E08%' OR
+##       concept_cd LIKE '%ICD10:E09%' OR
+##       concept_cd LIKE '%ICD10:E10%' OR
+##       concept_cd LIKE '%ICD10:E11%' OR
+##       concept_cd LIKE '%ICD10:E12%' OR
+##       concept_cd LIKE '%ICD10:E13%'
 ##     )</code></pre>
-<pre class="r"><code>dbGetQuery(c_connect, sql_count_diabetics)</code></pre>
+<pre class="r"><code>dbGetQuery(c_connect, sql_count_diabetics) %&gt;%
+  format(big.mark=&quot;,&quot;)</code></pre>
 <pre><code>##   COUNT(DISTINCTPATIENT_NUM)
-## 1                      55585</code></pre>
+## 1                     56,037</code></pre>
+<p>Information about diabetes codes is also available through the concept_path variable found in the concept_dimension table.</p>
+<pre class="r"><code>log_time()
+
+sql_explore_concept_path &lt;- &quot;
+SELECT DISTINCT concept_path
+FROM blueherondata.concept_dimension
+WHERE
+  concept_cd LIKE '%ICD9:250%' OR
+  concept_cd LIKE '%ICD10:E08%' OR
+  concept_cd LIKE '%ICD10:E09%' OR
+  concept_cd LIKE '%ICD10:E10%' OR
+  concept_cd LIKE '%ICD10:E11%' OR
+  concept_cd LIKE '%ICD10:E12%' OR
+  concept_cd LIKE '%ICD10:E13%'
+ORDER BY concept_path
+&quot;
+
+paths &lt;- dbGetQuery(c_connect, sql_explore_concept_path)
+paths %&gt;%
+  unlist %&gt;%
+  cat(sep=&quot;\n&quot;)</code></pre>
+<pre><code>## \i2b2\Diagnoses\A18090800\A8359006\A8359307\A15573936\A8352361\
+## \i2b2\Diagnoses\A18090800\A8359006\A8359307\A15573936\A8352361\A8340910\
+## \i2b2\Diagnoses\A18090800\A8359006\A8359307\A15573936\A8352361\A8340910\250.00\
+## \i2b2\Diagnoses\A18090800\A8359006\A8359307\A15573936\A8352361\A8340910\250.01\
+## \i2b2\Diagnoses\A18090800\A8359006\A8359307\A15573936\A8352361\A8340910\250.02\
+## \i2b2\Diagnoses\A18090800\A8359006\A8359307\A15573936\A8352361\A8340910\250.03\
+## \i2b2\Diagnoses\A18090800\A8359006\A8359307\A15573936\A8352361\A8340911\
+## \i2b2\Diagnoses\A18090800\A8359006\A8359307\A15573936\A8352361\A8340911\250.10\
+## \i2b2\Diagnoses\A18090800\A8359006\A8359307\A15573936\A8352361\A8340911\250.11\
+## \i2b2\Diagnoses\A18090800\A8359006\A8359307\A15573936\A8352361\A8340911\250.12\
+## \i2b2\Diagnoses\A18090800\A8359006\A8359307\A15573936\A8352361\A8340911\250.13\
+## \i2b2\Diagnoses\A18090800\A8359006\A8359307\A15573936\A8352361\A8340912\
+## \i2b2\Diagnoses\A18090800\A8359006\A8359307\A15573936\A8352361\A8340912\250.30\
+## \i2b2\Diagnoses\A18090800\A8359006\A8359307\A15573936\A8352361\A8340912\250.31\
+## \i2b2\Diagnoses\A18090800\A8359006\A8359307\A15573936\A8352361\A8340912\250.32\
+## \i2b2\Diagnoses\A18090800\A8359006\A8359307\A15573936\A8352361\A8340912\250.33\
+## \i2b2\Diagnoses\A18090800\A8359006\A8359307\A15573936\A8352361\A8340913\
+## \i2b2\Diagnoses\A18090800\A8359006\A8359307\A15573936\A8352361\A8340913\250.40\
+## \i2b2\Diagnoses\A18090800\A8359006\A8359307\A15573936\A8352361\A8340913\250.41\
+## \i2b2\Diagnoses\A18090800\A8359006\A8359307\A15573936\A8352361\A8340913\250.42\
+## \i2b2\Diagnoses\A18090800\A8359006\A8359307\A15573936\A8352361\A8340913\250.43\
+## \i2b2\Diagnoses\A18090800\A8359006\A8359307\A15573936\A8352361\A8340914\
+## \i2b2\Diagnoses\A18090800\A8359006\A8359307\A15573936\A8352361\A8340914\250.50\
+## \i2b2\Diagnoses\A18090800\A8359006\A8359307\A15573936\A8352361\A8340914\250.51\
+## \i2b2\Diagnoses\A18090800\A8359006\A8359307\A15573936\A8352361\A8340914\250.52\
+## \i2b2\Diagnoses\A18090800\A8359006\A8359307\A15573936\A8352361\A8340914\250.53\
+## \i2b2\Diagnoses\A18090800\A8359006\A8359307\A15573936\A8352361\A8340915\
+## \i2b2\Diagnoses\A18090800\A8359006\A8359307\A15573936\A8352361\A8340915\250.60\
+## \i2b2\Diagnoses\A18090800\A8359006\A8359307\A15573936\A8352361\A8340915\250.61\
+## \i2b2\Diagnoses\A18090800\A8359006\A8359307\A15573936\A8352361\A8340915\250.62\
+## \i2b2\Diagnoses\A18090800\A8359006\A8359307\A15573936\A8352361\A8340915\250.63\
+## \i2b2\Diagnoses\A18090800\A8359006\A8359307\A15573936\A8352361\A8340916\
+## \i2b2\Diagnoses\A18090800\A8359006\A8359307\A15573936\A8352361\A8340916\250.70\
+## \i2b2\Diagnoses\A18090800\A8359006\A8359307\A15573936\A8352361\A8340916\250.71\
+## \i2b2\Diagnoses\A18090800\A8359006\A8359307\A15573936\A8352361\A8340916\250.72\
+## \i2b2\Diagnoses\A18090800\A8359006\A8359307\A15573936\A8352361\A8340916\250.73\
+## \i2b2\Diagnoses\A18090800\A8359006\A8359307\A15573936\A8352361\A8343926\
+## \i2b2\Diagnoses\A18090800\A8359006\A8359307\A15573936\A8352361\A8343926\250.80\
+## \i2b2\Diagnoses\A18090800\A8359006\A8359307\A15573936\A8352361\A8343926\250.81\
+## \i2b2\Diagnoses\A18090800\A8359006\A8359307\A15573936\A8352361\A8343926\250.82\
+## \i2b2\Diagnoses\A18090800\A8359006\A8359307\A15573936\A8352361\A8343926\250.83\
+## \i2b2\Diagnoses\A18090800\A8359006\A8359307\A15573936\A8352361\A8343927\
+## \i2b2\Diagnoses\A18090800\A8359006\A8359307\A15573936\A8352361\A8343927\250.90\
+## \i2b2\Diagnoses\A18090800\A8359006\A8359307\A15573936\A8352361\A8343927\250.91\
+## \i2b2\Diagnoses\A18090800\A8359006\A8359307\A15573936\A8352361\A8343927\250.92\
+## \i2b2\Diagnoses\A18090800\A8359006\A8359307\A15573936\A8352361\A8343927\250.93\
+## \i2b2\Diagnoses\A18090800\A8359006\A8359307\A15573936\A8352361\A8359116\
+## \i2b2\Diagnoses\A18090800\A8359006\A8359307\A15573936\A8352361\A8359116\250.20\
+## \i2b2\Diagnoses\A18090800\A8359006\A8359307\A15573936\A8352361\A8359116\250.21\
+## \i2b2\Diagnoses\A18090800\A8359006\A8359307\A15573936\A8352361\A8359116\250.22\
+## \i2b2\Diagnoses\A18090800\A8359006\A8359307\A15573936\A8352361\A8359116\250.23\
+## \i2b2\Diagnoses\Endocrine disorders (240-259)\Other endocrine gland diseases (250-259)\(250) Diabetes mellitus\
+## \i2b2\Diagnoses\Endocrine disorders (240-259)\Other endocrine gland diseases (250-259)\(250) Diabetes mellitus\(250-0) Diabetes mellitus without~\
+## \i2b2\Diagnoses\Endocrine disorders (240-259)\Other endocrine gland diseases (250-259)\(250) Diabetes mellitus\(250-0) Diabetes mellitus without~\(250-00) type II diabetes mellitu~\
+## \i2b2\Diagnoses\Endocrine disorders (240-259)\Other endocrine gland diseases (250-259)\(250) Diabetes mellitus\(250-0) Diabetes mellitus without~\(250-01) type I diabetes mellitus~\
+## \i2b2\Diagnoses\Endocrine disorders (240-259)\Other endocrine gland diseases (250-259)\(250) Diabetes mellitus\(250-0) Diabetes mellitus without~\(250-02) type II diabetes mellitu~\
+## \i2b2\Diagnoses\Endocrine disorders (240-259)\Other endocrine gland diseases (250-259)\(250) Diabetes mellitus\(250-0) Diabetes mellitus without~\(250-03) type I diabetes mellitus~\
+## \i2b2\Diagnoses\Endocrine disorders (240-259)\Other endocrine gland diseases (250-259)\(250) Diabetes mellitus\(250-1) Diabetes with ketoacidosis\
+## \i2b2\Diagnoses\Endocrine disorders (240-259)\Other endocrine gland diseases (250-259)\(250) Diabetes mellitus\(250-1) Diabetes with ketoacidosis\(250-10) type II diabetes mellitu~\
+## \i2b2\Diagnoses\Endocrine disorders (240-259)\Other endocrine gland diseases (250-259)\(250) Diabetes mellitus\(250-1) Diabetes with ketoacidosis\(250-11) type I diabetes mellitus~\
+## \i2b2\Diagnoses\Endocrine disorders (240-259)\Other endocrine gland diseases (250-259)\(250) Diabetes mellitus\(250-1) Diabetes with ketoacidosis\(250-12) type II diabetes mellitu~\
+## \i2b2\Diagnoses\Endocrine disorders (240-259)\Other endocrine gland diseases (250-259)\(250) Diabetes mellitus\(250-1) Diabetes with ketoacidosis\(250-13) type I diabetes mellitus~\
+## \i2b2\Diagnoses\Endocrine disorders (240-259)\Other endocrine gland diseases (250-259)\(250) Diabetes mellitus\(250-2) Diabetes mellitus with hy~\
+## \i2b2\Diagnoses\Endocrine disorders (240-259)\Other endocrine gland diseases (250-259)\(250) Diabetes mellitus\(250-2) Diabetes mellitus with hy~\(250-20) Diabetes mellitus, type ~\
+## \i2b2\Diagnoses\Endocrine disorders (240-259)\Other endocrine gland diseases (250-259)\(250) Diabetes mellitus\(250-2) Diabetes mellitus with hy~\(250-21) Diabetes mellitus, type ~\
+## \i2b2\Diagnoses\Endocrine disorders (240-259)\Other endocrine gland diseases (250-259)\(250) Diabetes mellitus\(250-2) Diabetes mellitus with hy~\(250-22) Diabetes mellitustype II~\
+## \i2b2\Diagnoses\Endocrine disorders (240-259)\Other endocrine gland diseases (250-259)\(250) Diabetes mellitus\(250-2) Diabetes mellitus with hy~\(250-23) Diabetes mellitus, type ~\
+## \i2b2\Diagnoses\Endocrine disorders (240-259)\Other endocrine gland diseases (250-259)\(250) Diabetes mellitus\(250-3) Diabetes with other coma\
+## \i2b2\Diagnoses\Endocrine disorders (240-259)\Other endocrine gland diseases (250-259)\(250) Diabetes mellitus\(250-3) Diabetes with other coma\(250-30) Diabetes mellitus, type ~\
+## \i2b2\Diagnoses\Endocrine disorders (240-259)\Other endocrine gland diseases (250-259)\(250) Diabetes mellitus\(250-3) Diabetes with other coma\(250-31) Diabetes mellitus, type ~\
+## \i2b2\Diagnoses\Endocrine disorders (240-259)\Other endocrine gland diseases (250-259)\(250) Diabetes mellitus\(250-3) Diabetes with other coma\(250-32) Diabetes mellitus with o~\
+## \i2b2\Diagnoses\Endocrine disorders (240-259)\Other endocrine gland diseases (250-259)\(250) Diabetes mellitus\(250-3) Diabetes with other coma\(250-33) Diabetes mellitus with o~\
+## \i2b2\Diagnoses\Endocrine disorders (240-259)\Other endocrine gland diseases (250-259)\(250) Diabetes mellitus\(250-4) Diabetes with renal manif~\
+## \i2b2\Diagnoses\Endocrine disorders (240-259)\Other endocrine gland diseases (250-259)\(250) Diabetes mellitus\(250-4) Diabetes with renal manif~\(250-40) Diabetes mellitus type I~\
+## \i2b2\Diagnoses\Endocrine disorders (240-259)\Other endocrine gland diseases (250-259)\(250) Diabetes mellitus\(250-4) Diabetes with renal manif~\(250-41) Diabetes mellitus type I~\
+## \i2b2\Diagnoses\Endocrine disorders (240-259)\Other endocrine gland diseases (250-259)\(250) Diabetes mellitus\(250-4) Diabetes with renal manif~\(250-42) Diabetes mellitus type I~\
+## \i2b2\Diagnoses\Endocrine disorders (240-259)\Other endocrine gland diseases (250-259)\(250) Diabetes mellitus\(250-4) Diabetes with renal manif~\(250-43) Diabetes mellitus type I~\
+## \i2b2\Diagnoses\Endocrine disorders (240-259)\Other endocrine gland diseases (250-259)\(250) Diabetes mellitus\(250-5) Diabetes with ophthalmic ~\
+## \i2b2\Diagnoses\Endocrine disorders (240-259)\Other endocrine gland diseases (250-259)\(250) Diabetes mellitus\(250-5) Diabetes with ophthalmic ~\(250-50) Diabetes mellitus type I~\
+## \i2b2\Diagnoses\Endocrine disorders (240-259)\Other endocrine gland diseases (250-259)\(250) Diabetes mellitus\(250-5) Diabetes with ophthalmic ~\(250-51) Diabetes mellitus type I~\
+## \i2b2\Diagnoses\Endocrine disorders (240-259)\Other endocrine gland diseases (250-259)\(250) Diabetes mellitus\(250-5) Diabetes with ophthalmic ~\(250-52) Diabetes mellitus type I~\
+## \i2b2\Diagnoses\Endocrine disorders (240-259)\Other endocrine gland diseases (250-259)\(250) Diabetes mellitus\(250-5) Diabetes with ophthalmic ~\(250-53) Diabetes mellitus type I~\
+## \i2b2\Diagnoses\Endocrine disorders (240-259)\Other endocrine gland diseases (250-259)\(250) Diabetes mellitus\(250-6) Diabetes with neurologica~\
+## \i2b2\Diagnoses\Endocrine disorders (240-259)\Other endocrine gland diseases (250-259)\(250) Diabetes mellitus\(250-6) Diabetes with neurologica~\(250-60) Diabetes mellitus type I~\
+## \i2b2\Diagnoses\Endocrine disorders (240-259)\Other endocrine gland diseases (250-259)\(250) Diabetes mellitus\(250-6) Diabetes with neurologica~\(250-61) Diabetes mellitus type I~\
+## \i2b2\Diagnoses\Endocrine disorders (240-259)\Other endocrine gland diseases (250-259)\(250) Diabetes mellitus\(250-6) Diabetes with neurologica~\(250-62) Diabetes mellitus type I~\
+## \i2b2\Diagnoses\Endocrine disorders (240-259)\Other endocrine gland diseases (250-259)\(250) Diabetes mellitus\(250-6) Diabetes with neurologica~\(250-63) Diabetes mellitus type I~\
+## \i2b2\Diagnoses\Endocrine disorders (240-259)\Other endocrine gland diseases (250-259)\(250) Diabetes mellitus\(250-7) Diabetes with peripheral ~\
+## \i2b2\Diagnoses\Endocrine disorders (240-259)\Other endocrine gland diseases (250-259)\(250) Diabetes mellitus\(250-7) Diabetes with peripheral ~\(250-70) Diabetes mellitus type I~\
+## \i2b2\Diagnoses\Endocrine disorders (240-259)\Other endocrine gland diseases (250-259)\(250) Diabetes mellitus\(250-7) Diabetes with peripheral ~\(250-71) Diabetes mellitus type I~\
+## \i2b2\Diagnoses\Endocrine disorders (240-259)\Other endocrine gland diseases (250-259)\(250) Diabetes mellitus\(250-7) Diabetes with peripheral ~\(250-72) Diabetes mellitus type I~\
+## \i2b2\Diagnoses\Endocrine disorders (240-259)\Other endocrine gland diseases (250-259)\(250) Diabetes mellitus\(250-7) Diabetes with peripheral ~\(250-73) Diabetes mellitus type I~\
+## \i2b2\Diagnoses\Endocrine disorders (240-259)\Other endocrine gland diseases (250-259)\(250) Diabetes mellitus\(250-8) Diabetes with other speci~\
+## \i2b2\Diagnoses\Endocrine disorders (240-259)\Other endocrine gland diseases (250-259)\(250) Diabetes mellitus\(250-8) Diabetes with other speci~\(250-80) Diabetes mellitus type I~\
+## \i2b2\Diagnoses\Endocrine disorders (240-259)\Other endocrine gland diseases (250-259)\(250) Diabetes mellitus\(250-8) Diabetes with other speci~\(250-81) Diabetes mellitus type I~\
+## \i2b2\Diagnoses\Endocrine disorders (240-259)\Other endocrine gland diseases (250-259)\(250) Diabetes mellitus\(250-8) Diabetes with other speci~\(250-82) Diabetes mellitus type I~\
+## \i2b2\Diagnoses\Endocrine disorders (240-259)\Other endocrine gland diseases (250-259)\(250) Diabetes mellitus\(250-8) Diabetes with other speci~\(250-83) Diabetes mellitus type I~\
+## \i2b2\Diagnoses\Endocrine disorders (240-259)\Other endocrine gland diseases (250-259)\(250) Diabetes mellitus\(250-9) Diabetes with unspecified~\
+## \i2b2\Diagnoses\Endocrine disorders (240-259)\Other endocrine gland diseases (250-259)\(250) Diabetes mellitus\(250-9) Diabetes with unspecified~\(250-90) Diabetes mellitus type I~\
+## \i2b2\Diagnoses\Endocrine disorders (240-259)\Other endocrine gland diseases (250-259)\(250) Diabetes mellitus\(250-9) Diabetes with unspecified~\(250-91) Diabetes mellitus type I~\
+## \i2b2\Diagnoses\Endocrine disorders (240-259)\Other endocrine gland diseases (250-259)\(250) Diabetes mellitus\(250-9) Diabetes with unspecified~\(250-92) Diabetes mellitus type I~\
+## \i2b2\Diagnoses\Endocrine disorders (240-259)\Other endocrine gland diseases (250-259)\(250) Diabetes mellitus\(250-9) Diabetes with unspecified~\(250-93) Diabetes mellitus type I~\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17786848\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17786848\A17774074\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17786848\A17774074\A17799608\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17786848\A17774074\A17799608\E10.610\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17786848\A17774074\A17799608\E10.618\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17786848\A17774074\A17799609\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17786848\A17774074\A17799609\E10.641\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17786848\A17774074\A17799609\E10.649\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17786848\A17774074\A17825386\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17786848\A17774074\A17825386\E10.630\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17786848\A17774074\A17825386\E10.638\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17786848\A17774074\A17838040\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17786848\A17774074\A17838040\E10.620\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17786848\A17774074\A17838040\E10.621\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17786848\A17774074\A17838040\E10.622\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17786848\A17774074\A17838040\E10.628\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17786848\A17774074\E10.65\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17786848\A17774074\E10.69\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17786848\A17786849\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17786848\A17786849\E10.10\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17786848\A17786849\E10.11\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17786848\A17786851\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17786848\A17786851\A17812464\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17786848\A17786851\A17812464\E10.321\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17786848\A17786851\A17812464\E10.329\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17786848\A17786851\A17825379\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17786848\A17786851\A17825379\E10.341\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17786848\A17786851\A17825379\E10.349\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17786848\A17786851\A17838036\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17786848\A17786851\A17838036\E10.311\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17786848\A17786851\A17838036\E10.319\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17786848\A17786851\A17850793\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17786848\A17786851\A17850793\E10.351\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17786848\A17786851\A17850793\E10.359\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17786848\A17786851\A17863442\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17786848\A17786851\A17863442\E10.331\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17786848\A17786851\A17863442\E10.339\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17786848\A17786851\E10.36\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17786848\A17786851\E10.39\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17786848\A17825382\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17786848\A17825382\E10.51\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17786848\A17825382\E10.52\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17786848\A17825382\E10.59\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17786848\A17838035\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17786848\A17838035\E10.21\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17786848\A17838035\E10.22\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17786848\A17838035\E10.29\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17786848\A17850796\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17786848\A17850796\E10.40\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17786848\A17850796\E10.41\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17786848\A17850796\E10.42\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17786848\A17850796\E10.43\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17786848\A17850796\E10.44\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17786848\A17850796\E10.49\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17786848\E10.8\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17786848\E10.9\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17812475\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17812475\A17786863\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17812475\A17786863\E13.10\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17812475\A17786863\E13.11\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17812475\A17799626\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17812475\A17799626\A17786866\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17812475\A17799626\A17786866\E13.311\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17812475\A17799626\A17786866\E13.319\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17812475\A17799626\A17825396\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17812475\A17799626\A17825396\E13.341\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17812475\A17799626\A17825396\E13.349\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17812475\A17799626\A17838057\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17812475\A17799626\A17838057\E13.351\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17812475\A17799626\A17838057\E13.359\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17812475\A17799626\A17850809\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17812475\A17799626\A17850809\E13.321\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17812475\A17799626\A17850809\E13.329\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17812475\A17799626\A17850810\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17812475\A17799626\A17850810\E13.331\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17812475\A17799626\A17850810\E13.339\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17812475\A17799626\E13.36\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17812475\A17799626\E13.39\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17812475\A17799629\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17812475\A17799629\E13.40\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17812475\A17799629\E13.41\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17812475\A17799629\E13.42\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17812475\A17799629\E13.43\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17812475\A17799629\E13.44\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17812475\A17799629\E13.49\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17812475\A17812476\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17812475\A17812476\E13.21\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17812475\A17812476\E13.22\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17812475\A17812476\E13.29\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17812475\A17825400\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17812475\A17825400\A17774094\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17812475\A17825400\A17774094\E13.620\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17812475\A17825400\A17774094\E13.621\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17812475\A17825400\A17774094\E13.622\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17812475\A17825400\A17774094\E13.628\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17812475\A17825400\A17774095\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17812475\A17825400\A17774095\E13.641\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17812475\A17825400\A17774095\E13.649\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17812475\A17825400\A17786870\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17812475\A17825400\A17786870\E13.630\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17812475\A17825400\A17786870\E13.638\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17812475\A17825400\A17812479\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17812475\A17825400\A17812479\E13.610\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17812475\A17825400\A17812479\E13.618\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17812475\A17825400\E13.65\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17812475\A17825400\E13.69\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17812475\A17838056\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17812475\A17838056\E13.00\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17812475\A17838056\E13.01\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17812475\A17850816\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17812475\A17850816\E13.51\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17812475\A17850816\E13.52\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17812475\A17850816\E13.59\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17812475\E13.8\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17812475\E13.9\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17825389\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17825389\A17786857\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17825389\A17786857\E11.40\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17825389\A17786857\E11.41\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17825389\A17786857\E11.42\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17825389\A17786857\E11.43\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17825389\A17786857\E11.44\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17825389\A17786857\E11.49\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17825389\A17786860\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17825389\A17786860\A17838053\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17825389\A17786860\A17838053\E11.610\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17825389\A17786860\A17838053\E11.618\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17825389\A17786860\A17838055\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17825389\A17786860\A17838055\E11.641\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17825389\A17786860\A17838055\E11.649\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17825389\A17786860\A17863455\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17825389\A17786860\A17863455\E11.620\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17825389\A17786860\A17863455\E11.621\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17825389\A17786860\A17863455\E11.622\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17825389\A17786860\A17863455\E11.628\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17825389\A17786860\A17863456\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17825389\A17786860\A17863456\E11.630\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17825389\A17786860\A17863456\E11.638\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17825389\A17786860\E11.65\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17825389\A17786860\E11.69\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17825389\A17799611\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17825389\A17799611\E11.00\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17825389\A17799611\E11.01\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17825389\A17799612\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17825389\A17799612\E11.21\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17825389\A17799612\E11.22\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17825389\A17799612\E11.29\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17825389\A17838046\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17825389\A17838046\A17812470\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17825389\A17838046\A17812470\E11.321\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17825389\A17838046\A17812470\E11.329\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17825389\A17838046\A17838047\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17825389\A17838046\A17838047\E11.311\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17825389\A17838046\A17838047\E11.319\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17825389\A17838046\A17838049\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17825389\A17838046\A17838049\E11.351\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17825389\A17838046\A17838049\E11.359\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17825389\A17838046\A17850801\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17825389\A17838046\A17850801\E11.331\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17825389\A17838046\A17850801\E11.339\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17825389\A17838046\A17863451\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17825389\A17838046\A17863451\E11.341\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17825389\A17838046\A17863451\E11.349\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17825389\A17838046\E11.36\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17825389\A17838046\E11.39\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17825389\A17850803\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17825389\A17850803\E11.51\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17825389\A17850803\E11.52\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17825389\A17850803\E11.59\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17825389\E11.8\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17825389\E11.9\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17850773\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17850773\A17774046\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17850773\A17774046\E08.00\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17850773\A17774046\E08.01\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17850773\A17825357\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17850773\A17825357\E08.10\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17850773\A17825357\E08.11\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17850773\A17825358\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17850773\A17825358\E08.21\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17850773\A17825358\E08.22\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17850773\A17825358\E08.29\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17850773\A17825365\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17850773\A17825365\A17774057\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17850773\A17825365\A17774057\E08.641\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17850773\A17825365\A17774057\E08.649\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17850773\A17825365\A17786833\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17850773\A17825365\A17786833\E08.630\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17850773\A17825365\A17786833\E08.638\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17850773\A17825365\A17838022\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17850773\A17825365\A17838022\E08.610\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17850773\A17825365\A17838022\E08.618\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17850773\A17825365\A17838023\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17850773\A17825365\A17838023\E08.620\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17850773\A17825365\A17838023\E08.621\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17850773\A17825365\A17838023\E08.622\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17850773\A17825365\A17838023\E08.628\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17850773\A17825365\E08.65\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17850773\A17825365\E08.69\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17850773\A17838018\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17850773\A17838018\A17786827\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17850773\A17838018\A17786827\E08.311\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17850773\A17838018\A17786827\E08.319\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17850773\A17838018\A17786828\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17850773\A17838018\A17786828\E08.321\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17850773\A17838018\A17786828\E08.329\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17850773\A17838018\A17825361\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17850773\A17838018\A17825361\E08.331\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17850773\A17838018\A17825361\E08.339\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17850773\A17838018\A17825362\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17850773\A17838018\A17825362\E08.351\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17850773\A17838018\A17825362\E08.359\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17850773\A17838018\A17850775\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17850773\A17838018\A17850775\E08.341\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17850773\A17838018\A17850775\E08.349\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17850773\A17838018\E08.36\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17850773\A17838018\E08.39\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17850773\A17838021\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17850773\A17838021\E08.51\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17850773\A17838021\E08.52\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17850773\A17838021\E08.59\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17850773\A17850777\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17850773\A17850777\E08.40\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17850773\A17850777\E08.41\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17850773\A17850777\E08.42\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17850773\A17850777\E08.43\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17850773\A17850777\E08.44\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17850773\A17850777\E08.49\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17850773\E08.8\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17850773\E08.9\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17863430\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17863430\A17774061\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17863430\A17774061\A17812457\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17863430\A17774061\A17812457\E09.321\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17863430\A17774061\A17812457\E09.329\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17863430\A17774061\A17825371\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17863430\A17774061\A17825371\E09.311\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17863430\A17774061\A17825371\E09.319\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17863430\A17774061\A17838030\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17863430\A17774061\A17838030\E09.351\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17863430\A17774061\A17838030\E09.359\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17863430\A17774061\A17850784\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17863430\A17774061\A17850784\E09.341\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17863430\A17774061\A17850784\E09.349\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17863430\A17774061\A17863432\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17863430\A17774061\A17863432\E09.331\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17863430\A17774061\A17863432\E09.339\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17863430\A17774061\E09.36\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17863430\A17774061\E09.39\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17863430\A17799598\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17863430\A17799598\E09.51\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17863430\A17799598\E09.52\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17863430\A17799598\E09.59\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17863430\A17812460\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17863430\A17812460\A17774066\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17863430\A17812460\A17774066\E09.641\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17863430\A17812460\A17774066\E09.649\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17863430\A17812460\A17825377\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17863430\A17812460\A17825377\E09.620\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17863430\A17812460\A17825377\E09.621\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17863430\A17812460\A17825377\E09.622\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17863430\A17812460\A17825377\E09.628\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17863430\A17812460\A17838034\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17863430\A17812460\A17838034\E09.630\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17863430\A17812460\A17838034\E09.638\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17863430\A17812460\A17863434\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17863430\A17812460\A17863434\E09.610\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17863430\A17812460\A17863434\E09.618\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17863430\A17812460\E09.65\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17863430\A17812460\E09.69\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17863430\A17825368\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17863430\A17825368\E09.21\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17863430\A17825368\E09.22\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17863430\A17825368\E09.29\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17863430\A17825374\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17863430\A17825374\E09.40\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17863430\A17825374\E09.41\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17863430\A17825374\E09.42\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17863430\A17825374\E09.43\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17863430\A17825374\E09.44\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17863430\A17825374\E09.49\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17863430\A17850780\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17863430\A17850780\E09.00\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17863430\A17850780\E09.01\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17863430\A17863431\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17863430\A17863431\E09.10\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17863430\A17863431\E09.11\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17863430\E09.8\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17863430\E09.9\
+## \i2b2\Diagnoses\ICD9\A18090800\A8359006\A8359307\A15573936\A8352361\
+## \i2b2\Diagnoses\ICD9\A18090800\A8359006\A8359307\A15573936\A8352361\A8340910\
+## \i2b2\Diagnoses\ICD9\A18090800\A8359006\A8359307\A15573936\A8352361\A8340910\250.00\
+## \i2b2\Diagnoses\ICD9\A18090800\A8359006\A8359307\A15573936\A8352361\A8340910\250.01\
+## \i2b2\Diagnoses\ICD9\A18090800\A8359006\A8359307\A15573936\A8352361\A8340910\250.02\
+## \i2b2\Diagnoses\ICD9\A18090800\A8359006\A8359307\A15573936\A8352361\A8340910\250.03\
+## \i2b2\Diagnoses\ICD9\A18090800\A8359006\A8359307\A15573936\A8352361\A8340911\
+## \i2b2\Diagnoses\ICD9\A18090800\A8359006\A8359307\A15573936\A8352361\A8340911\250.10\
+## \i2b2\Diagnoses\ICD9\A18090800\A8359006\A8359307\A15573936\A8352361\A8340911\250.11\
+## \i2b2\Diagnoses\ICD9\A18090800\A8359006\A8359307\A15573936\A8352361\A8340911\250.12\
+## \i2b2\Diagnoses\ICD9\A18090800\A8359006\A8359307\A15573936\A8352361\A8340911\250.13\
+## \i2b2\Diagnoses\ICD9\A18090800\A8359006\A8359307\A15573936\A8352361\A8340912\
+## \i2b2\Diagnoses\ICD9\A18090800\A8359006\A8359307\A15573936\A8352361\A8340912\250.30\
+## \i2b2\Diagnoses\ICD9\A18090800\A8359006\A8359307\A15573936\A8352361\A8340912\250.31\
+## \i2b2\Diagnoses\ICD9\A18090800\A8359006\A8359307\A15573936\A8352361\A8340912\250.32\
+## \i2b2\Diagnoses\ICD9\A18090800\A8359006\A8359307\A15573936\A8352361\A8340912\250.33\
+## \i2b2\Diagnoses\ICD9\A18090800\A8359006\A8359307\A15573936\A8352361\A8340913\
+## \i2b2\Diagnoses\ICD9\A18090800\A8359006\A8359307\A15573936\A8352361\A8340913\250.40\
+## \i2b2\Diagnoses\ICD9\A18090800\A8359006\A8359307\A15573936\A8352361\A8340913\250.41\
+## \i2b2\Diagnoses\ICD9\A18090800\A8359006\A8359307\A15573936\A8352361\A8340913\250.42\
+## \i2b2\Diagnoses\ICD9\A18090800\A8359006\A8359307\A15573936\A8352361\A8340913\250.43\
+## \i2b2\Diagnoses\ICD9\A18090800\A8359006\A8359307\A15573936\A8352361\A8340914\
+## \i2b2\Diagnoses\ICD9\A18090800\A8359006\A8359307\A15573936\A8352361\A8340914\250.50\
+## \i2b2\Diagnoses\ICD9\A18090800\A8359006\A8359307\A15573936\A8352361\A8340914\250.51\
+## \i2b2\Diagnoses\ICD9\A18090800\A8359006\A8359307\A15573936\A8352361\A8340914\250.52\
+## \i2b2\Diagnoses\ICD9\A18090800\A8359006\A8359307\A15573936\A8352361\A8340914\250.53\
+## \i2b2\Diagnoses\ICD9\A18090800\A8359006\A8359307\A15573936\A8352361\A8340915\
+## \i2b2\Diagnoses\ICD9\A18090800\A8359006\A8359307\A15573936\A8352361\A8340915\250.60\
+## \i2b2\Diagnoses\ICD9\A18090800\A8359006\A8359307\A15573936\A8352361\A8340915\250.61\
+## \i2b2\Diagnoses\ICD9\A18090800\A8359006\A8359307\A15573936\A8352361\A8340915\250.62\
+## \i2b2\Diagnoses\ICD9\A18090800\A8359006\A8359307\A15573936\A8352361\A8340915\250.63\
+## \i2b2\Diagnoses\ICD9\A18090800\A8359006\A8359307\A15573936\A8352361\A8340916\
+## \i2b2\Diagnoses\ICD9\A18090800\A8359006\A8359307\A15573936\A8352361\A8340916\250.70\
+## \i2b2\Diagnoses\ICD9\A18090800\A8359006\A8359307\A15573936\A8352361\A8340916\250.71\
+## \i2b2\Diagnoses\ICD9\A18090800\A8359006\A8359307\A15573936\A8352361\A8340916\250.72\
+## \i2b2\Diagnoses\ICD9\A18090800\A8359006\A8359307\A15573936\A8352361\A8340916\250.73\
+## \i2b2\Diagnoses\ICD9\A18090800\A8359006\A8359307\A15573936\A8352361\A8343926\
+## \i2b2\Diagnoses\ICD9\A18090800\A8359006\A8359307\A15573936\A8352361\A8343926\250.80\
+## \i2b2\Diagnoses\ICD9\A18090800\A8359006\A8359307\A15573936\A8352361\A8343926\250.81\
+## \i2b2\Diagnoses\ICD9\A18090800\A8359006\A8359307\A15573936\A8352361\A8343926\250.82\
+## \i2b2\Diagnoses\ICD9\A18090800\A8359006\A8359307\A15573936\A8352361\A8343926\250.83\
+## \i2b2\Diagnoses\ICD9\A18090800\A8359006\A8359307\A15573936\A8352361\A8343927\
+## \i2b2\Diagnoses\ICD9\A18090800\A8359006\A8359307\A15573936\A8352361\A8343927\250.90\
+## \i2b2\Diagnoses\ICD9\A18090800\A8359006\A8359307\A15573936\A8352361\A8343927\250.91\
+## \i2b2\Diagnoses\ICD9\A18090800\A8359006\A8359307\A15573936\A8352361\A8343927\250.92\
+## \i2b2\Diagnoses\ICD9\A18090800\A8359006\A8359307\A15573936\A8352361\A8343927\250.93\
+## \i2b2\Diagnoses\ICD9\A18090800\A8359006\A8359307\A15573936\A8352361\A8359116\
+## \i2b2\Diagnoses\ICD9\A18090800\A8359006\A8359307\A15573936\A8352361\A8359116\250.20\
+## \i2b2\Diagnoses\ICD9\A18090800\A8359006\A8359307\A15573936\A8352361\A8359116\250.21\
+## \i2b2\Diagnoses\ICD9\A18090800\A8359006\A8359307\A15573936\A8352361\A8359116\250.22\
+## \i2b2\Diagnoses\ICD9\A18090800\A8359006\A8359307\A15573936\A8352361\A8359116\250.23\</code></pre>
+<p>Unfortunately, the concept_path variable is mostly coded using cryptic values. You can find cleaner descriptions using c_tooltip in blueheronmetadata.heron_terms. The halibut system uses c_tooltip for tool tip displays, so this value is almost always easier to read.</p>
+<pre class="r"><code>sql_explore_tooltip &lt;- &quot;
+SELECT DISTINCT c_tooltip 
+FROM blueheronmetadata.heron_terms
+WHERE
+  c_basecode LIKE '%ICD9:250%' OR
+  c_basecode LIKE '%ICD10:E08%' OR
+  c_basecode LIKE '%ICD10:E09%' OR
+  c_basecode LIKE '%ICD10:E10%' OR
+  c_basecode LIKE '%ICD10:E11%' OR
+  c_basecode LIKE '%ICD10:E12%' OR
+  c_basecode LIKE '%ICD10:E13%'
+ORDER BY c_tooltip
+&quot;
+
+tooltips &lt;- dbGetQuery(c_connect, sql_explore_tooltip)
+tooltips %&gt;%
+  unlist %&gt;%
+  cat(sep=&quot;\n&quot;)</code></pre>
+<pre><code>## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89)
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13)
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E08 Diabetes mellitus due to underlying condition
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E08 Diabetes mellitus due to underlying condition \ E08.0 Diabetes mellitus due to underlying condition with hyperosmolarity
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E08 Diabetes mellitus due to underlying condition \ E08.1 Diabetes mellitus due to underlying condition with ketoacidosis
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E08 Diabetes mellitus due to underlying condition \ E08.2 Diabetes mellitus due to underlying condition with kidney complications
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E08 Diabetes mellitus due to underlying condition \ E08.3 Diabetes mellitus due to underlying condition with ophthalmic complications
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E08 Diabetes mellitus due to underlying condition \ E08.3 Diabetes mellitus due to underlying condition with ophthalmic complications \ E08.31 Diabetes mellitus due to underlying condition with unspecified diabetic retinopathy
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E08 Diabetes mellitus due to underlying condition \ E08.3 Diabetes mellitus due to underlying condition with ophthalmic complications \ E08.32 Diabetes mellitus due to underlying condition with mild nonproliferative diabetic retinopathy
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E08 Diabetes mellitus due to underlying condition \ E08.3 Diabetes mellitus due to underlying condition with ophthalmic complications \ E08.33 Diabetes mellitus due to underlying condition with moderate nonproliferative diabetic retinopathy
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E08 Diabetes mellitus due to underlying condition \ E08.3 Diabetes mellitus due to underlying condition with ophthalmic complications \ E08.34 Diabetes mellitus due to underlying condition with severe nonproliferative diabetic retinopathy
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E08 Diabetes mellitus due to underlying condition \ E08.3 Diabetes mellitus due to underlying condition with ophthalmic complications \ E08.35 Diabetes mellitus due to underlying condition with proliferative diabetic retinopathy
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E08 Diabetes mellitus due to underlying condition \ E08.4 Diabetes mellitus due to underlying condition with neurological complications
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E08 Diabetes mellitus due to underlying condition \ E08.5 Diabetes mellitus due to underlying condition with circulatory complications
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E08 Diabetes mellitus due to underlying condition \ E08.6 Diabetes mellitus due to underlying condition with other specified complications
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E08 Diabetes mellitus due to underlying condition \ E08.6 Diabetes mellitus due to underlying condition with other specified complications \ E08.61 Diabetes mellitus due to underlying condition with diabetic arthropathy
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E08 Diabetes mellitus due to underlying condition \ E08.6 Diabetes mellitus due to underlying condition with other specified complications \ E08.62 Diabetes mellitus due to underlying condition with skin complications
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E08 Diabetes mellitus due to underlying condition \ E08.6 Diabetes mellitus due to underlying condition with other specified complications \ E08.63 Diabetes mellitus due to underlying condition with oral complications
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E08 Diabetes mellitus due to underlying condition \ E08.6 Diabetes mellitus due to underlying condition with other specified complications \ E08.64 Diabetes mellitus due to underlying condition with hypoglycemia
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E09 Drug or chemical induced diabetes mellitus
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E09 Drug or chemical induced diabetes mellitus \ E09.0 Drug or chemical induced diabetes mellitus with hyperosmolarity
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E09 Drug or chemical induced diabetes mellitus \ E09.1 Drug or chemical induced diabetes mellitus with ketoacidosis
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E09 Drug or chemical induced diabetes mellitus \ E09.2 Drug or chemical induced diabetes mellitus with kidney complications
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E09 Drug or chemical induced diabetes mellitus \ E09.3 Drug or chemical induced diabetes mellitus with ophthalmic complications
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E09 Drug or chemical induced diabetes mellitus \ E09.3 Drug or chemical induced diabetes mellitus with ophthalmic complications \ E09.31 Drug or chemical induced diabetes mellitus with unspecified diabetic retinopathy
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E09 Drug or chemical induced diabetes mellitus \ E09.3 Drug or chemical induced diabetes mellitus with ophthalmic complications \ E09.32 Drug or chemical induced diabetes mellitus with mild nonproliferative diabetic retinopathy
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E09 Drug or chemical induced diabetes mellitus \ E09.3 Drug or chemical induced diabetes mellitus with ophthalmic complications \ E09.33 Drug or chemical induced diabetes mellitus with moderate nonproliferative diabetic retinopathy
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E09 Drug or chemical induced diabetes mellitus \ E09.3 Drug or chemical induced diabetes mellitus with ophthalmic complications \ E09.34 Drug or chemical induced diabetes mellitus with severe nonproliferative diabetic retinopathy
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E09 Drug or chemical induced diabetes mellitus \ E09.3 Drug or chemical induced diabetes mellitus with ophthalmic complications \ E09.35 Drug or chemical induced diabetes mellitus with proliferative diabetic retinopathy
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E09 Drug or chemical induced diabetes mellitus \ E09.4 Drug or chemical induced diabetes mellitus with neurological complications
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E09 Drug or chemical induced diabetes mellitus \ E09.5 Drug or chemical induced diabetes mellitus with circulatory complications
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E09 Drug or chemical induced diabetes mellitus \ E09.6 Drug or chemical induced diabetes mellitus with other specified complications
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E09 Drug or chemical induced diabetes mellitus \ E09.6 Drug or chemical induced diabetes mellitus with other specified complications \ E09.61 Drug or chemical induced diabetes mellitus with diabetic arthropathy [&lt;10 facts]
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E09 Drug or chemical induced diabetes mellitus \ E09.6 Drug or chemical induced diabetes mellitus with other specified complications \ E09.62 Drug or chemical induced diabetes mellitus with skin complications
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E09 Drug or chemical induced diabetes mellitus \ E09.6 Drug or chemical induced diabetes mellitus with other specified complications \ E09.63 Drug or chemical induced diabetes mellitus with oral complications [&lt;10 facts]
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E09 Drug or chemical induced diabetes mellitus \ E09.6 Drug or chemical induced diabetes mellitus with other specified complications \ E09.64 Drug or chemical induced diabetes mellitus with hypoglycemia
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E10 Type 1 diabetes mellitus
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E10 Type 1 diabetes mellitus \ E10.1 Type 1 diabetes mellitus with ketoacidosis
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E10 Type 1 diabetes mellitus \ E10.2 Type 1 diabetes mellitus with kidney complications
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E10 Type 1 diabetes mellitus \ E10.3 Type 1 diabetes mellitus with ophthalmic complications
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E10 Type 1 diabetes mellitus \ E10.3 Type 1 diabetes mellitus with ophthalmic complications \ E10.31 Type 1 diabetes mellitus with unspecified diabetic retinopathy
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E10 Type 1 diabetes mellitus \ E10.3 Type 1 diabetes mellitus with ophthalmic complications \ E10.32 Type 1 diabetes mellitus with mild nonproliferative diabetic retinopathy
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E10 Type 1 diabetes mellitus \ E10.3 Type 1 diabetes mellitus with ophthalmic complications \ E10.33 Type 1 diabetes mellitus with moderate nonproliferative diabetic retinopathy
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E10 Type 1 diabetes mellitus \ E10.3 Type 1 diabetes mellitus with ophthalmic complications \ E10.34 Type 1 diabetes mellitus with severe nonproliferative diabetic retinopathy
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E10 Type 1 diabetes mellitus \ E10.3 Type 1 diabetes mellitus with ophthalmic complications \ E10.35 Type 1 diabetes mellitus with proliferative diabetic retinopathy
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E10 Type 1 diabetes mellitus \ E10.4 Type 1 diabetes mellitus with neurological complications
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E10 Type 1 diabetes mellitus \ E10.5 Type 1 diabetes mellitus with circulatory complications
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E10 Type 1 diabetes mellitus \ E10.6 Type 1 diabetes mellitus with other specified complications
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E10 Type 1 diabetes mellitus \ E10.6 Type 1 diabetes mellitus with other specified complications \ E10.61 Type 1 diabetes mellitus with diabetic arthropathy
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E10 Type 1 diabetes mellitus \ E10.6 Type 1 diabetes mellitus with other specified complications \ E10.62 Type 1 diabetes mellitus with skin complications
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E10 Type 1 diabetes mellitus \ E10.6 Type 1 diabetes mellitus with other specified complications \ E10.63 Type 1 diabetes mellitus with oral complications
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E10 Type 1 diabetes mellitus \ E10.6 Type 1 diabetes mellitus with other specified complications \ E10.64 Type 1 diabetes mellitus with hypoglycemia
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E11 Type 2 diabetes mellitus
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E11 Type 2 diabetes mellitus \ E11.0 Type 2 diabetes mellitus with hyperosmolarity
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E11 Type 2 diabetes mellitus \ E11.2 Type 2 diabetes mellitus with kidney complications
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E11 Type 2 diabetes mellitus \ E11.3 Type 2 diabetes mellitus with ophthalmic complications
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E11 Type 2 diabetes mellitus \ E11.3 Type 2 diabetes mellitus with ophthalmic complications \ E11.31 Type 2 diabetes mellitus with unspecified diabetic retinopathy
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E11 Type 2 diabetes mellitus \ E11.3 Type 2 diabetes mellitus with ophthalmic complications \ E11.32 Type 2 diabetes mellitus with mild nonproliferative diabetic retinopathy
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E11 Type 2 diabetes mellitus \ E11.3 Type 2 diabetes mellitus with ophthalmic complications \ E11.33 Type 2 diabetes mellitus with moderate nonproliferative diabetic retinopathy
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E11 Type 2 diabetes mellitus \ E11.3 Type 2 diabetes mellitus with ophthalmic complications \ E11.34 Type 2 diabetes mellitus with severe nonproliferative diabetic retinopathy
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E11 Type 2 diabetes mellitus \ E11.3 Type 2 diabetes mellitus with ophthalmic complications \ E11.35 Type 2 diabetes mellitus with proliferative diabetic retinopathy
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E11 Type 2 diabetes mellitus \ E11.4 Type 2 diabetes mellitus with neurological complications
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E11 Type 2 diabetes mellitus \ E11.5 Type 2 diabetes mellitus with circulatory complications
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E11 Type 2 diabetes mellitus \ E11.6 Type 2 diabetes mellitus with other specified complications
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E11 Type 2 diabetes mellitus \ E11.6 Type 2 diabetes mellitus with other specified complications \ E11.61 Type 2 diabetes mellitus with diabetic arthropathy
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E11 Type 2 diabetes mellitus \ E11.6 Type 2 diabetes mellitus with other specified complications \ E11.62 Type 2 diabetes mellitus with skin complications
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E11 Type 2 diabetes mellitus \ E11.6 Type 2 diabetes mellitus with other specified complications \ E11.63 Type 2 diabetes mellitus with oral complications
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E11 Type 2 diabetes mellitus \ E11.6 Type 2 diabetes mellitus with other specified complications \ E11.64 Type 2 diabetes mellitus with hypoglycemia
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E13 Other specified diabetes mellitus
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E13 Other specified diabetes mellitus \ E13.0 Other specified diabetes mellitus with hyperosmolarity
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E13 Other specified diabetes mellitus \ E13.1 Other specified diabetes mellitus with ketoacidosis
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E13 Other specified diabetes mellitus \ E13.2 Other specified diabetes mellitus with kidney complications
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E13 Other specified diabetes mellitus \ E13.3 Other specified diabetes mellitus with ophthalmic complications
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E13 Other specified diabetes mellitus \ E13.3 Other specified diabetes mellitus with ophthalmic complications \ E13.31 Other specified diabetes mellitus with unspecified diabetic retinopathy
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E13 Other specified diabetes mellitus \ E13.3 Other specified diabetes mellitus with ophthalmic complications \ E13.32 Other specified diabetes mellitus with mild nonproliferative diabetic retinopathy [&lt;10 facts]
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E13 Other specified diabetes mellitus \ E13.3 Other specified diabetes mellitus with ophthalmic complications \ E13.33 Other specified diabetes mellitus with moderate nonproliferative diabetic retinopathy [&lt;10 facts]
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E13 Other specified diabetes mellitus \ E13.3 Other specified diabetes mellitus with ophthalmic complications \ E13.34 Other specified diabetes mellitus with severe nonproliferative diabetic retinopathy [&lt;10 facts]
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E13 Other specified diabetes mellitus \ E13.3 Other specified diabetes mellitus with ophthalmic complications \ E13.35 Other specified diabetes mellitus with proliferative diabetic retinopathy
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E13 Other specified diabetes mellitus \ E13.4 Other specified diabetes mellitus with neurological complications
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E13 Other specified diabetes mellitus \ E13.5 Other specified diabetes mellitus with circulatory complications
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E13 Other specified diabetes mellitus \ E13.6 Other specified diabetes mellitus with other specified complications
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E13 Other specified diabetes mellitus \ E13.6 Other specified diabetes mellitus with other specified complications \ E13.61 Other specified diabetes mellitus with diabetic arthropathy
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E13 Other specified diabetes mellitus \ E13.6 Other specified diabetes mellitus with other specified complications \ E13.62 Other specified diabetes mellitus with skin complications
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E13 Other specified diabetes mellitus \ E13.6 Other specified diabetes mellitus with other specified complications \ E13.63 Other specified diabetes mellitus with oral complications
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E13 Other specified diabetes mellitus \ E13.6 Other specified diabetes mellitus with other specified complications \ E13.64 Other specified diabetes mellitus with hypoglycemia
+## Diagnoses \ ICD9 \ 240-279.99 ENDOCRINE, NUTRITIONAL AND METABOLIC DISEASES, AND IMMUNITY DISORDERS \ 249-259.99 DISEASES OF OTHER ENDOCRINE GLANDS
+## Diagnoses \ ICD9 \ 240-279.99 ENDOCRINE, NUTRITIONAL AND METABOLIC DISEASES, AND IMMUNITY DISORDERS \ 249-259.99 DISEASES OF OTHER ENDOCRINE GLANDS \ 250 Diabetes mellitus
+## Diagnoses \ ICD9 \ 240-279.99 ENDOCRINE, NUTRITIONAL AND METABOLIC DISEASES, AND IMMUNITY DISORDERS \ 249-259.99 DISEASES OF OTHER ENDOCRINE GLANDS \ 250 Diabetes mellitus \ 250.0 Diabetes mellitus without mention of complication
+## Diagnoses \ ICD9 \ 240-279.99 ENDOCRINE, NUTRITIONAL AND METABOLIC DISEASES, AND IMMUNITY DISORDERS \ 249-259.99 DISEASES OF OTHER ENDOCRINE GLANDS \ 250 Diabetes mellitus \ 250.1 Diabetes with ketoacidosis
+## Diagnoses \ ICD9 \ 240-279.99 ENDOCRINE, NUTRITIONAL AND METABOLIC DISEASES, AND IMMUNITY DISORDERS \ 249-259.99 DISEASES OF OTHER ENDOCRINE GLANDS \ 250 Diabetes mellitus \ 250.2 Diabetes mellitus with hyperosmolarity
+## Diagnoses \ ICD9 \ 240-279.99 ENDOCRINE, NUTRITIONAL AND METABOLIC DISEASES, AND IMMUNITY DISORDERS \ 249-259.99 DISEASES OF OTHER ENDOCRINE GLANDS \ 250 Diabetes mellitus \ 250.3 Diabetes with other coma
+## Diagnoses \ ICD9 \ 240-279.99 ENDOCRINE, NUTRITIONAL AND METABOLIC DISEASES, AND IMMUNITY DISORDERS \ 249-259.99 DISEASES OF OTHER ENDOCRINE GLANDS \ 250 Diabetes mellitus \ 250.4 Diabetes with renal manifestations
+## Diagnoses \ ICD9 \ 240-279.99 ENDOCRINE, NUTRITIONAL AND METABOLIC DISEASES, AND IMMUNITY DISORDERS \ 249-259.99 DISEASES OF OTHER ENDOCRINE GLANDS \ 250 Diabetes mellitus \ 250.5 Diabetes with ophthalmic manifestations
+## Diagnoses \ ICD9 \ 240-279.99 ENDOCRINE, NUTRITIONAL AND METABOLIC DISEASES, AND IMMUNITY DISORDERS \ 249-259.99 DISEASES OF OTHER ENDOCRINE GLANDS \ 250 Diabetes mellitus \ 250.6 Diabetes with neurological manifestations
+## Diagnoses \ ICD9 \ 240-279.99 ENDOCRINE, NUTRITIONAL AND METABOLIC DISEASES, AND IMMUNITY DISORDERS \ 249-259.99 DISEASES OF OTHER ENDOCRINE GLANDS \ 250 Diabetes mellitus \ 250.7 Diabetes with peripheral circulatory disorders
+## Diagnoses \ ICD9 \ 240-279.99 ENDOCRINE, NUTRITIONAL AND METABOLIC DISEASES, AND IMMUNITY DISORDERS \ 249-259.99 DISEASES OF OTHER ENDOCRINE GLANDS \ 250 Diabetes mellitus \ 250.8 Diabetes with other specified manifestations
+## Diagnoses \ ICD9 \ 240-279.99 ENDOCRINE, NUTRITIONAL AND METABOLIC DISEASES, AND IMMUNITY DISORDERS \ 249-259.99 DISEASES OF OTHER ENDOCRINE GLANDS \ 250 Diabetes mellitus \ 250.9 Diabetes with unspecified complication
+## NA</code></pre>
+<p>Let’s flip this around and find if there are any other concept_cd/c_basecode values associated with c_tooltip values containing diabetes codes.</p>
+<pre class="r"><code>log_time()
+sql_alternate_diabetes_codes &lt;- &quot;
+SELECT DISTINCT c_basecode 
+FROM blueheronmetadata.heron_terms
+WHERE
+  c_tooltip LIKE '%250 Diabetes mellitus%' OR
+  c_tooltip LIKE '%E08-E13 Diabetes mellitus%'
+&quot;
+
+alternate_codes &lt;- dbGetQuery(c_connect, sql_alternate_diabetes_codes)
+alternate_codes %&gt;% 
+  dim</code></pre>
+<pre><code>## [1] 4846    1</code></pre>
+<pre class="r"><code>alternate_codes %&gt;%
+  sample_n(20) %&gt;%
+  arrange(C_BASECODE)</code></pre>
+<pre><code>##           C_BASECODE
+## 1       ICD10:E09.63
+## 2        ICD10:E11.2
+## 3      ICD10:E13.610
+## 4  KUH|DX_ID:1054273
+## 5  KUH|DX_ID:1127102
+## 6  KUH|DX_ID:1224314
+## 7  KUH|DX_ID:1232552
+## 8  KUH|DX_ID:1240418
+## 9  KUH|DX_ID:1928574
+## 10 KUH|DX_ID:2001285
+## 11 KUH|DX_ID:2210232
+## 12 KUH|DX_ID:2210673
+## 13 KUH|DX_ID:2210792
+## 14 KUH|DX_ID:2211559
+## 15 KUH|DX_ID:2242556
+## 16 KUH|DX_ID:2243142
+## 17 KUH|DX_ID:2247621
+## 18 KUH|DX_ID:2250220
+## 19 KUH|DX_ID:2251036
+## 20 KUH|DX_ID:2424867</code></pre>
+<pre class="r"><code>alternate_codes %&gt;%
+  unlist %&gt;%
+  sub(&quot;:.*$&quot;, &quot;&quot;, .) %&gt;%
+  table</code></pre>
+<pre><code>## .
+##     ICD10      ICD9 KUH|DX_ID 
+##       289        50      4507</code></pre>
+<pre class="r"><code>log_time()
+
+sql_alternate_select &lt;- nest(&quot;WHERE concept_cd IN (&quot;, sql_alternate_diabetes_codes, &quot;)&quot;)
+sql_alternate_count &lt;- nest(sql_count_patients, sql_alternate_select)
+cat(sql_alternate_count)</code></pre>
+<pre><code>## 
+## SELECT COUNT(DISTINCT patient_num)
+## FROM blueherondata.observation_fact
+## WHERE concept_cd IN (
+##     SELECT DISTINCT c_basecode 
+##     FROM blueheronmetadata.heron_terms
+##     WHERE
+##       c_tooltip LIKE '%250 Diabetes mellitus%' OR
+##       c_tooltip LIKE '%E08-E13 Diabetes mellitus%'
+##     )</code></pre>
+<pre class="r"><code>dbGetQuery(c_connect, sql_alternate_count)</code></pre>
+<pre><code>##   COUNT(DISTINCTPATIENT_NUM)
+## 1                      98285</code></pre>
+<p>Combine this with the previous string.</p>
+<pre class="r"><code>log_time()</code></pre>
 <p>This snippet adds a date restriction.</p>
 <pre class="r"><code>log_time()
 sql_restrict_dates &lt;- &quot;
@@ -584,19 +1003,19 @@ cat(sql_count_date_restricted)</code></pre>
 ##     SELECT DISTINCT concept_cd 
 ##     FROM blueherondata.concept_dimension
 ##     WHERE
-##       concept_cd LIKE 'ICD9:250%' OR
-##       concept_cd LIKE 'ICD10:E08%' OR
-##       concept_cd LIKE 'ICD10:E09%' OR
-##       concept_cd LIKE 'ICD10:E10%' OR
-##       concept_cd LIKE 'ICD10:E11%' OR
-##       concept_cd LIKE 'ICD10:E12%' OR
-##       concept_cd LIKE 'ICD10:E13%'
+##       concept_cd LIKE '%ICD9:250%' OR
+##       concept_cd LIKE '%ICD10:E08%' OR
+##       concept_cd LIKE '%ICD10:E09%' OR
+##       concept_cd LIKE '%ICD10:E10%' OR
+##       concept_cd LIKE '%ICD10:E11%' OR
+##       concept_cd LIKE '%ICD10:E12%' OR
+##       concept_cd LIKE '%ICD10:E13%'
 ##     )
 ##   AND TO_CHAR(start_date, 'yyyy-mm-dd') &gt; '2010-01-01'
 ## </code></pre>
 <pre class="r"><code>dbGetQuery(c_connect, sql_count_date_restricted)</code></pre>
 <pre><code>##   COUNT(DISTINCTPATIENT_NUM)
-## 1                      40172</code></pre>
+## 1                      40629</code></pre>
 <p>This snippet restricts to patients to females only. This represents a self-join.</p>
 <pre class="r"><code>log_time()
 sql_restrict_to_females &lt;- &quot;
@@ -615,13 +1034,13 @@ cat(sql_count_female_diabetics)</code></pre>
 ##     SELECT DISTINCT concept_cd 
 ##     FROM blueherondata.concept_dimension
 ##     WHERE
-##       concept_cd LIKE 'ICD9:250%' OR
-##       concept_cd LIKE 'ICD10:E08%' OR
-##       concept_cd LIKE 'ICD10:E09%' OR
-##       concept_cd LIKE 'ICD10:E10%' OR
-##       concept_cd LIKE 'ICD10:E11%' OR
-##       concept_cd LIKE 'ICD10:E12%' OR
-##       concept_cd LIKE 'ICD10:E13%'
+##       concept_cd LIKE '%ICD9:250%' OR
+##       concept_cd LIKE '%ICD10:E08%' OR
+##       concept_cd LIKE '%ICD10:E09%' OR
+##       concept_cd LIKE '%ICD10:E10%' OR
+##       concept_cd LIKE '%ICD10:E11%' OR
+##       concept_cd LIKE '%ICD10:E12%' OR
+##       concept_cd LIKE '%ICD10:E13%'
 ##     )
 ##   AND TO_CHAR(start_date, 'yyyy-mm-dd') &gt; '2010-01-01'
 ##   
@@ -642,7 +1061,7 @@ SELECT patient_num, start_date AS pdate
 &quot;</code></pre>
 <p>This is what the combined query looks like.</p>
 <pre class="r"><code>log_time()
-sql_extract_diabetics &lt;- nest(sql_extract_patients, sql_restrict_to_diabetes)
+sql_extract_diabetics &lt;- nest(sql_extract_patients, sql_select_diabetes)
 cat(sql_extract_diabetics)</code></pre>
 <pre><code>## 
 ## SELECT patient_num, start_date AS pdate
@@ -651,27 +1070,27 @@ cat(sql_extract_diabetics)</code></pre>
 ##     SELECT DISTINCT concept_cd 
 ##     FROM blueherondata.concept_dimension
 ##     WHERE
-##       concept_cd LIKE 'ICD9:250%' OR
-##       concept_cd LIKE 'ICD10:E08%' OR
-##       concept_cd LIKE 'ICD10:E09%' OR
-##       concept_cd LIKE 'ICD10:E10%' OR
-##       concept_cd LIKE 'ICD10:E11%' OR
-##       concept_cd LIKE 'ICD10:E12%' OR
-##       concept_cd LIKE 'ICD10:E13%'
+##       concept_cd LIKE '%ICD9:250%' OR
+##       concept_cd LIKE '%ICD10:E08%' OR
+##       concept_cd LIKE '%ICD10:E09%' OR
+##       concept_cd LIKE '%ICD10:E10%' OR
+##       concept_cd LIKE '%ICD10:E11%' OR
+##       concept_cd LIKE '%ICD10:E12%' OR
+##       concept_cd LIKE '%ICD10:E13%'
 ##     )</code></pre>
 <pre class="r"><code>patient_list &lt;- dbGetQuery(c_connect, sql_extract_diabetics)
 names(patient_list) &lt;- tolower(names(patient_list))
 patient_list %&lt;&gt;% arrange(patient_num)
 head(patient_list)</code></pre>
-<pre><code>##   patient_num               pdate
-## 1          12 2008-06-13 00:00:00
-## 2          14 2014-07-20 00:00:00
-## 3          14 2014-07-20 00:00:00
-## 4          47 2001-01-18 23:00:00
-## 5          71 2016-01-01 23:00:00
-## 6          71 2016-01-01 23:00:00</code></pre>
+<pre><code>##   patient_num      pdate
+## 1          70 2015-10-04
+## 2          70 2015-10-03
+## 3         127 2004-10-05
+## 4         127 2004-10-05
+## 5         127 2004-10-05
+## 6         127 2004-10-05</code></pre>
 <pre class="r"><code>dim(patient_list)</code></pre>
-<pre><code>## [1] 1000042       2</code></pre>
+<pre><code>## [1] 1002368       2</code></pre>
 <p>Notice that patients appear more often than once in the query. To get a distinct set of patients, you need to group by patient number and then choose only one record. The simplest choice is the record with the smallest start-date.</p>
 <p>you can do this within R, but be careful, because some of the base R functions that you’d be tempted to use, such as unique or duplicated can be very inefficient with large data frames. The distinct or summarize functions in dplyr are a better choice.</p>
 <pre class="r"><code>log_time()
@@ -685,14 +1104,14 @@ head(unique_patients_1)</code></pre>
 <pre><code>## # A tibble: 6 x 2
 ##   patient_num pdate              
 ##         &lt;dbl&gt; &lt;dttm&gt;             
-## 1          12 2008-06-13 00:00:00
-## 2          14 2014-07-20 00:00:00
-## 3          47 2001-01-18 23:00:00
-## 4          71 2000-07-03 00:00:00
-## 5          74 2008-03-18 00:00:00
-## 6          78 2000-07-01 00:00:00</code></pre>
+## 1          70 2015-10-03 00:00:00
+## 2         127 2004-10-05 00:00:00
+## 3         345 2001-05-18 00:00:00
+## 4         352 2009-10-26 00:00:00
+## 5         363 2007-08-29 00:00:00
+## 6         627 2000-04-26 00:00:00</code></pre>
 <pre class="r"><code>dim(unique_patients_1)</code></pre>
-<pre><code>## [1] 55585     2</code></pre>
+<pre><code>## [1] 56037     2</code></pre>
 <p>This method also works.</p>
 <pre class="r"><code>log_time()
 library(dplyr)
@@ -702,15 +1121,15 @@ patient_list                             %&gt;%
   distinct(patient_num, .keep_all=TRUE)  %&gt;%
   ungroup                                -&gt; unique_patients_2
 head(unique_patients_2)</code></pre>
-<pre><code>##   patient_num               pdate
-## 1          12 2008-06-13 00:00:00
-## 2          14 2014-07-20 00:00:00
-## 3          47 2001-01-18 23:00:00
-## 4          71 2000-07-03 00:00:00
-## 5          74 2008-03-18 00:00:00
-## 6          78 2000-07-01 00:00:00</code></pre>
+<pre><code>##   patient_num      pdate
+## 1          70 2015-10-03
+## 2         127 2004-10-05
+## 3         345 2001-05-18
+## 4         352 2009-10-26
+## 5         363 2007-08-29
+## 6         627 2000-04-26</code></pre>
 <pre class="r"><code>dim(unique_patients_2)</code></pre>
-<pre><code>## [1] 55585     2</code></pre>
+<pre><code>## [1] 56037     2</code></pre>
 <p>You can also get the same effect using just SQL code.</p>
 <pre class="r"><code>log_time()
 sql_extract_unique_patients &lt;- &quot;
@@ -722,7 +1141,7 @@ sql_group &lt;- &quot;
 GROUP BY patient_num
 ORDER BY patient_num&quot;</code></pre>
 <pre class="r"><code>log_time()
-sql_extract_unique_diabetics &lt;- nest(sql_extract_unique_patients, sql_restrict_to_diabetes, sql_group)
+sql_extract_unique_diabetics &lt;- nest(sql_extract_unique_patients, sql_select_diabetes, sql_group)
 cat(sql_extract_unique_diabetics)</code></pre>
 <pre><code>## 
 ## SELECT patient_num, MIN(start_date) AS pdate
@@ -731,29 +1150,45 @@ cat(sql_extract_unique_diabetics)</code></pre>
 ##     SELECT DISTINCT concept_cd 
 ##     FROM blueherondata.concept_dimension
 ##     WHERE
-##       concept_cd LIKE 'ICD9:250%' OR
-##       concept_cd LIKE 'ICD10:E08%' OR
-##       concept_cd LIKE 'ICD10:E09%' OR
-##       concept_cd LIKE 'ICD10:E10%' OR
-##       concept_cd LIKE 'ICD10:E11%' OR
-##       concept_cd LIKE 'ICD10:E12%' OR
-##       concept_cd LIKE 'ICD10:E13%'
+##       concept_cd LIKE '%ICD9:250%' OR
+##       concept_cd LIKE '%ICD10:E08%' OR
+##       concept_cd LIKE '%ICD10:E09%' OR
+##       concept_cd LIKE '%ICD10:E10%' OR
+##       concept_cd LIKE '%ICD10:E11%' OR
+##       concept_cd LIKE '%ICD10:E12%' OR
+##       concept_cd LIKE '%ICD10:E13%'
 ##     )
 ## GROUP BY patient_num
 ## ORDER BY patient_num</code></pre>
 <pre class="r"><code>unique_patients_3 &lt;- dbGetQuery(c_connect, sql_extract_unique_diabetics)
 head(unique_patients_3)</code></pre>
-<pre><code>##   PATIENT_NUM               PDATE
-## 1          12 2008-06-13 00:00:00
-## 2          14 2014-07-20 00:00:00
-## 3          47 2001-01-18 23:00:00
-## 4          71 2000-07-03 00:00:00
-## 5          74 2008-03-18 00:00:00
-## 6          78 2000-07-01 00:00:00</code></pre>
+<pre><code>##   PATIENT_NUM      PDATE
+## 1          70 2015-10-03
+## 2         127 2004-10-05
+## 3         345 2001-05-18
+## 4         352 2009-10-26
+## 5         363 2007-08-29
+## 6         627 2000-04-26</code></pre>
 <pre class="r"><code>dim(unique_patients_3)</code></pre>
-<pre><code>## [1] 55585     2</code></pre>
+<pre><code>## [1] 56037     2</code></pre>
+<p>Suppose we want to know the gender of all these patients.</p>
+<pre class="r"><code>log_time()
+sql_extract_gender &lt;- &quot;
+SELECT patient_num, concept_cd
+FROM blueherondata.observation_fact
+WHERE patient_num IN (
+  SELECT DISTINCT patient_num 
+  FROM blueherondata.observation_fact
+  WHERE concept_cd LIKE '%E11.2%' 
+  AND rownum &lt; 100
+) AND concept_cd LIKE 'DEM|SEX:%'&quot;
+gender_list &lt;- dbGetQuery(c_connect, sql_extract_gender)
+head(gender_list)
+dim(gender_list)
+table(gender_list$CONCEPT_CD)</code></pre>
 <p>Now, let’s take things one step further. For these unique patients, let’s pull any record associated with medications.</p>
-<pre class="r"><code>sql_extract_medications_prefix &lt;- &quot;
+<pre class="r"><code>log_time()
+sql_extract_medications_prefix &lt;- &quot;
 SELECT patient_num, concept_cd, start_date AS edate
 FROM blueherondata.observation_fact
 
@@ -770,7 +1205,7 @@ SELECT DISTINCT concept_cd FROM blueherondata.concept_dimension
 sql_extract_medications &lt;- paste(
   sql_extract_medications_prefix,
   sql_extract_unique_patients,
-  sql_restrict_to_diabetes,
+  sql_select_diabetes,
   sql_group,
   sql_extract_medications_postfix)
 cat(sql_extract_medications)</code></pre>
@@ -785,13 +1220,13 @@ cat(sql_extract_medications)</code></pre>
 ##   SELECT DISTINCT concept_cd 
 ##   FROM blueherondata.concept_dimension
 ##   WHERE
-##     concept_cd LIKE 'ICD9:250%' OR
-##     concept_cd LIKE 'ICD10:E08%' OR
-##     concept_cd LIKE 'ICD10:E09%' OR
-##     concept_cd LIKE 'ICD10:E10%' OR
-##     concept_cd LIKE 'ICD10:E11%' OR
-##     concept_cd LIKE 'ICD10:E12%' OR
-##     concept_cd LIKE 'ICD10:E13%'
+##     concept_cd LIKE '%ICD9:250%' OR
+##     concept_cd LIKE '%ICD10:E08%' OR
+##     concept_cd LIKE '%ICD10:E09%' OR
+##     concept_cd LIKE '%ICD10:E10%' OR
+##     concept_cd LIKE '%ICD10:E11%' OR
+##     concept_cd LIKE '%ICD10:E12%' OR
+##     concept_cd LIKE '%ICD10:E13%'
 ##   ) 
 ## GROUP BY patient_num
 ## ORDER BY patient_num 
@@ -805,20 +1240,24 @@ cat(sql_extract_medications)</code></pre>
 <pre class="r"><code>log_time()
 read.table(timing_file) </code></pre>
 <pre><code>##            V1       V2              V3     V4
-## 1  2018-07-31 16:28:46 login-to-oracle began.
-## 2  2018-07-31 16:28:46           count began.
-## 3  2018-07-31 16:28:50      diabetes-1 began.
-## 4  2018-07-31 16:28:51      diabetes-2 began.
-## 5  2018-07-31 16:28:55         dates-1 began.
-## 6  2018-07-31 16:28:55         dates-2 began.
-## 7  2018-07-31 16:28:59       females-1 began.
-## 8  2018-07-31 16:28:59       extract-1 began.
-## 9  2018-07-31 16:28:59       extract-2 began.
-## 10 2018-07-31 16:29:06      distinct-1 began.
-## 11 2018-07-31 16:29:06      distinct-2 began.
-## 12 2018-07-31 16:29:07      distinct-3 began.
-## 13 2018-07-31 16:29:07      distinct-4 began.
-## 14 2018-07-31 16:29:16 save-everything began.</code></pre>
+## 1  2018-10-09 16:22:47 login-to-oracle began.
+## 2  2018-10-09 16:22:47           count began.
+## 3  2018-10-09 16:22:54  diabetes-codes began.
+## 4  2018-10-09 16:22:57    explore-path began.
+## 5  2018-10-09 16:23:12 alternate-codes began.
+## 6  2018-10-09 16:23:16 alternate-count began.
+## 7  2018-10-09 16:23:30      diabetes-2 began.
+## 8  2018-10-09 16:23:30         dates-1 began.
+## 9  2018-10-09 16:23:30         dates-2 began.
+## 10 2018-10-09 16:23:32       females-1 began.
+## 11 2018-10-09 16:23:32       extract-1 began.
+## 12 2018-10-09 16:23:32       extract-2 began.
+## 13 2018-10-09 16:23:39      distinct-1 began.
+## 14 2018-10-09 16:23:40      distinct-2 began.
+## 15 2018-10-09 16:23:41      distinct-3 began.
+## 16 2018-10-09 16:23:41      distinct-4 began.
+## 17 2018-10-09 16:23:44      medication began.
+## 18 2018-10-09 16:23:44 save-everything began.</code></pre>
 <pre class="r"><code>save.image(image_file)</code></pre>
 
 
