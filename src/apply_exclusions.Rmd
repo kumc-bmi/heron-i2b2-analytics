@@ -1,0 +1,200 @@
+---
+title: "Extract ids of patients with diabetes"
+author: "Steve Simon"
+date: "5/31/2018"
+output: html_document
+---
+
+Once you have a list of patient numbers who meet your qualifications, you need to apply exclusion criteria. You need to do this carefully, because it requires a self-join, which can (at times) be very inefficient. This program shows how to apply exclusion criteria to an existing list of diabetes patients.
+
+Load the relevant libraries. 
+
+```{r libraries}
+library(dplyr)
+library(knitr)
+library(magrittr)
+library("ROracle")
+```
+
+Please review open_oracle.Rmd to review how to access information in an Oracle database.
+
+```{r timing-functions}
+program_name <- "apply_exclusions"
+timing_file <- paste0("../src/", program_name, "_timing.txt")
+image_file <- paste0("../data/", program_name, ".RData")
+
+log_time <- function(first=FALSE) {
+  current_chunk <- opts_current$get("label")
+  current_time <- as.character(Sys.time())
+  cat(current_time, current_chunk, "began.\n", file=timing_file, append=!first)
+}
+```
+
+
+```{r login-to-oracle}
+log_time(first=TRUE)
+cdm_config <- read.csv('../cdm_config_B2.csv', stringsAsFactors=FALSE)
+c_connect <-
+  dbConnect(Oracle(), cdm_config$account, cdm_config$password, cdm_config$access)
+```
+
+Quick test
+
+```{r quick-test}
+log_time()
+dbGetQuery(c_connect, "SELECT * FROM blueherondata.observation_fact WHERE ROWNUM < 5")
+dbGetQuery(c_connect, "SELECT * FROM blueherondata.concept_dimension WHERE ROWNUM < 5")
+dbGetQuery(c_connect, "SELECT * FROM blueheronmetadata.heron_terms WHERE ROWNUM < 5")
+```
+
+To make the SQL code look nicer, here is a function that indents a piece of SQL code nested between two other pieces.
+
+```{r nest}
+log_time()
+nest <- function(sql1, sql2, sql3="") {
+  paste0(
+    sql1,
+    gsub("\n", "\n  ", sql2),
+    sql3)
+}
+nestx <- function(sql1, sql2, sql3="", sql4="") {
+  paste0(
+    sql1,
+    gsub("\n", "\n  ", sql2),
+    gsub("\n", "\n    ", sql3),
+    sql4)
+}
+```
+
+One of the simplest things to do, select only female patients, is also one of the most troublesome. Here is some SQL code that will select only the female diabetic patients.
+
+```{r gender}
+log_time()
+
+load("../data/diabetes_patients.RData")
+sql_restrict_to_diabetics <- 
+  nest(
+    "WHERE patient_num IN (", 
+    sql_extract_unique_diabetics, ")")
+
+sql_select_specific_concepts <- "
+SELECT patient_num, concept_cd
+FROM blueherondata.observation_fact
+"
+
+sql_restrict_to_females <- "
+AND concept_cd='DEM|SEX:F'
+"
+
+sql_select_female_diabetics <- nest(
+  sql_select_specific_concepts,
+  sql_restrict_to_diabetics,
+  sql_restrict_to_females
+)
+
+cat(sql_select_female_diabetics)
+```
+
+This query is a self-join, because you are joining pieces of the observation_fact table with different pieces of the same table.
+
+An alternative approach is to upload the list of diabetes patients that you generated earlier and merge that with the female patients.
+
+Note the Sys.setenv commands, as recommended in
+
+https://stackoverflow.com/questions/29917011/using-roracle-dbwritetable-to-write-posixct-back-to-oracle-db
+
+```{r upload}
+log_time()
+Sys.setenv(TZ = "GMT")
+Sys.setenv(ORA_SDTZ = "GMT")
+unique_diabetics %>% 
+  rename(diabetic_patient=patient_num) -> specific_patients
+names(specific_patients) %<>% toupper
+dbWriteTable(c_connect, "PATIENTS", specific_patients, overwrite=TRUE)
+
+sql_select_female_diabetics <- "
+SELECT patient_num, MIN(start_date) AS sdate
+FROM blueherondata.observation_fact
+JOIN ssimon.patients
+ON 
+    patient_num=diabetic_patient AND
+    concept_cd='DEM|SEX:f'
+GROUP BY patient_num
+ORDER BY patient_num
+"
+diabetic_females <- dbGetQuery(c_connect, sql_select_female_diabetics)
+dim(diabetic_females)[1] %>% format(big.mark=",")
+head(diabetic_females, n=20)
+```
+
+Now, let's take things one step further by getting gender information for all patients.
+
+```{r diabetic-gender}
+log_time()
+sql_select_diabetic_gender <- "
+SELECT patient_num, concept_cd
+FROM blueherondata.observation_fact
+JOIN ssimon.patients
+ON 
+    patient_num=diabetic_patient AND
+    concept_cd LIKE 'DEM|SEX:%'
+"
+diabetic_gender <- dbGetQuery(c_connect, sql_select_diabetic_gender)
+names(diabetic_gender) %<>% tolower
+dim(diabetic_gender)[1] %>% format(big.mark=",")
+table(diabetic_gender$concept_cd)
+```
+
+
+Now let's pull any record associated with medications.
+
+```{r medication}
+log_time()
+sql_extract_medications <- "
+SELECT patient_num, concept_cd
+FROM blueherondata.observation_fact
+JOIN ssimon.patients
+ON 
+    patient_num=diabetic_patient AND
+    concept_cd IN (
+        SELECT DISTINCT concept_cd FROM blueherondata.concept_dimension
+        WHERE concept_path LIKE '\\i2b2\\Medications\\%'
+    )
+"
+  
+cat(sql_extract_medications)
+
+diabetic_medications <- dbGetQuery(c_connect, sql_extract_medications)
+names(diabetic_medications) %<>% tolower
+dim(diabetic_medications)[1] %>% format(big.mark=",")
+```
+
+That's a huge number, partly because diabetes patients need a lot of different medications, but also because the medications are repeatedly entered in the system on different dates. Here's how to remove the duplicates.
+
+```{r remove-duplicate-medications}
+diabetic_medications %<>% distinct
+dim(diabetic_medications)[1] %>% format(big.mark=",")
+```
+
+Here's how you would list the five most common medications among diabetic patients.
+
+```{r list-most-popular}
+n_diabetics <- dim(specific_patients)[1]
+diabetic_medications %>%
+  count(concept_cd) %>%
+  arrange(desc(n)) %>%
+  slice(1:5) %>%
+  mutate(pct=n/n_diabetics) %>%
+  mutate(pct=round(100*pct)) %>%
+  mutate(pct=paste0(pct,"%")) %>%
+  mutate(n=format(n, big.mark=","))
+
+```
+
+Save everything for possible re-use
+
+```{r save-everything}
+log_time()
+read.table(timing_file) 
+save.image(image_file)
+```

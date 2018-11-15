@@ -1,13 +1,13 @@
 ---
-title: "Extract ids of patients with diabetes"
+title: "Apply exclusions to a patient list"
 author: "Steve Simon"
 date: "5/31/2018"
 output: html_document
 ---
 
-This program shows how to extract the patient numbers for diabetes patients subject to a variety of restrictions.
+This program shows how to extract the patient numbers for diabetes patients.
 
-Load the relevant libraries. (99641)
+Load the relevant libraries. 
 
 ```{r libraries}
 library(dplyr)
@@ -238,6 +238,8 @@ tooltips %>%
   cat(sep="\n")
 ```
 
+Very nice! For ICD9 codes associated with diabetes, use "250 Diabetes mellitus"" and for ICD10 codes associated with diabetes, use "E08-E13 Diabetes mellitus". You can find key phrases in the tool tip using Heron as well.
+
 Let's flip this around and find if there are any other concept_cd/c_basecode values associated with c_tooltip values containing diabetes codes.
 
 ```{r alternate-codes}
@@ -292,37 +294,6 @@ dbGetQuery(c_connect, sql_alternate_count) %>%
   format(big.mark=",")
 ```
 
-This snippet adds a date restriction.
-
-```{r date-restriction}
-log_time()
-sql_restrict_dates <- "
-AND TO_CHAR(start_date, 'yyyy-mm-dd') > '2010-01-01'
-"
-sql_count_date_restricted <- 
-  nest(sql_alternate_count, sql_restrict_dates)
-cat(sql_count_date_restricted)
-dbGetQuery(c_connect, sql_count_date_restricted) %>%
-  format(big.mark=",")
-```
-
-This snippet restricts to patients to females only. This represents a self-join.
-
-```{r count-females}
-log_time()
-sql_restrict_to_females <- "
-AND patient_num IN (
-  SELECT DISTINCT patient_num
-  FROM blueherondata.observation_fact
-  WHERE
-    concept_cd = 'DEM|SEX:f'
-)"
-sql_count_female_diabetics <- nest(sql_alternate_count, sql_restrict_to_females)
-cat(sql_count_female_diabetics)
-log_time()
-dbGetQuery(c_connect, sql_count_female_diabetics)
-```
-
 Extracting all the patient numbers requires a different start to the SQL query.
 
 ```{r extract-patients}
@@ -343,7 +314,7 @@ patient_list %>%
   arrange(patient_num)
 ```
 
-Notice that patients appear more often than once in the query. To get a distinct set of patients, you need to group by patient number and then choose only one record. The simplest choice is the record with the smallest start-date.
+Notice that patients appear more often than once in the query. To get a distinct set of patients, you need to group by patient number and then choose only one record. The simplest choice is the record with the earliest start-date.
 
 you can do this within R, but be careful, because some of the base R functions that you'd be tempted to use, such as unique or duplicated can be very inefficient with large data frames. The distinct or summarize functions in dplyr are a better choice.
 
@@ -391,63 +362,23 @@ FROM blueherondata.observation_fact
 sql_group <- "
 GROUP BY patient_num
 ORDER BY patient_num"
+
 sql_extract_unique_diabetics <- nest(sql_extract_unique_patients, sql_alternate_select, sql_group)
 cat(sql_extract_unique_diabetics)
-unique_patients_3 <- dbGetQuery(c_connect, sql_extract_unique_diabetics)
-names(unique_patients_3) %<>% tolower
-unique_patients_3 %>%
+
+unique_diabetics <- dbGetQuery(c_connect, sql_extract_unique_diabetics)
+names(unique_diabetics) %<>% tolower
+unique_diabetics %>%
   dim
-unique_patients_3 %>%
+unique_diabetics %>%
   sample_n(5) %>%
   arrange(patient_num)
 ```
 
-Suppose we want to know the gender of all these patients.
+Save this SQL code and this list. You'll need it later.
 
-```{r gender-1, eval=FALSE}
-log_time()
-
-
-sql_extract_gender <- nest("WHERE patient_num IN (", sql_extract_unique_diabetics, ")")
-SELECT patient_num, concept_cd
-FROM blueherondata.observation_fact
-WHERE patient_num IN (
-  SELECT DISTINCT patient_num 
-  FROM blueherondata.observation_fact
-  WHERE concept_cd LIKE '%E11.2%' 
-  AND rownum < 100
-) AND concept_cd LIKE 'DEM|SEX:%'"
-gender_list <- dbGetQuery(c_connect, sql_extract_gender)
-head(gender_list)
-dim(gender_list)
-table(gender_list$CONCEPT_CD)
-```
-
-Now, let's take things one step further. For these unique patients, let's pull any record associated with medications.
-
-```{r medication, eval=FALSE}
-log_time()
-sql_extract_medications_prefix <- "
-SELECT patient_num, concept_cd, start_date AS edate
-FROM blueherondata.observation_fact
-
-WHERE patient_num IN ("
-  
-sql_extract_medications_postfix <- "
-) AND 
-
-concept_cd IN (
-SELECT DISTINCT concept_cd FROM blueherondata.concept_dimension
-  WHERE concept_path LIKE '\\i2b2\\Medications\\%'
-  ORDER BY concept_cd)"
-
-sql_extract_medications <- paste(
-  sql_extract_medications_prefix,
-  sql_extract_unique_patients,
-  sql_select_diabetes,
-  sql_group,
-  sql_extract_medications_postfix)
-cat(sql_extract_medications)
+```{r save_distinct}
+save(list=c("sql_extract_unique_diabetics", "unique_diabetics"), file="../data/diabetes_patients.RData")
 ```
 
 Save everything for possible re-use
