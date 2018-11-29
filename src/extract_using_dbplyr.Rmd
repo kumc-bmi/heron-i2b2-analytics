@@ -28,6 +28,7 @@ Please review open_oracle.Rmd to see how to access information in an Oracle data
 
 ```{r login-to-oracle}
 log_time(first=TRUE)
+library(dbplyr)
 library("dplyr")
 library("magrittr")
 library("ROracle")
@@ -47,6 +48,23 @@ dbGetQuery(c_connect, "SELECT * FROM blueheronmetadata.heron_terms WHERE rownum 
 
 Here is where I plan to illustrate some examples that use dbplyr.
 
+```{r dbplyr-test, eval=FALSE}
+of <- tbl(c_connect, "blueherondata.observation_fact")
+of
+```
+
+Some resources, both related and unrelated to dbplyr: 
+
+* [An introduction to dbplyr][intro]
+* [Adding a new DBI backend][adding]
+* [glue_sql command in glue][glue]
+* [Oracle's R Enterprise User's Guide][oracle]
+* [Using dplyr & dbplyr with R language and Oracle Database][using]
+* [Databases Using R: Oracle][databases]
+* [dbplyr 1.2.0][1.2]
+* [dbplyr @ METACRAN][metacran]
+* [Testing 'DBI' Back Ends][dbitest]
+
 Save everything for later use.
 
 ```{r save-everything}
@@ -54,3 +72,13 @@ log_time()
 read.table(timing_file) 
 save.image(image_file)
 ```
+
+[intro]: https://halibut.kumc.edu/rstudio-server/help/library/dbplyr/doc/dbplyr.html "Title"
+[adding]: https://halibut.kumc.edu/rstudio-server/help/library/dbplyr/doc/new-backend.html
+[glue]: https://glue.tidyverse.org/
+[oracle]: https://docs.oracle.com/cd/E83411_01/OREUG/toc.htm
+[using]: https://medium.com/oracledevs/r-and-the-oracle-database-using-dplyr-dbplyr-with-roracle-in-windows-10-8ddcabdd6e97
+[databases]: https://db.rstudio.com/databases/oracle/
+[1.2]: https://www.tidyverse.org/articles/2018/01/dbplyr-1-2/
+[metacran]: https://www.r-pkg.org/pkg/dbplyr
+[dbitest]: https://www.r-pkg.org/pkg/DBItest
