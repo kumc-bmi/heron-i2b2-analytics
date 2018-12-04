@@ -1,5 +1,5 @@
 ---
-title: "Extract ids of patients with diabetes"
+title: "Apply exclusions"
 author: "Steve Simon"
 date: "5/31/2018"
 output: html_document

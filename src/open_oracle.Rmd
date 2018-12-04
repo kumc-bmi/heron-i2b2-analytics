@@ -23,7 +23,7 @@ or your private password will be posted on a public repository.
 
 ```{r login-to-oracle}
 library("ROracle")
-cdm_config <- read.csv('../cdm_config.csv', stringsAsFactors=FALSE)
+cdm_config <- read.csv('../cdm_config_A1.csv', stringsAsFactors=FALSE)
 c_connect <-
   dbConnect(Oracle(), cdm_config$account, cdm_config$password, cdm_config$access)
 ```
@@ -31,5 +31,6 @@ c_connect <-
 If your connection works then the following code will count the number of records in the observation_fact table. On my system, this produces a number in the low billions.
 
 ```{r simple-test}
-dbGetQuery(c_connect, "SELECT COUNT(patient_num) FROM blueherondata.observation_fact")
+dbGetQuery(c_connect, "SELECT COUNT(patient_num) FROM blueherondata.observation_fact") %>%
+  format(big.mark=",")
 ```

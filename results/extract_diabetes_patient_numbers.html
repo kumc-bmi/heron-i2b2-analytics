@@ -156,60 +156,60 @@ c_connect &lt;-
   dbConnect(Oracle(), cdm_config$account, cdm_config$password, cdm_config$access)</code></pre>
 <p>Quick test</p>
 <pre class="r"><code>dbGetQuery(c_connect, &quot;SELECT * FROM blueherondata.observation_fact WHERE ROWNUM &lt; 5&quot;)</code></pre>
-<pre><code>##   ENCOUNTER_NUM PATIENT_NUM           CONCEPT_CD PROVIDER_ID
-## 1       6325818     1535624     KUH|PROC_ID:1702           @
-## 2       3185193       87686 KUH|PROC_ID:10201652           @
-## 3       6323878     1481530     KUH|PROC_ID:1696           @
-## 4      18016348      173093     KUH|PROC_ID:1526           @
-##            START_DATE           MODIFIER_CD INSTANCE_NUM VALTYPE_CD
-## 1 2016-05-27 11:24:00  PROCORDERS:Inpatient 9.339784e+15          @
-## 2 2015-12-28 13:23:00  PROCORDERS:Inpatient 6.672106e+16          @
-## 3 2016-08-15 09:02:00  PROCORDERS:Inpatient 3.540791e+16          @
-## 4 2016-10-17 19:43:00 PROCORDERS:Outpatient 2.385907e+15          @
-##   TVAL_CHAR NVAL_NUM VALUEFLAG_CD QUANTITY_NUM UNITS_CD
-## 1         @       NA         &lt;NA&gt;           NA     &lt;NA&gt;
-## 2         @       NA         &lt;NA&gt;           NA     &lt;NA&gt;
-## 3         @       NA         &lt;NA&gt;           NA     &lt;NA&gt;
-## 4         @       NA         &lt;NA&gt;           NA     &lt;NA&gt;
-##              END_DATE LOCATION_CD OBSERVATION_BLOB CONFIDENCE_NUM
-## 1 2016-05-27 11:24:00        &lt;NA&gt;             &lt;NA&gt;             NA
-## 2 2015-12-28 13:23:00        &lt;NA&gt;             &lt;NA&gt;             NA
-## 3 2016-08-15 09:02:00        &lt;NA&gt;             &lt;NA&gt;             NA
-## 4 2016-10-17 19:43:00        &lt;NA&gt;             &lt;NA&gt;             NA
-##           UPDATE_DATE       DOWNLOAD_DATE         IMPORT_DATE
-## 1 2017-04-20 08:05:00 2018-08-30 13:19:51 2018-09-25 01:02:01
-## 2 2016-11-19 08:06:00 2018-08-30 13:19:51 2018-09-25 01:02:01
-## 3 2017-06-29 08:20:00 2018-08-30 13:19:51 2018-09-25 01:02:01
-## 4 2017-08-27 08:22:00 2018-08-30 13:19:51 2018-09-25 01:02:01
-##   SOURCESYSTEM_CD UPLOAD_ID SUB_ENCOUNTER
-## 1  Epic@kumed.com        58    1441519776
-## 2  Epic@kumed.com        58    1289800455
-## 3  Epic@kumed.com        58    3400801668
-## 4  Epic@kumed.com        58      13137211</code></pre>
+<pre><code>##   ENCOUNTER_NUM PATIENT_NUM              CONCEPT_CD PROVIDER_ID
+## 1       6657546      223465 KUH|BPA_LOCATOR_ID:1970           @
+## 2       6657546      223465 KUH|BPA_LOCATOR_ID:1970           @
+## 3       6657546      223465 KUH|BPA_LOCATOR_ID:1970           @
+## 4       6657546      223465 KUH|BPA_LOCATOR_ID:1970           @
+##            START_DATE    MODIFIER_CD INSTANCE_NUM VALTYPE_CD TVAL_CHAR
+## 1 2014-05-12 06:51:00 ALT_STATUS_C:0 4.069298e+16          @         @
+## 2 2014-05-12 07:30:00 ALT_STATUS_C:0 5.300288e+16          @         @
+## 3 2014-05-12 10:09:00 ALT_STATUS_C:0 1.510067e+16          @         @
+## 4 2014-05-13 11:14:00 ALT_STATUS_C:0 5.216106e+16          @         @
+##   NVAL_NUM VALUEFLAG_CD QUANTITY_NUM UNITS_CD            END_DATE
+## 1       NA         &lt;NA&gt;           NA     &lt;NA&gt; 2014-05-12 06:51:00
+## 2       NA         &lt;NA&gt;           NA     &lt;NA&gt; 2014-05-12 07:30:00
+## 3       NA         &lt;NA&gt;           NA     &lt;NA&gt; 2014-05-12 10:09:00
+## 4       NA         &lt;NA&gt;           NA     &lt;NA&gt; 2014-05-13 11:14:00
+##   LOCATION_CD OBSERVATION_BLOB CONFIDENCE_NUM         UPDATE_DATE
+## 1        &lt;NA&gt;             &lt;NA&gt;             NA 2014-05-12 06:51:00
+## 2        &lt;NA&gt;             &lt;NA&gt;             NA 2014-05-12 07:30:00
+## 3        &lt;NA&gt;             &lt;NA&gt;             NA 2014-05-12 10:09:00
+## 4        &lt;NA&gt;             &lt;NA&gt;             NA 2014-05-13 11:14:00
+##         DOWNLOAD_DATE         IMPORT_DATE SOURCESYSTEM_CD UPLOAD_ID
+## 1 2018-08-30 14:19:51 2018-09-20 06:12:37  Epic@kumed.com        40
+## 2 2018-08-30 14:19:51 2018-09-20 06:12:37  Epic@kumed.com        40
+## 3 2018-08-30 14:19:51 2018-09-20 06:12:37  Epic@kumed.com        40
+## 4 2018-08-30 14:19:51 2018-09-20 06:12:37  Epic@kumed.com        40
+##   SUB_ENCOUNTER
+## 1    1376540813
+## 2    1376540813
+## 3    1376540813
+## 4    1376540813</code></pre>
 <pre class="r"><code>dbGetQuery(c_connect, &quot;SELECT * FROM blueherondata.concept_dimension WHERE ROWNUM &lt; 5&quot;)</code></pre>
-<pre><code>##                                                                                                                                                                 CONCEPT_PATH
-## 1 \\PCORI\\PROCEDURE\\10\\(0) Medical an~5b7n\\(01) Medical a~ya5q\\(01N) Medical~hb53\\(01N5) Medical~fqcw\\(01N53) Medica~lbff\\(01N53Z) Medic~nfk8\\(01N53ZZ) Rele~daq1\\
-## 2                                           \\PCORI\\PROCEDURE\\10\\(0) Medical an~5b7n\\(01) Medical a~ya5q\\(01N) Medical~hb53\\(01NQ) Medical~xm4r\\(01NQ4) Medica~n0m5\\
-## 3                                                                               \\i2b2\\Diagnoses\\ICD9\\A18090800\\A8359006\\A8359307\\A8360936\\A8343990\\272.9\\1393752\\
-## 4                                                                            \\i2b2\\Diagnoses\\ICD9\\A18090800\\A18090759\\A8362294\\A12977012\\A8359360\\V58.89\\1388035\\
-##          CONCEPT_CD
-## 1     ICD10:01N53ZZ
-## 2       ICD10:01NQ4
-## 3 KUH|DX_ID:1393752
-## 4 KUH|DX_ID:1388035
-##                                                       NAME_CHAR
-## 1                   Release median nerve, percutaneous approach
-## 2                                       percutaneous endoscopic
-## 3 Disorder of bile acid and cholesterol metabolism, unspecified
-## 4    Broken internal right hip prosthesis, subsequent encounter
-##   CONCEPT_BLOB         UPDATE_DATE       DOWNLOAD_DATE         IMPORT_DATE
-## 1         &lt;NA&gt; 2015-06-09 00:00:00 2016-04-20 17:35:25 2018-09-29 19:55:34
-## 2         &lt;NA&gt; 2015-06-09 00:00:00 2016-04-20 17:35:25 2018-09-29 19:55:34
-## 3         &lt;NA&gt; 2018-09-29 19:34:26                &lt;NA&gt; 2018-09-29 19:55:34
-## 4         &lt;NA&gt; 2018-09-29 19:34:26                &lt;NA&gt; 2018-09-29 19:55:34
+<pre><code>##                                                          CONCEPT_PATH
+## 1 \\i2b2\\Alerts\\3\\8\\C\\33FABFCF4877061C674E7D5F932DB8B2E426B119\\
+## 2 \\i2b2\\Alerts\\3\\8\\S\\B59EA3F0E3E701E34EBA79EA31571702CA9290EE\\
+## 3 \\i2b2\\Alerts\\3\\8\\M\\24680112528FDCCEA10449C68B8B62FE0BB630BE\\
+## 4 \\i2b2\\Alerts\\3\\8\\M\\AE576D38D60B5F661D59206819E00AC981E8F25D\\
+##                                        CONCEPT_CD
+## 1 KUH|DI:33FABFCF4877061C674E7D5F932DB8B2E426B119
+## 2 KUH|DI:B59EA3F0E3E701E34EBA79EA31571702CA9290EE
+## 3 KUH|DI:24680112528FDCCEA10449C68B8B62FE0BB630BE
+## 4 KUH|DI:AE576D38D60B5F661D59206819E00AC981E8F25D
+##                                                                                                                                                NAME_CHAR
+## 1                                    CONTRAINDICATION: HEPARIN (PORCINE) - CONDITIONS RELATED TO PATIENT DIAGNOSIS: NONTRAUMATIC HEMATOMA OF RIGHT ORBIT
+## 2 SEVERE WARNING: NAPROXEN - CONDITIONS RELATED TO PATIENT DIAGNOSIS: SICKLE CELL ANEMIA WITH CRISIS (HCC); SICKLE CELL ANEMIA WITH PAIN (HCC); SICKLE-C
+## 3                                           MODERATE WARNING: IMMUNE GLOBULIN 10% - CONDITIONS RELATED TO PATIENT DIAGNOSIS: RENAL ARTERY STENOSIS (HCC)
+## 4                                                                     MODERATE WARNING: PALIPERIDONE PALMITATE(+) - OTHER AND UNSPECIFIED HYPERLIPIDEMIA
+##   CONCEPT_BLOB         UPDATE_DATE DOWNLOAD_DATE         IMPORT_DATE
+## 1         &lt;NA&gt; 2018-09-29 14:32:09          &lt;NA&gt; 2018-09-29 20:55:34
+## 2         &lt;NA&gt; 2018-09-29 14:32:09          &lt;NA&gt; 2018-09-29 20:55:34
+## 3         &lt;NA&gt; 2018-09-29 14:32:09          &lt;NA&gt; 2018-09-29 20:55:34
+## 4         &lt;NA&gt; 2018-09-29 14:32:09          &lt;NA&gt; 2018-09-29 20:55:34
 ##   SOURCESYSTEM_CD UPLOAD_ID
-## 1   NCBO_ICD10PCS        NA
-## 2   NCBO_ICD10PCS        NA
+## 1  Epic@kumed.com        NA
+## 2  Epic@kumed.com        NA
 ## 3  Epic@kumed.com        NA
 ## 4  Epic@kumed.com        NA</code></pre>
 <pre class="r"><code>dbGetQuery(c_connect, &quot;SELECT * FROM blueheronmetadata.heron_terms WHERE ROWNUM &lt; 5&quot;)</code></pre>
@@ -238,16 +238,21 @@ c_connect &lt;-
 ## 2 \\i2b2\\Demographics\\Religion\\Not Recorded\\Not Recorded-NA\\
 ## 3      \\i2b2\\Demographics\\Race\\Not Recorded\\Not Recorded-R\\
 ## 4  \\i2b2\\Demographics\\Language\\Not Recorded\\Not Recorded-@\\
-##   C_COMMENT C_TOOLTIP M_APPLIED_PATH UPDATE_DATE DOWNLOAD_DATE IMPORT_DATE
-## 1      &lt;NA&gt;      &lt;NA&gt;              @  2007-03-20    2007-03-20  2007-03-20
-## 2      &lt;NA&gt;      &lt;NA&gt;              @  2007-04-10    2007-04-10  2007-04-10
-## 3      &lt;NA&gt;      &lt;NA&gt;              @  2007-04-10    2007-04-10  2007-04-10
-## 4      &lt;NA&gt;      &lt;NA&gt;              @  2007-04-10    2007-04-10  2007-04-10
-##    SOURCESYSTEM_CD VALUETYPE_CD M_EXCLUSION_CD C_PATH C_SYMBOL TERM_ID
-## 1          KRISTEL         &lt;NA&gt;           &lt;NA&gt;   &lt;NA&gt;     &lt;NA&gt;       1
-## 2 DEM2FACT CONVERT         &lt;NA&gt;           &lt;NA&gt;   &lt;NA&gt;     &lt;NA&gt;       2
-## 3 DEM2FACT CONVERT         &lt;NA&gt;           &lt;NA&gt;   &lt;NA&gt;     &lt;NA&gt;       3
-## 4 DEM2FACT CONVERT         &lt;NA&gt;           &lt;NA&gt;   &lt;NA&gt;     &lt;NA&gt;       4</code></pre>
+##   C_COMMENT C_TOOLTIP M_APPLIED_PATH         UPDATE_DATE
+## 1      &lt;NA&gt;      &lt;NA&gt;              @ 2007-03-20 01:00:00
+## 2      &lt;NA&gt;      &lt;NA&gt;              @ 2007-04-10 01:00:00
+## 3      &lt;NA&gt;      &lt;NA&gt;              @ 2007-04-10 01:00:00
+## 4      &lt;NA&gt;      &lt;NA&gt;              @ 2007-04-10 01:00:00
+##         DOWNLOAD_DATE         IMPORT_DATE  SOURCESYSTEM_CD VALUETYPE_CD
+## 1 2007-03-20 01:00:00 2007-03-20 01:00:00          KRISTEL         &lt;NA&gt;
+## 2 2007-04-10 01:00:00 2007-04-10 01:00:00 DEM2FACT CONVERT         &lt;NA&gt;
+## 3 2007-04-10 01:00:00 2007-04-10 01:00:00 DEM2FACT CONVERT         &lt;NA&gt;
+## 4 2007-04-10 01:00:00 2007-04-10 01:00:00 DEM2FACT CONVERT         &lt;NA&gt;
+##   M_EXCLUSION_CD C_PATH C_SYMBOL TERM_ID
+## 1           &lt;NA&gt;   &lt;NA&gt;     &lt;NA&gt;       1
+## 2           &lt;NA&gt;   &lt;NA&gt;     &lt;NA&gt;       2
+## 3           &lt;NA&gt;   &lt;NA&gt;     &lt;NA&gt;       3
+## 4           &lt;NA&gt;   &lt;NA&gt;     &lt;NA&gt;       4</code></pre>
 <p>The SQL code to count and extract patient numbers can get quite long. It helps to break the code into distinct pieces.</p>
 <p>The following SQL snippet counts the distinct number of patients. You can combine with additional SQL code to place restrictions on the types of patients.</p>
 <pre class="r"><code>log_time()
@@ -260,7 +265,7 @@ dbGetQuery(c_connect, sql_count_patients) %&gt;%
   format(big.mark=&quot;,&quot;)</code></pre>
 <pre><code>##   COUNT(DISTINCTPATIENT_NUM)
 ## 1                  2,369,667</code></pre>
-<p>To make the SQL code look nicer, here is a function that indents a piece of SQL code nested between two other pieces.</p>
+<p>To make the SQL code look nicer, here is a function that indents a piece of SQL code nested between two other pieces. I need to make the transition to a more formal package like glue, which includes a glue_sql function. This function makes it easy to use nested queries and protects against SQL injection attacks by using a parameterized SQL query. The glue package is part of the Tidyverse and has a <a href="https://glue.tidyverse.org/">nice overview page</a>.</p>
 <pre class="r"><code>nest &lt;- function(sql1, sql2, sql3=&quot;&quot;) {
   paste0(
     sql1,
@@ -274,14 +279,14 @@ nestx &lt;- function(sql1, sql2, sql3=&quot;&quot;, sql4=&quot;&quot;) {
     gsub(&quot;\n&quot;, &quot;\n    &quot;, sql3),
     sql4)
 }</code></pre>
-<p>This SQL snippet lists all the ICD9 and ICD10 codes associated with diabetes.</p>
+<p>This SQL snippet lists all the ICD9 and ICD10 codes associated with diabetes. A sample of the codes is shown.</p>
+<p>First the ICD9 codes.</p>
 <pre class="r"><code>log_time()
 
 sql_list_diabetes_icd9 &lt;- &quot;
 SELECT DISTINCT concept_cd 
 FROM blueherondata.concept_dimension
-WHERE
-  concept_cd LIKE '%ICD9:250%'
+WHERE concept_cd LIKE '%ICD9:250%'
 &quot;
 
 diabetes_codes &lt;- dbGetQuery(c_connect, sql_list_diabetes_icd9)
@@ -293,11 +298,12 @@ diabetes_codes %&gt;%
   unlist %&gt;%
   sort %&gt;%
   cat(sep=&quot;\n&quot;)</code></pre>
-<pre><code>## ICD9:250.10
-## ICD9:250.51
-## ICD9:250.62
-## ICD9:250.7
-## ICD9:250.92</code></pre>
+<pre><code>## ICD9:250.13
+## ICD9:250.2
+## ICD9:250.22
+## ICD9:250.9
+## ICD9:250.90</code></pre>
+<p>Here are the ICD10 codes.</p>
 <pre class="r"><code>sql_list_diabetes_icd10 &lt;- &quot;
 SELECT DISTINCT concept_cd 
 FROM blueherondata.concept_dimension
@@ -319,57 +325,41 @@ diabetes_codes %&gt;%
   unlist %&gt;%
   sort %&gt;%
   cat(sep=&quot;\n&quot;)</code></pre>
-<pre><code>## ICD10:E08.11
-## ICD10:E08.331
-## ICD10:E08.59
-## ICD10:E09.63
-## ICD10:E13.621</code></pre>
+<pre><code>## ICD10:E08.29
+## ICD10:E09.01
+## ICD10:E09.49
+## ICD10:E11.31
+## ICD10:E13</code></pre>
 <p>Combine these two queries together and nest them within a counting query.</p>
-<pre class="r"><code>sql_list_diabetes_codes &lt;- &quot;
-SELECT DISTINCT concept_cd 
-FROM blueherondata.concept_dimension
-WHERE
-  concept_cd LIKE '%ICD9:250%' OR
-  concept_cd LIKE '%ICD10:E08%' OR
-  concept_cd LIKE '%ICD10:E09%' OR
-  concept_cd LIKE '%ICD10:E10%' OR
-  concept_cd LIKE '%ICD10:E11%' OR
-  concept_cd LIKE '%ICD10:E12%' OR
-  concept_cd LIKE '%ICD10:E13%'
+<pre class="r"><code>sql_count_diabetics &lt;- &quot;
+SELECT COUNT(DISTINCT patient_num)
+FROM blueherondata.observation_fact
+WHERE concept_cd IN (
+  SELECT DISTINCT concept_cd 
+  FROM blueherondata.concept_dimension
+  WHERE
+    concept_cd LIKE '%ICD9:250%' OR
+    concept_cd LIKE '%ICD10:E08%' OR
+    concept_cd LIKE '%ICD10:E09%' OR
+    concept_cd LIKE '%ICD10:E10%' OR
+    concept_cd LIKE '%ICD10:E11%' OR
+    concept_cd LIKE '%ICD10:E12%' OR
+    concept_cd LIKE '%ICD10:E13%'
+)
 &quot;
 
-sql_count_diabetics &lt;- nestx(
-  sql_count_patients, 
-  &quot;WHERE concept_cd IN (&quot;, 
-  sql_list_diabetes_codes, &quot;)&quot;)
-cat(sql_count_diabetics)</code></pre>
-<pre><code>## 
-## SELECT COUNT(DISTINCT patient_num)
-## FROM blueherondata.observation_fact
-## WHERE concept_cd IN (
-##     SELECT DISTINCT concept_cd 
-##     FROM blueherondata.concept_dimension
-##     WHERE
-##       concept_cd LIKE '%ICD9:250%' OR
-##       concept_cd LIKE '%ICD10:E08%' OR
-##       concept_cd LIKE '%ICD10:E09%' OR
-##       concept_cd LIKE '%ICD10:E10%' OR
-##       concept_cd LIKE '%ICD10:E11%' OR
-##       concept_cd LIKE '%ICD10:E12%' OR
-##       concept_cd LIKE '%ICD10:E13%'
-##     )</code></pre>
-<pre class="r"><code>dbGetQuery(c_connect, sql_count_diabetics) %&gt;%
+dbGetQuery(c_connect, sql_count_diabetics) %&gt;%
   format(big.mark=&quot;,&quot;)</code></pre>
 <pre><code>##   COUNT(DISTINCTPATIENT_NUM)
 ## 1                     56,477</code></pre>
 <p>Information about diabetes codes is also available through the concept_path variable found in the concept_dimension table.</p>
+<p>Here is a random sample of paths associated with ICD9 diabetes codes…</p>
 <pre class="r"><code>log_time()
 
 sql_explore_icd9_path &lt;- &quot;
 SELECT DISTINCT concept_path
 FROM blueherondata.concept_dimension
-WHERE
-  concept_cd LIKE '%ICD9:250%'
+WHERE concept_cd LIKE '%ICD9:250%'
 ORDER BY concept_path
 &quot;
 
@@ -382,16 +372,17 @@ paths %&gt;%
   unlist %&gt;%
   sort %&gt;%
   cat(sep=&quot;\n&quot;)</code></pre>
-<pre><code>## \i2b2\Diagnoses\A18090800\A8359006\A8359307\A15573936\A8352361\A8340910\250.02\
-## \i2b2\Diagnoses\A18090800\A8359006\A8359307\A15573936\A8352361\A8340910\250.03\
-## \i2b2\Diagnoses\A18090800\A8359006\A8359307\A15573936\A8352361\A8340912\250.32\
-## \i2b2\Diagnoses\A18090800\A8359006\A8359307\A15573936\A8352361\A8340913\
-## \i2b2\Diagnoses\A18090800\A8359006\A8359307\A15573936\A8352361\A8340916\
-## \i2b2\Diagnoses\A18090800\A8359006\A8359307\A15573936\A8352361\A8340916\250.72\
-## \i2b2\Diagnoses\A18090800\A8359006\A8359307\A15573936\A8352361\A8343927\250.93\
-## \i2b2\Diagnoses\ICD9\A18090800\A8359006\A8359307\A15573936\A8352361\A8340912\
-## \i2b2\Diagnoses\ICD9\A18090800\A8359006\A8359307\A15573936\A8352361\A8340914\250.52\
+<pre><code>## \i2b2\Diagnoses\A18090800\A8359006\A8359307\A15573936\A8352361\A8340911\250.11\
+## \i2b2\Diagnoses\A18090800\A8359006\A8359307\A15573936\A8352361\A8340914\
+## \i2b2\Diagnoses\A18090800\A8359006\A8359307\A15573936\A8352361\A8340915\250.62\
+## \i2b2\Diagnoses\Endocrine disorders (240-259)\Other endocrine gland diseases (250-259)\(250) Diabetes mellitus\(250-3) Diabetes with other coma\(250-30) Diabetes mellitus, type ~\
+## \i2b2\Diagnoses\Endocrine disorders (240-259)\Other endocrine gland diseases (250-259)\(250) Diabetes mellitus\(250-7) Diabetes with peripheral ~\
+## \i2b2\Diagnoses\Endocrine disorders (240-259)\Other endocrine gland diseases (250-259)\(250) Diabetes mellitus\(250-9) Diabetes with unspecified~\(250-93) Diabetes mellitus type I~\
+## \i2b2\Diagnoses\ICD9\A18090800\A8359006\A8359307\A15573936\A8352361\A8340912\250.30\
+## \i2b2\Diagnoses\ICD9\A18090800\A8359006\A8359307\A15573936\A8352361\A8340915\250.62\
+## \i2b2\Diagnoses\ICD9\A18090800\A8359006\A8359307\A15573936\A8352361\A8343927\250.92\
 ## \i2b2\Diagnoses\ICD9\A18090800\A8359006\A8359307\A15573936\A8352361\A8359116\250.23\</code></pre>
+<p>…and ICD10 diabetes codes.</p>
 <pre class="r"><code>sql_explore_icd10_path &lt;- &quot;
 SELECT DISTINCT concept_path
 FROM blueherondata.concept_dimension
@@ -414,13 +405,14 @@ paths %&gt;%
   unlist %&gt;%
   sort %&gt;%
   cat(sep=&quot;\n&quot;)</code></pre>
-<pre><code>## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17812475\
-## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17812475\A17812476\E13.22\
-## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17825389\A17786857\E11.49\
-## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17825389\A17786860\A17838053\
-## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17863430\A17799598\E09.52\</code></pre>
+<pre><code>## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17825389\A17786860\A17863456\E11.630\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17825389\A17838046\A17838047\E11.319\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17850773\A17825365\A17786833\E08.638\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17863430\A17812460\A17825377\E09.622\
+## \i2b2\Diagnoses\ICD10\A20098492\A18921516\A18916268\A17863430\A17863431\E09.11\</code></pre>
 <p>Unfortunately, the concept_path variable is mostly coded using cryptic values. If you stare at this list long enough, you’ll figure out that the codes “A8352361” or “(250) Diabetes mellitus” will give you the proper ICD9 codes and that “A18916268” will give you the proper ICD10 codes</p>
 <p>You can find cleaner descriptions using c_tooltip in blueheronmetadata.heron_terms. The halibut system uses c_tooltip for tool tip displays, so this value is almost always easier to read.</p>
+<p>Here is a random sample of tooltips associated with ICD9 diabetes codes…</p>
 <pre class="r"><code>sql_explore_icd9_tooltip &lt;- &quot;
 SELECT DISTINCT c_tooltip 
 FROM blueheronmetadata.heron_terms
@@ -440,9 +432,10 @@ tooltips %&gt;%
   cat(sep=&quot;\n&quot;)</code></pre>
 <pre><code>## Diagnoses \ ICD9 \ 240-279.99 ENDOCRINE, NUTRITIONAL AND METABOLIC DISEASES, AND IMMUNITY DISORDERS \ 249-259.99 DISEASES OF OTHER ENDOCRINE GLANDS \ 250 Diabetes mellitus
 ## Diagnoses \ ICD9 \ 240-279.99 ENDOCRINE, NUTRITIONAL AND METABOLIC DISEASES, AND IMMUNITY DISORDERS \ 249-259.99 DISEASES OF OTHER ENDOCRINE GLANDS \ 250 Diabetes mellitus \ 250.1 Diabetes with ketoacidosis
+## Diagnoses \ ICD9 \ 240-279.99 ENDOCRINE, NUTRITIONAL AND METABOLIC DISEASES, AND IMMUNITY DISORDERS \ 249-259.99 DISEASES OF OTHER ENDOCRINE GLANDS \ 250 Diabetes mellitus \ 250.4 Diabetes with renal manifestations
 ## Diagnoses \ ICD9 \ 240-279.99 ENDOCRINE, NUTRITIONAL AND METABOLIC DISEASES, AND IMMUNITY DISORDERS \ 249-259.99 DISEASES OF OTHER ENDOCRINE GLANDS \ 250 Diabetes mellitus \ 250.5 Diabetes with ophthalmic manifestations
-## Diagnoses \ ICD9 \ 240-279.99 ENDOCRINE, NUTRITIONAL AND METABOLIC DISEASES, AND IMMUNITY DISORDERS \ 249-259.99 DISEASES OF OTHER ENDOCRINE GLANDS \ 250 Diabetes mellitus \ 250.6 Diabetes with neurological manifestations
-## Diagnoses \ ICD9 \ 240-279.99 ENDOCRINE, NUTRITIONAL AND METABOLIC DISEASES, AND IMMUNITY DISORDERS \ 249-259.99 DISEASES OF OTHER ENDOCRINE GLANDS \ 250 Diabetes mellitus \ 250.8 Diabetes with other specified manifestations</code></pre>
+## Diagnoses \ ICD9 \ 240-279.99 ENDOCRINE, NUTRITIONAL AND METABOLIC DISEASES, AND IMMUNITY DISORDERS \ 249-259.99 DISEASES OF OTHER ENDOCRINE GLANDS \ 250 Diabetes mellitus \ 250.6 Diabetes with neurological manifestations</code></pre>
+<p>…and ICD10 diabetes codes.</p>
 <pre class="r"><code>sql_explore_icd10_tooltip &lt;- &quot;
 SELECT DISTINCT c_tooltip 
 FROM blueheronmetadata.heron_terms
@@ -465,12 +458,14 @@ tooltips %&gt;%
   unlist %&gt;%
   sort %&gt;%
   cat(sep=&quot;\n&quot;)</code></pre>
-<pre><code>## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E08 Diabetes mellitus due to underlying condition \ E08.1 Diabetes mellitus due to underlying condition with ketoacidosis
-## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E11 Type 2 diabetes mellitus \ E11.3 Type 2 diabetes mellitus with ophthalmic complications \ E11.34 Type 2 diabetes mellitus with severe nonproliferative diabetic retinopathy
-## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E11 Type 2 diabetes mellitus \ E11.6 Type 2 diabetes mellitus with other specified complications \ E11.63 Type 2 diabetes mellitus with oral complications
-## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E13 Other specified diabetes mellitus \ E13.4 Other specified diabetes mellitus with neurological complications
-## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E13 Other specified diabetes mellitus \ E13.6 Other specified diabetes mellitus with other specified complications \ E13.64 Other specified diabetes mellitus with hypoglycemia</code></pre>
+<pre><code>## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E08 Diabetes mellitus due to underlying condition \ E08.2 Diabetes mellitus due to underlying condition with kidney complications
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E09 Drug or chemical induced diabetes mellitus
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E09 Drug or chemical induced diabetes mellitus \ E09.3 Drug or chemical induced diabetes mellitus with ophthalmic complications \ E09.32 Drug or chemical induced diabetes mellitus with mild nonproliferative diabetic retinopathy
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E09 Drug or chemical induced diabetes mellitus \ E09.3 Drug or chemical induced diabetes mellitus with ophthalmic complications \ E09.34 Drug or chemical induced diabetes mellitus with severe nonproliferative diabetic retinopathy
+## Diagnoses \ ICD10 \ E00-E89 Endocrine, nutritional and metabolic diseases (E00-E89) \ E08-E13 Diabetes mellitus (E08-E13) \ E11 Type 2 diabetes mellitus \ E11.6 Type 2 diabetes mellitus with other specified complications</code></pre>
+<p>Very nice! For ICD9 codes associated with diabetes, use “250 Diabetes mellitus”&quot; and for ICD10 codes associated with diabetes, use “E08-E13 Diabetes mellitus”. You can find key phrases in the tool tip using Heron as well.</p>
 <p>Let’s flip this around and find if there are any other concept_cd/c_basecode values associated with c_tooltip values containing diabetes codes.</p>
+<p>First, let’s look at the ICD9 side of things…</p>
 <pre class="r"><code>log_time()
 sql_alternate_icd9_codes &lt;- &quot;
 SELECT DISTINCT c_basecode 
@@ -487,11 +482,12 @@ alternate_codes %&gt;%
   sample_n(5) %&gt;%
   arrange(C_BASECODE)</code></pre>
 <pre><code>##          C_BASECODE
-## 1 KUH|DX_ID:1059986
-## 2 KUH|DX_ID:1163246
-## 3 KUH|DX_ID:2247051
-## 4 KUH|DX_ID:2247563
-## 5 KUH|DX_ID:2250002</code></pre>
+## 1 KUH|DX_ID:1025244
+## 2 KUH|DX_ID:1228155
+## 3 KUH|DX_ID:1239690
+## 4 KUH|DX_ID:2039457
+## 5 KUH|DX_ID:2272650</code></pre>
+<p>.. and the ICD10 side.</p>
 <pre class="r"><code>sql_alternate_icd10_codes &lt;- &quot;
 SELECT DISTINCT c_basecode 
 FROM blueheronmetadata.heron_terms
@@ -507,58 +503,47 @@ alternate_codes %&gt;%
   sample_n(5) %&gt;%
   arrange(C_BASECODE)</code></pre>
 <pre><code>##          C_BASECODE
-## 1 KUH|DX_ID:1052228
-## 2 KUH|DX_ID:2245594
-## 3 KUH|DX_ID:2246956
-## 4 KUH|DX_ID:2262829
-## 5 KUH|DX_ID:2266244</code></pre>
-<p>Combine these together to see if we have a larger count.</p>
+## 1      ICD10:E08.35
+## 2 KUH|DX_ID:1098826
+## 3 KUH|DX_ID:1222594
+## 4 KUH|DX_ID:1367739
+## 5 KUH|DX_ID:2210924</code></pre>
+<p>The c_basecode field in blueheronmetadata (which corresponds to the concept_cd field in blueherondata) has an interesting prefix, KUH|DX_ID which represents an internal diagnosis code.</p>
+<p>If you want to get a larger set of diabetes patients, you need to take these internal diagnosis codes into account.</p>
 <pre class="r"><code>log_time()
 
-sql_alternate_diabetes_codes &lt;- &quot;
-SELECT DISTINCT c_basecode 
-FROM blueheronmetadata.heron_terms
-WHERE
-  c_tooltip LIKE '%250 Diabetes mellitus%' OR
-  c_tooltip LIKE '%E08-E13 Diabetes mellitus%'
+sql_alternate_count &lt;- &quot;
+SELECT COUNT(DISTINCT patient_num)
+FROM blueherondata.observation_fact
+WHERE concept_cd IN (
+  SELECT DISTINCT c_basecode 
+  FROM blueheronmetadata.heron_terms
+  WHERE
+    c_tooltip LIKE '%250 Diabetes mellitus%' OR
+    c_tooltip LIKE '%E08-E13 Diabetes mellitus%'
+)
 &quot;
 
-sql_alternate_select &lt;- nest(&quot;WHERE concept_cd IN (&quot;, sql_alternate_diabetes_codes, &quot;)&quot;)
-sql_alternate_count &lt;- nest(sql_count_patients, sql_alternate_select)
-cat(sql_alternate_count)</code></pre>
-<pre><code>## 
-## SELECT COUNT(DISTINCT patient_num)
-## FROM blueherondata.observation_fact
-## WHERE concept_cd IN (
-##     SELECT DISTINCT c_basecode 
-##     FROM blueheronmetadata.heron_terms
-##     WHERE
-##       c_tooltip LIKE '%250 Diabetes mellitus%' OR
-##       c_tooltip LIKE '%E08-E13 Diabetes mellitus%'
-##     )</code></pre>
-<pre class="r"><code>dbGetQuery(c_connect, sql_alternate_count) %&gt;%
+dbGetQuery(c_connect, sql_alternate_count) %&gt;%
   format(big.mark=&quot;,&quot;)</code></pre>
 <pre><code>##   COUNT(DISTINCTPATIENT_NUM)
 ## 1                     99,641</code></pre>
 <p>Extracting all the patient numbers requires a different start to the SQL query.</p>
 <pre class="r"><code>log_time()
-sql_extract_patients &lt;- &quot;
+
+sql_extract_diabetics &lt;- &quot;
 SELECT patient_num, start_date AS pdate
-  FROM blueherondata.observation_fact
+FROM blueherondata.observation_fact
+WHERE concept_cd IN (
+  SELECT DISTINCT c_basecode 
+  FROM blueheronmetadata.heron_terms
+  WHERE
+    c_tooltip LIKE '%250 Diabetes mellitus%' OR
+    c_tooltip LIKE '%E08-E13 Diabetes mellitus%'
+)
 &quot;
-sql_extract_diabetics &lt;- nest(sql_extract_patients, sql_alternate_select)
-cat(sql_extract_diabetics)</code></pre>
-<pre><code>## 
-## SELECT patient_num, start_date AS pdate
-##   FROM blueherondata.observation_fact
-## WHERE concept_cd IN (
-##     SELECT DISTINCT c_basecode 
-##     FROM blueheronmetadata.heron_terms
-##     WHERE
-##       c_tooltip LIKE '%250 Diabetes mellitus%' OR
-##       c_tooltip LIKE '%E08-E13 Diabetes mellitus%'
-##     )</code></pre>
-<pre class="r"><code>patient_list &lt;- dbGetQuery(c_connect, sql_extract_diabetics)
+
+patient_list &lt;- dbGetQuery(c_connect, sql_extract_diabetics)
 names(patient_list) %&lt;&gt;% tolower
 patient_list %&gt;%
   dim</code></pre>
@@ -566,12 +551,12 @@ patient_list %&gt;%
 <pre class="r"><code>patient_list %&gt;%
   sample_n(5) %&gt;%
   arrange(patient_num)</code></pre>
-<pre><code>##   patient_num      pdate
-## 1       61443 2008-01-30
-## 2     1277495 2012-07-23
-## 3     1450538 2014-11-28
-## 4     1933964 2014-07-19
-## 5     2019598 2011-01-30</code></pre>
+<pre><code>##   patient_num               pdate
+## 1      200101 2018-01-23 00:00:00
+## 2     1309323 2006-01-09 00:00:00
+## 3     1432478 2011-12-06 00:00:00
+## 4     1501836 2013-10-09 09:10:00
+## 5     1741953 2017-04-18 15:27:00</code></pre>
 <p>Notice that patients appear more often than once in the query. To get a distinct set of patients, you need to group by patient number and then choose only one record. The simplest choice is the record with the earliest start-date.</p>
 <p>you can do this within R, but be careful, because some of the base R functions that you’d be tempted to use, such as unique or duplicated can be very inefficient with large data frames. The distinct or summarize functions in dplyr are a better choice.</p>
 <pre class="r"><code>log_time()
@@ -590,15 +575,13 @@ unique_patients_1 %&gt;%
 <pre><code>## # A tibble: 5 x 2
 ##   patient_num pdate              
 ##         &lt;dbl&gt; &lt;dttm&gt;             
-## 1      390729 2009-01-08 00:00:00
-## 2      466791 2008-03-17 00:00:00
-## 3      920869 2004-12-23 00:00:00
-## 4     1478805 2012-10-16 00:00:00
-## 5     1876781 2008-01-28 00:00:00</code></pre>
+## 1       91346 2010-10-15 01:00:00
+## 2      413623 2008-01-06 00:00:00
+## 3     1778291 2015-08-21 01:00:00
+## 4     1871212 2012-12-23 00:00:00
+## 5     1881706 2008-04-16 01:00:00</code></pre>
 <p>This method also works.</p>
 <pre class="r"><code>log_time()
-library(dplyr)
-library(magrittr)
 patient_list                             %&gt;% 
   arrange(patient_num, pdate)            %&gt;%
   distinct(patient_num, .keep_all=TRUE)  %&gt;%
@@ -609,38 +592,30 @@ unique_patients_2 %&gt;%
 <pre class="r"><code>unique_patients_2 %&gt;%
   sample_n(5) %&gt;%
   arrange(patient_num)</code></pre>
-<pre><code>##   patient_num      pdate
-## 1       50657 2006-04-09
-## 2      142976 2014-03-12
-## 3      186509 2017-12-31
-## 4     1273870 2014-06-28
-## 5     1541498 2016-06-02</code></pre>
+<pre><code>##   patient_num               pdate
+## 1     1010092 2011-02-09 00:00:00
+## 2     1033005 2013-05-30 01:00:00
+## 3     1050200 2013-11-29 00:00:00
+## 4     1722228 2017-06-10 01:00:00
+## 5     1743570 2000-02-13 00:00:00</code></pre>
 <p>You can also get the same effect using just SQL code.</p>
 <pre class="r"><code>log_time()
-sql_extract_unique_patients &lt;- &quot;
+
+sql_extract_unique_diabetics &lt;- &quot;
 SELECT patient_num, MIN(start_date) AS pdate
 FROM blueherondata.observation_fact
+WHERE concept_cd IN (
+  SELECT DISTINCT c_basecode 
+  FROM blueheronmetadata.heron_terms
+  WHERE
+    c_tooltip LIKE '%250 Diabetes mellitus%' OR
+    c_tooltip LIKE '%E08-E13 Diabetes mellitus%'
+)
+GROUP BY patient_num
+ORDER BY patient_num
 &quot;
 
-sql_group &lt;- &quot;
-GROUP BY patient_num
-ORDER BY patient_num&quot;
-
-sql_extract_unique_diabetics &lt;- nest(sql_extract_unique_patients, sql_alternate_select, sql_group)
-cat(sql_extract_unique_diabetics)</code></pre>
-<pre><code>## 
-## SELECT patient_num, MIN(start_date) AS pdate
-## FROM blueherondata.observation_fact
-## WHERE concept_cd IN (
-##     SELECT DISTINCT c_basecode 
-##     FROM blueheronmetadata.heron_terms
-##     WHERE
-##       c_tooltip LIKE '%250 Diabetes mellitus%' OR
-##       c_tooltip LIKE '%E08-E13 Diabetes mellitus%'
-##     )
-## GROUP BY patient_num
-## ORDER BY patient_num</code></pre>
-<pre class="r"><code>unique_diabetics &lt;- dbGetQuery(c_connect, sql_extract_unique_diabetics)
+unique_diabetics &lt;- dbGetQuery(c_connect, sql_extract_unique_diabetics)
 names(unique_diabetics) %&lt;&gt;% tolower
 unique_diabetics %&gt;%
   dim</code></pre>
@@ -648,29 +623,30 @@ unique_diabetics %&gt;%
 <pre class="r"><code>unique_diabetics %&gt;%
   sample_n(5) %&gt;%
   arrange(patient_num)</code></pre>
-<pre><code>##   patient_num      pdate
-## 1       91999 2016-01-02
-## 2      123690 2013-11-12
-## 3      162433 2015-02-14
-## 4      684214 2017-09-30
-## 5     1452746 2011-07-27</code></pre>
+<pre><code>##   patient_num               pdate
+## 1      199140 2017-09-19 01:00:00
+## 2      415522 2013-07-19 01:00:00
+## 3      423200 2012-12-31 00:00:00
+## 4      491770 2007-04-12 01:00:00
+## 5      946190 2009-11-21 00:00:00</code></pre>
+<p>There is a fourth choice here. You can use a new package in the tidyverse called dbplyr. It takes many of the functions in the dplyr package and translates their data manipulations into SQL code. The dbplyr package is also part of the Tidyverse and also has a <a href="https://dbplyr.tidyverse.org/">nice overview page</a>. The current version of the dbplyr package does not yet support Oracle, but this support will be coming soon.</p>
 <p>Save this SQL code and this list. You’ll need it later.</p>
 <pre class="r"><code>save(list=c(&quot;sql_extract_unique_diabetics&quot;, &quot;unique_diabetics&quot;), file=&quot;../data/diabetes_patients.RData&quot;)</code></pre>
 <p>Save everything for possible re-use</p>
 <pre class="r"><code>log_time()
 read.table(timing_file) </code></pre>
-<pre><code>##            V1       V2                 V3     V4
-## 1  2018-10-18 20:43:00    login-to-oracle began.
-## 2  2018-10-18 20:43:00              count began.
-## 3  2018-10-18 20:43:32     diabetes-codes began.
-## 4  2018-10-18 20:43:36       explore-path began.
-## 5  2018-10-18 20:43:46    alternate-codes began.
-## 6  2018-10-18 20:43:55    alternate-count began.
-## 7  2018-10-18 20:44:10   extract-patients began.
-## 8  2018-10-18 20:44:32   extract-distinct began.
-## 9  2018-10-18 20:44:33 alternate-distinct began.
-## 10 2018-10-18 20:44:36 distinct-using-sql began.
-## 11 2018-10-18 20:44:54    save-everything began.</code></pre>
+<pre><code>##            V1       V2                   V3     V4
+## 1  2018-12-04 10:17:07      login-to-oracle began.
+## 2  2018-12-04 10:17:07                count began.
+## 3  2018-12-04 10:17:14  icd9-diabetes-codes began.
+## 4  2018-12-04 10:17:20    explore-path-icd9 began.
+## 5  2018-12-04 10:17:31 alternate-codes-icd9 began.
+## 6  2018-12-04 10:17:38      alternate-count began.
+## 7  2018-12-04 10:17:53     extract-patients began.
+## 8  2018-12-04 10:18:12     extract-distinct began.
+## 9  2018-12-04 10:18:13   alternate-distinct began.
+## 10 2018-12-04 10:18:16   distinct-using-sql began.
+## 11 2018-12-04 10:18:36      save-everything began.</code></pre>
 <pre class="r"><code>save.image(image_file)</code></pre>
 
 

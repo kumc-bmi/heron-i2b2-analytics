@@ -5,7 +5,7 @@ date: "5/31/2018"
 output: html_document
 ---
 
-This program shows how to extract the patient numbers for diabetes patients.
+This program shows how to apply exclusions to a patient list, using diabetes as an example.
 
 Load the relevant libraries. 
 
@@ -47,7 +47,7 @@ dbGetQuery(c_connect, "SELECT * FROM blueheronmetadata.heron_terms WHERE ROWNUM 
 ```
 
 
-The SQL code to count and extract patient numbers can get quite long. It helps to break the code into distinct pieces.
+The SQL code to count and extract patient numbers can get quite long. It helps to build the code in stages.
 
 The following SQL snippet counts the distinct number of patients. You can combine with additional SQL code to place restrictions on the types of patients.
 
@@ -62,7 +62,7 @@ dbGetQuery(c_connect, sql_count_patients) %>%
   format(big.mark=",")
 ```
 
-To make the SQL code look nicer, here is a function that indents a piece of SQL code nested between two other pieces.
+To make the SQL code look nicer, here is a function that indents a piece of SQL code nested between two other pieces. I need to make the transition to a more formal package like glue, which includes a glue_sql function. This function makes it easy to use nested queries and protects against SQL injection attacks by using a parameterized SQL query. The glue package is part of the Tidyverse and has a [nice overview page](https://glue.tidyverse.org/).
 
 ```{r nest}
 nest <- function(sql1, sql2, sql3="") {
@@ -80,16 +80,17 @@ nestx <- function(sql1, sql2, sql3="", sql4="") {
 }
 ```
 
-This SQL snippet lists all the ICD9 and ICD10 codes associated with diabetes.
+This SQL snippet lists all the ICD9 and ICD10 codes associated with diabetes. A sample of the codes is shown.
 
-```{r diabetes-codes}
+First the ICD9 codes.
+
+```{r icd9-diabetes-codes}
 log_time()
 
 sql_list_diabetes_icd9 <- "
 SELECT DISTINCT concept_cd 
 FROM blueherondata.concept_dimension
-WHERE
-  concept_cd LIKE '%ICD9:250%'
+WHERE concept_cd LIKE '%ICD9:250%'
 "
 
 diabetes_codes <- dbGetQuery(c_connect, sql_list_diabetes_icd9)
@@ -100,7 +101,11 @@ diabetes_codes %>%
   unlist %>%
   sort %>%
   cat(sep="\n")
+```
 
+Here are the ICD10 codes.
+
+```{r icd10-diabetes-codes}
 sql_list_diabetes_icd10 <- "
 SELECT DISTINCT concept_cd 
 FROM blueherondata.concept_dimension
@@ -126,38 +131,38 @@ diabetes_codes %>%
 Combine these two queries together and nest them within a counting query.
 
 ```{r diabetes-count}
-sql_list_diabetes_codes <- "
-SELECT DISTINCT concept_cd 
-FROM blueherondata.concept_dimension
-WHERE
-  concept_cd LIKE '%ICD9:250%' OR
-  concept_cd LIKE '%ICD10:E08%' OR
-  concept_cd LIKE '%ICD10:E09%' OR
-  concept_cd LIKE '%ICD10:E10%' OR
-  concept_cd LIKE '%ICD10:E11%' OR
-  concept_cd LIKE '%ICD10:E12%' OR
-  concept_cd LIKE '%ICD10:E13%'
+sql_count_diabetics <- "
+SELECT COUNT(DISTINCT patient_num)
+FROM blueherondata.observation_fact
+WHERE concept_cd IN (
+  SELECT DISTINCT concept_cd 
+  FROM blueherondata.concept_dimension
+  WHERE
+    concept_cd LIKE '%ICD9:250%' OR
+    concept_cd LIKE '%ICD10:E08%' OR
+    concept_cd LIKE '%ICD10:E09%' OR
+    concept_cd LIKE '%ICD10:E10%' OR
+    concept_cd LIKE '%ICD10:E11%' OR
+    concept_cd LIKE '%ICD10:E12%' OR
+    concept_cd LIKE '%ICD10:E13%'
+)
 "
 
-sql_count_diabetics <- nestx(
-  sql_count_patients, 
-  "WHERE concept_cd IN (", 
-  sql_list_diabetes_codes, ")")
-cat(sql_count_diabetics)
 dbGetQuery(c_connect, sql_count_diabetics) %>%
   format(big.mark=",")
 ```
 
 Information about diabetes codes is also available through the concept_path variable found in the concept_dimension table.
 
-```{r explore-path}
+Here is a random sample of paths associated with ICD9 diabetes codes...
+
+```{r explore-path-icd9}
 log_time()
 
 sql_explore_icd9_path <- "
 SELECT DISTINCT concept_path
 FROM blueherondata.concept_dimension
-WHERE
-  concept_cd LIKE '%ICD9:250%'
+WHERE concept_cd LIKE '%ICD9:250%'
 ORDER BY concept_path
 "
 
@@ -169,7 +174,11 @@ paths %>%
   unlist %>%
   sort %>%
   cat(sep="\n")
+```
 
+...and ICD10 diabetes codes.
+
+```{r explore-icd10-path}
 sql_explore_icd10_path <- "
 SELECT DISTINCT concept_path
 FROM blueherondata.concept_dimension
@@ -197,7 +206,9 @@ Unfortunately, the concept_path variable is mostly coded using cryptic values. I
 
 You can find cleaner descriptions using c_tooltip in blueheronmetadata.heron_terms. The halibut system uses c_tooltip for tool tip displays, so this value is almost always easier to read.
 
-```{r explore-tooltip}
+Here is a random sample of tooltips associated with ICD9 diabetes codes...
+
+```{r explore-icd9-tooltip}
 sql_explore_icd9_tooltip <- "
 SELECT DISTINCT c_tooltip 
 FROM blueheronmetadata.heron_terms
@@ -214,7 +225,11 @@ tooltips %>%
   unlist %>%
   sort %>%
   cat(sep="\n")
+```
 
+...and ICD10 diabetes codes.
+
+```{r explore-icd10-tootip}
 sql_explore_icd10_tooltip <- "
 SELECT DISTINCT c_tooltip 
 FROM blueheronmetadata.heron_terms
@@ -242,7 +257,9 @@ Very nice! For ICD9 codes associated with diabetes, use "250 Diabetes mellitus""
 
 Let's flip this around and find if there are any other concept_cd/c_basecode values associated with c_tooltip values containing diabetes codes.
 
-```{r alternate-codes}
+First, let's look at the ICD9 side of things...
+
+```{r alternate-codes-icd9}
 log_time()
 sql_alternate_icd9_codes <- "
 SELECT DISTINCT c_basecode 
@@ -257,7 +274,12 @@ alternate_codes %>%
 alternate_codes %>%
   sample_n(5) %>%
   arrange(C_BASECODE)
+```
 
+
+.. and the ICD10 side.
+
+```{r alternate-codes-icd10}
 sql_alternate_icd10_codes <- "
 SELECT DISTINCT c_basecode 
 FROM blueheronmetadata.heron_terms
@@ -273,22 +295,24 @@ alternate_codes %>%
   arrange(C_BASECODE)
 ```
 
-Combine these together to see if we have a larger count.
+The c_basecode field in blueheronmetadata (which corresponds to the concept_cd field in blueherondata) has an interesting prefix, KUH|DX_ID which represents an internal diagnosis code.
+
+If you want to get a larger set of diabetes patients, you need to take these internal diagnosis codes into account.
 
 ```{r alternate-count}
 log_time()
 
-sql_alternate_diabetes_codes <- "
-SELECT DISTINCT c_basecode 
-FROM blueheronmetadata.heron_terms
-WHERE
-  c_tooltip LIKE '%250 Diabetes mellitus%' OR
-  c_tooltip LIKE '%E08-E13 Diabetes mellitus%'
+sql_alternate_count <- "
+SELECT COUNT(DISTINCT patient_num)
+FROM blueherondata.observation_fact
+WHERE concept_cd IN (
+  SELECT DISTINCT c_basecode 
+  FROM blueheronmetadata.heron_terms
+  WHERE
+    c_tooltip LIKE '%250 Diabetes mellitus%' OR
+    c_tooltip LIKE '%E08-E13 Diabetes mellitus%'
+)
 "
-
-sql_alternate_select <- nest("WHERE concept_cd IN (", sql_alternate_diabetes_codes, ")")
-sql_alternate_count <- nest(sql_count_patients, sql_alternate_select)
-cat(sql_alternate_count)
 
 dbGetQuery(c_connect, sql_alternate_count) %>%
   format(big.mark=",")
@@ -298,12 +322,18 @@ Extracting all the patient numbers requires a different start to the SQL query.
 
 ```{r extract-patients}
 log_time()
-sql_extract_patients <- "
+
+sql_extract_diabetics <- "
 SELECT patient_num, start_date AS pdate
-  FROM blueherondata.observation_fact
+FROM blueherondata.observation_fact
+WHERE concept_cd IN (
+  SELECT DISTINCT c_basecode 
+  FROM blueheronmetadata.heron_terms
+  WHERE
+    c_tooltip LIKE '%250 Diabetes mellitus%' OR
+    c_tooltip LIKE '%E08-E13 Diabetes mellitus%'
+)
 "
-sql_extract_diabetics <- nest(sql_extract_patients, sql_alternate_select)
-cat(sql_extract_diabetics)
 
 patient_list <- dbGetQuery(c_connect, sql_extract_diabetics)
 names(patient_list) %<>% tolower
@@ -337,8 +367,6 @@ This method also works.
 
 ```{r alternate-distinct}
 log_time()
-library(dplyr)
-library(magrittr)
 patient_list                             %>% 
   arrange(patient_num, pdate)            %>%
   distinct(patient_num, .keep_all=TRUE)  %>%
@@ -354,17 +382,20 @@ You can also get the same effect using just SQL code.
 
 ```{r distinct-using-sql}
 log_time()
-sql_extract_unique_patients <- "
+
+sql_extract_unique_diabetics <- "
 SELECT patient_num, MIN(start_date) AS pdate
 FROM blueherondata.observation_fact
-"
-
-sql_group <- "
+WHERE concept_cd IN (
+  SELECT DISTINCT c_basecode 
+  FROM blueheronmetadata.heron_terms
+  WHERE
+    c_tooltip LIKE '%250 Diabetes mellitus%' OR
+    c_tooltip LIKE '%E08-E13 Diabetes mellitus%'
+)
 GROUP BY patient_num
-ORDER BY patient_num"
-
-sql_extract_unique_diabetics <- nest(sql_extract_unique_patients, sql_alternate_select, sql_group)
-cat(sql_extract_unique_diabetics)
+ORDER BY patient_num
+"
 
 unique_diabetics <- dbGetQuery(c_connect, sql_extract_unique_diabetics)
 names(unique_diabetics) %<>% tolower
@@ -374,6 +405,8 @@ unique_diabetics %>%
   sample_n(5) %>%
   arrange(patient_num)
 ```
+
+There is a fourth choice here. You can use a new package in the tidyverse called dbplyr. It takes many of the functions in the dplyr package and translates their data manipulations into SQL code. The dbplyr package is also part of the Tidyverse and also has a [nice overview page](https://dbplyr.tidyverse.org/). The current version of the dbplyr package does not yet support Oracle, but this support will be coming soon.
 
 Save this SQL code and this list. You'll need it later.
 
