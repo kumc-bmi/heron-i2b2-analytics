@@ -41,14 +41,14 @@ dbGetQuery(c_connect, "SELECT * FROM blueherondata.concept_dimension WHERE rownu
 dbGetQuery(c_connect, "SELECT * FROM blueheronmetadata.heron_terms WHERE rownum < 5")
 ```
 
-Start samll.
+Start small.
 
 ```{r medication-concepts}
 log_time()
 sql_medication_concepts <- "
-  SELECT DISTINCT concept_cd FROM blueherondata.concept_dimension
-  WHERE concept_path LIKE '\\i2b2\\Medications\\%'
-  ORDER BY concept_cd
+SELECT DISTINCT concept_cd FROM blueherondata.concept_dimension
+WHERE concept_path LIKE '\\i2b2\\Medications\\%'
+ORDER BY concept_cd
 "
 db_medication_concepts <- dbGetQuery(c_connect, sql_medication_concepts)
 sample_n(db_medication_concepts, size=10)
@@ -56,60 +56,86 @@ dim(db_medication_concepts)
 ```
 
 
-```{r diabetes-patients, eval=FALSE}
+```{r diabetes-patients}
 log_time()
 sql_patients_and_concepts <- "
-  SELECT patient_num concept_cd
+SELECT patient_num concept_cd
+FROM blueherondata.observation_fact
+WHERE patient_num IN (
+  SELECT patient_num, MIN(start_date) AS pdate
   FROM blueherondata.observation_fact
-
-  WHERE patient_num IN (
-    SELECT DISTINCT patient_num
-    FROM blueherondata.observation_fact
-
-    WHERE concept_cd IN (
-      SELECT DISTINCT concept_cd 
-      FROM blueherondata.concept_dimension
-      WHERE
-        concept_cd LIKE 'ICD9:250%' OR
-        concept_cd LIKE 'ICD10:E08%' OR
-        concept_cd LIKE 'ICD10:E09%' OR
-        concept_cd LIKE 'ICD10:E10%' OR
-        concept_cd LIKE 'ICD10:E11%' OR
-        concept_cd LIKE 'ICD10:E12%' OR
-        concept_cd LIKE 'ICD10:E13%'
-      AND TO_CHAR(start_date, 'yyyy-mm-dd') > '2010-01-01')
-
-  AND concept_cd IN (
-    SELECT DISTINCT concept_cd FROM blueherondata.concept_dimension
-    WHERE concept_path LIKE '\\i2b2\\Medications\\%'
-    ORDER BY concept_cd)"
-
-dbGetQuery(c_connect, sql_patients_and_concepts)
-```
-
-
-```{r female-patients, eval=FALSE}
-log_time()
-sql_female_patients <- "
-  SELECT DISTINCT patient_num FROM blueherondata.observation_fact
-  WHERE concept_cd = 'DEM|SEX:f'
+  WHERE concept_cd IN (
+    SELECT DISTINCT c_basecode 
+    FROM blueheronmetadata.heron_terms
+    WHERE
+      c_tooltip LIKE '%250 Diabetes mellitus%' OR
+      c_tooltip LIKE '%E08-E13 Diabetes mellitus%'
+     )
+  GROUP BY patient_num
   ORDER BY patient_num
+)
+AND concept_cd IN (
+  SELECT DISTINCT concept_cd FROM blueherondata.concept_dimension
+  WHERE concept_path LIKE '\\i2b2\\Medications\\%'
+  ORDER BY concept_cd
+)"
+
+sql_alternate_count <- "
+SELECT patient_num concept_cd
+FROM blueherondata.observation_fact
+WHERE concept_cd IN (
+  SELECT DISTINCT concept_cd FROM blueherondata.concept_dimension
+  WHERE concept_path LIKE '\\i2b2\\Medications\\%'
+)
+AND patient_num IN (
+  SELECT DISTINCT patient_num
+  FROM blueherondata.observation_fact
+  WHERE concept_cd IN (
+    SELECT DISTINCT c_basecode 
+    FROM blueheronmetadata.heron_terms
+    WHERE
+      c_tooltip LIKE '%250 Diabetes mellitus%' OR
+      c_tooltip LIKE '%E08-E13 Diabetes mellitus%'
+  )
+)
 "
-dbGetQuery(c_connect, sql_female_patients)
-```
 
-```{r select-diabetes-patients, eval=FALSE}
-log_time()
-sql_patients <- paste0("
-  SELECT patient_num, concept_cd FROM blueherondata.observation_fact
-  WHERE
-    patient_num IN (", indent_sql(sql_diabetes_patients), ")")
-cat(sql_patients)
-
-tst1 <- dbGetQuery(c_connect, sql_patients)
-head(tst1)
+tst1 <- dbGetQuery(c_connect, sql_alternate_count)
 dim(tst1)
+# dbGetQuery(c_connect, sql_patients_and_concepts)
 ```
+
+Get counts.
+
+```{r distinct-counts}
+tst1 %>%
+  select(patient_num) %>%
+  distinct %>%
+  nrow -> n_patients 
+
+tst1 %>%
+  select(concept_cd) %>%
+  distinct %>%
+  nrow -> n_concepts 
+
+tst1 %>%
+  distinct %>%
+  nrow -> n_patient_concepts
+
+matrix_size <- as.numeric(n_patients)*as.numeric(n_concepts)
+matrix_ratio <- 100*n_patient_concepts/matrix_size
+
+n_patients %<>% format(big.mark=",")
+n_concepts %<>% format(big.mark=",")
+n_patient_concepts %<>% format(big.mark=",")
+matrix_size %<>% format(big.mark=",")
+matrix_ratio %<>% round(2)
+matrix_ratio %<>% paste0("%")
+```
+
+Note that there are `r n_patient` distinct patients and `r n_concepts` distinct medications. If you arranged this in a traditional matrix with one row per patient and one indicator variable for every medication, you would have a matrix with `r matrix_size` entries. But there are only `r n_patient_concepts` unique entries in this database, meaning that only `r matrix_ratio` of the entries would be non-zero.
+
+The sparse matrix format saves space and computation time by storing only the non-zero entries of the matrix, using pointers.
 
 Save everything for later use.
 
