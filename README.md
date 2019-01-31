@@ -4,6 +4,15 @@ This repository includes information and programs on a new
 direct access model for electronic data stored in an i2b2
 database.
 
+The programs in this repository are all R programs for now
+and they use RMarkdown. In addition, these R programs
+require a few special libraries:
+
+* dplyr
+* knitr
+* magrittr
+* ROracle
+
 This repository has a directory structure loosely based on 
 the recommendations in
 

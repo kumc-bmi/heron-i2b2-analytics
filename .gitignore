@@ -7,4 +7,4 @@
 *.RData
 cdm_config*.csv
 data/*.RData
-src/*timing.txt
+src/*.txt

@@ -10,15 +10,23 @@ This program shows how to take information in the electronic health record and c
 Please review open_oracle.Rmd to review how to access information in an Oracle database.
 
 ```{r timing-functions}
-program_name <- "create_sparse_matrix"
-timing_file <- paste0("../src/", program_name, "_timing.txt")
+#
+# This timing function is for my benefit. I want
+# to informally check speeds and by writing the
+# results to a text file, I can peek at the
+# timing of early results while later results
+# are still running. If you want to use this
+# function, place log_time(first=TRUE) ins the
+# first chunk to be timed and place log_time()
+# in the remaining chunks.
+#
+program_name <- "extract_diabetes_patient_numbers"
+timing_file <- paste0("../src/timing_", program_name, ".txt")
 image_file <- paste0("../data/", program_name, ".RData")
 
-library(knitr)
 log_time <- function(first=FALSE) {
   current_chunk <- opts_current$get("label")
   current_time <- as.character(Sys.time())
-  cat(current_time, current_chunk, "began.\n")
   cat(current_time, current_chunk, "began.\n", file=timing_file, append=!first)
 }
 ```
