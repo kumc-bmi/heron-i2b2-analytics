@@ -5,7 +5,22 @@ date: "7/31/2018"
 output: html_document
 ---
 
+```{r prelims}
+program_name <- "extract_using_dbplyr"
+timing_file <- paste0("../src/timing_", program_name, ".txt")
+image_file <- paste0("../data/", program_name, ".RData")
+```
+
 This program shows how to use the dbplyr library to extract information from the electronic health record. The dbplyr library takes commands in the dplyr library like filter and arrange and converts it to SQL code which it passes back to your SQL database. It uses lazy evaluation, meaning that your code does not execute until it is needed. This allows you to simplify your coding by creating and storing intermediate files. You don't pay a storage or speed penalty for these intermediate files, if you are careful to craft them in a way that does not force their immediate evaluation.
+
+Load the relevant libraries. 
+
+```{r libraries}
+library(dplyr)
+library(knitr)
+library(magrittr)
+library("ROracle")
+```
 
 ```{r timing-functions}
 #
@@ -18,9 +33,6 @@ This program shows how to use the dbplyr library to extract information from the
 # first chunk to be timed and place log_time()
 # in the remaining chunks.
 #
-program_name <- "extract_diabetes_patient_numbers"
-timing_file <- paste0("../src/timing_", program_name, ".txt")
-image_file <- paste0("../data/", program_name, ".RData")
 
 log_time <- function(first=FALSE) {
   current_chunk <- opts_current$get("label")
@@ -48,10 +60,6 @@ Please review open_oracle.Rmd to see how to access information in an Oracle data
 
 ```{r login-to-oracle}
 log_time(first=TRUE)
-library(dbplyr)
-library("dplyr")
-library("magrittr")
-library("ROracle")
 cdm_config <- read.csv('../cdm_config_B2.csv', stringsAsFactors=FALSE)
 c_connect <-
   dbConnect(Oracle(), cdm_config$account, cdm_config$password, cdm_config$access)

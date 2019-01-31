@@ -5,9 +5,24 @@ date: "5/31/2018"
 output: html_document
 ---
 
+```{r prelims}
+program_name <- "extract_medications"
+timing_file <- paste0("../src/timing_", program_name, ".txt")
+image_file <- paste0("../data/", program_name, ".RData")
+```
+
 This program shows how to extract all the medication codes from i2b2.
 
 Please review open_oracle.Rmd to review how to access information in an Oracle database.
+
+Load the relevant libraries. 
+
+```{r libraries}
+library(dplyr)
+library(knitr)
+library(magrittr)
+library("ROracle")
+```
 
 ```{r timing-functions}
 #
@@ -20,9 +35,6 @@ Please review open_oracle.Rmd to review how to access information in an Oracle d
 # first chunk to be timed and place log_time()
 # in the remaining chunks.
 #
-program_name <- "extract_diabetes_patient_numbers"
-timing_file <- paste0("../src/timing_", program_name, ".txt")
-image_file <- paste0("../data/", program_name, ".RData")
 
 log_time <- function(first=FALSE) {
   current_chunk <- opts_current$get("label")
@@ -32,7 +44,6 @@ log_time <- function(first=FALSE) {
 ```
 
 ```{r login-to-oracle}
-library("ROracle")
 cdm_config <- read.csv('../cdm_config.csv', stringsAsFactors=FALSE)
 c_connect <-
   dbConnect(Oracle(), cdm_config$account, cdm_config$password, cdm_config$access)
@@ -48,7 +59,6 @@ dbGetQuery(c_connect, "SELECT * FROM blueherondata.concept_dimension WHERE rownu
 The most straightforward way to get all medications is to look for a particular starting string for concept_path.
 
 ```{r path}
-library(dplyr)
 sql_medications_via_path <- "
   SELECT concept_cd
     FROM blueherondata.concept_dimension 

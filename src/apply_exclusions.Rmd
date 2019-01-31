@@ -5,6 +5,12 @@ date: "5/31/2018"
 output: html_document
 ---
 
+```{r prelims}
+program_name <- "apply_exclusions"
+timing_file <- paste0("../src/timing_", program_name, ".txt")
+image_file <- paste0("../data/", program_name, ".RData")
+```
+
 Once you have a list of patient numbers who meet your qualifications, you need to apply exclusion criteria. You need to do this carefully, because it requires a self-join, which can (at times) be very inefficient. This program shows how to apply exclusion criteria to an existing list of diabetes patients.
 
 Load the relevant libraries. 
@@ -29,9 +35,6 @@ Please review open_oracle.Rmd to review how to access information in an Oracle d
 # first chunk to be timed and place log_time()
 # in the remaining chunks.
 #
-program_name <- "extract_diabetes_patient_numbers"
-timing_file <- paste0("../src/timing_", program_name, ".txt")
-image_file <- paste0("../data/", program_name, ".RData")
 
 log_time <- function(first=FALSE) {
   current_chunk <- opts_current$get("label")

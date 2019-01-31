@@ -5,9 +5,24 @@ date: "5/31/2018"
 output: html_document
 ---
 
+```{r prelims}
+program_name <- "explore_hierarchy"
+timing_file <- paste0("../src/timing_", program_name, ".txt")
+image_file <- paste0("../data/", program_name, ".RData")
+```
+
 This program shows how to drill down through various levels of the hierarchy in the electronic health record.
 
 Please review open_oracle.Rmd to review how to access information in an Oracle database.
+
+Load the relevant libraries. 
+
+```{r libraries}
+library(dplyr)
+library(knitr)
+library(magrittr)
+library("ROracle")
+```
 
 ```{r timing-functions}
 #
@@ -20,9 +35,6 @@ Please review open_oracle.Rmd to review how to access information in an Oracle d
 # first chunk to be timed and place log_time()
 # in the remaining chunks.
 #
-program_name <- "extract_diabetes_patient_numbers"
-timing_file <- paste0("../src/timing_", program_name, ".txt")
-image_file <- paste0("../data/", program_name, ".RData")
 
 log_time <- function(first=FALSE) {
   current_chunk <- opts_current$get("label")
