@@ -42,87 +42,91 @@ name_char                        | c_name
 
 ```{r count-paths}
 sql_count_paths <- "
-  SELECT COUNT(concept_path) 
+  SELECT COUNT(concept_path) AS full_count
     FROM blueherondata.concept_dimension"
 
 sql_count_i2b2_paths <- "
-  SELECT COUNT(concept_path) 
+  SELECT COUNT(concept_path) AS i2b2_count
     FROM blueherondata.concept_dimension 
     WHERE concept_path LIKE '\\i2b2\\%'"
 
 sql_count_medication_paths <- "
-  SELECT COUNT(concept_path) 
+  SELECT COUNT(concept_path) AS meds_count
     FROM blueherondata.concept_dimension 
     WHERE concept_path LIKE '\\i2b2\\Medications\\%'"
 
-dbGetQuery(c_connect, sql_count_paths)
-dbGetQuery(c_connect, sql_count_i2b2_paths)
-dbGetQuery(c_connect, sql_count_medication_paths)
+dbGetQuery(c_connect, sql_count_paths) %>% format(big.mark=",")
+dbGetQuery(c_connect, sql_count_i2b2_paths) %>% format(big.mark=",")
+dbGetQuery(c_connect, sql_count_medication_paths) %>% format(big.mark=",")
 ```
 
 The information in the blueheronmetadata database is fairly similar.
 
 ```{r count-metadata}
 sql_count_metadata_paths <- "
-  SELECT COUNT(c_fullname) 
+  SELECT COUNT(c_fullname) AS full_count
     FROM blueheronmetadata.heron_terms"
 
 sql_count_metadata_i2b2_paths <- "
-  SELECT COUNT(c_fullname) 
+  SELECT COUNT(c_fullname) AS i2b2_count
     FROM blueheronmetadata.heron_terms
     WHERE c_fullname LIKE '\\i2b2\\%'"
 
 sql_count_metadata_medication_paths <- "
-  SELECT COUNT(c_fullname) 
+  SELECT COUNT(c_fullname) AS meds_count
     FROM blueheronmetadata.heron_terms
     WHERE c_fullname LIKE '\\i2b2\\Medications\\%'"
 
-dbGetQuery(c_connect, sql_count_metadata_paths)
-dbGetQuery(c_connect, sql_count_metadata_i2b2_paths)
-dbGetQuery(c_connect, sql_count_metadata_medication_paths)
+dbGetQuery(c_connect, sql_count_metadata_paths) %>% format(big.mark=",")
+dbGetQuery(c_connect, sql_count_metadata_i2b2_paths) %>% format(big.mark=",")
+dbGetQuery(c_connect, sql_count_metadata_medication_paths) %>% format(big.mark=",")
 ```
 
 Note that c_fullname and c_dimcode are almost identical, at least in this particular database. Once you restrict yourself to paths starting with "i2b2" they match perfectly.
 
 ```{r identical}
 sql_count_discrepancies <- "
-  SELECT COUNT(c_fullname) 
+  SELECT COUNT(c_fullname) AS full_list_discrepancies
     FROM blueheronmetadata.heron_terms
     WHERE c_fullname <> c_dimcode"
 
 sql_count_i2b2_discrepancies <- "
-  SELECT COUNT(c_fullname) 
+  SELECT COUNT(c_fullname) AS i2b2_only_discrepancies
     FROM blueheronmetadata.heron_terms
     WHERE
       c_fullname <> c_dimcode AND
       c_fullname LIKE '\\i2b2\\%'"
 
-dbGetQuery(c_connect, sql_count_discrepancies)
-dbGetQuery(c_connect, sql_count_i2b2_discrepancies)
+dbGetQuery(c_connect, sql_count_discrepancies) %>% format(big.mark=",")
+dbGetQuery(c_connect, sql_count_i2b2_discrepancies) %>% format(big.mark=",")
 ```
 
 The c_fullname variable in blueheronmetadata and the concept_path in blueherondata also match closely
 
 ```{r path-comparisons}
-sql_path_antijoin <- "
-  SELECT COUNT(c_fullname)
+sql_path_antijoin_1 <- "
+  SELECT COUNT(c_fullname) AS count_c_fullname_discrepancies
     FROM blueheronmetadata.heron_terms
-    LEFT JOIN blueherondata.concept_dimension
-    ON c_fullname=concept_path
     WHERE
-      concept_path IS NULL  AND
+      c_fullname NOT IN (
+        SELECT concept_path FROM blueherondata.concept_dimension
+        WHERE concept_path LIKE '\\i2b2\\%'
+      ) AND
       c_fullname LIKE '\\i2b2\\%'"
-dbGetQuery(c_connect, sql_path_antijoin)
+
+dbGetQuery(c_connect, sql_path_antijoin_1) %>% format(big.mark=",")
 
 sql_path_antijoin_2 <- "
-  SELECT COUNT(concept_path)
+  SELECT COUNT(concept_path) AS count_concept_pa_discrepancies
     FROM blueherondata.concept_dimension
-    LEFT JOIN blueheronmetadata.heron_terms
-    ON c_fullname=concept_path
     WHERE
-      c_fullname IS NULL  AND
-      c_fullname LIKE '\\i2b2\\%'"
-dbGetQuery(c_connect, sql_path_antijoin_2)
+      concept_path NOT IN (
+        SELECT c_fullname FROM blueheronmetadata.heron_terms
+        WHERE c_fullname LIKE '\\i2b2\\%'
+      ) AND
+      concept_path LIKE '\\i2b2\\%'"
+
+dbGetQuery(c_connect, sql_path_antijoin_2) %>% format(big.mark=",")
 ```
 
 It looks like the mismatches represent settings where blueheronmetadata includes information about the higher levels of the hierarchy, but this is difficult to confirm precisely.

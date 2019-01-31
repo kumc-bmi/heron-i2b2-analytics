@@ -37,3 +37,28 @@ extract_medications.Rmd is under development.
 
 extract_using_dbplyr.Rmd is under development.
 
+There are some presentations in the doc folder. These use
+ioslides, a presentation system built on top of html and css.
+Just double click on the appropriate html file to start the
+slide show. There are speaker notes, and you can display 
+these by appending ?presentme=true to the end of the url.
+See section 4.1.9 of 
+
+https://bookdown.org/yihui/rmarkdown/ioslides-presentation.html
+
+for more details. The presetnations are
+
+mining.html in the doc/mining-talk folder. I gave this
+presentation at the April 2018 Frontiers in Biostatistcis
+conference. It gives a general overview of how and why you
+might want to undertake a data mining project using the
+EHR data in i2b2.
+
+searching.html in the doc/searching-talk folder. This
+is a very introductory overview on how to identify
+records in i2b2 that involve the medication Tamoxifen.
+
+encounters.html is under development.
+
+Note that I am starting a bibliography of key references
+in the key-references.bibtex file in the doc folder.

@@ -11,7 +11,7 @@ Patients will have multiple interactions with health care providers. To help dis
 
 ## i2b2 schema
 
-![](~/heron-i2b2-analytics/doc/searching-talk/images/i2b2-schema.PNG)
+![](~/heron-i2b2-analytics/doc/searching-talk/images/i2b2-schema.jpg)
 
 <div class="notes">
 

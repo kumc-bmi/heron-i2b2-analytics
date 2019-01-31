@@ -18,6 +18,7 @@ library(knitr)
 log_time <- function(first=FALSE) {
   current_chunk <- opts_current$get("label")
   current_time <- as.character(Sys.time())
+  cat(current_time, current_chunk, "began.\n")
   cat(current_time, current_chunk, "began.\n", file=timing_file, append=!first)
 }
 ```
@@ -26,6 +27,7 @@ log_time <- function(first=FALSE) {
 log_time(first=TRUE)
 library("dplyr")
 library("magrittr")
+library("Matrix")
 library("ROracle")
 cdm_config <- read.csv('../cdm_config_B2.csv', stringsAsFactors=FALSE)
 c_connect <-
@@ -56,7 +58,7 @@ dim(db_medication_concepts)
 ```
 
 
-```{r diabetes-patients}
+```{r diabetes-patients, eval=FALSE}
 log_time()
 sql_patients_and_concepts <- "
 SELECT patient_num concept_cd
@@ -100,42 +102,83 @@ AND patient_num IN (
 )
 "
 
-tst1 <- dbGetQuery(c_connect, sql_alternate_count)
-dim(tst1)
-# dbGetQuery(c_connect, sql_patients_and_concepts)
+diabetic_medications <- dbGetQuery(c_connect, sql_alternate_count)
+dim(diabetic_medications)
+save(diabetic_medications, file="diabetic_medications.RData")
 ```
 
 Get counts.
 
 ```{r distinct-counts}
-tst1 %>%
+load(file="diabetic_medications.RData")
+diabetic_medications %>%
   select(patient_num) %>%
   distinct %>%
   nrow -> n_patients 
 
-tst1 %>%
+diabetic_medications %>%
   select(concept_cd) %>%
   distinct %>%
   nrow -> n_concepts 
 
-tst1 %>%
+diabetic_medications %>%
   distinct %>%
   nrow -> n_patient_concepts
 
 matrix_size <- as.numeric(n_patients)*as.numeric(n_concepts)
 matrix_ratio <- 100*n_patient_concepts/matrix_size
-
-n_patients %<>% format(big.mark=",")
-n_concepts %<>% format(big.mark=",")
-n_patient_concepts %<>% format(big.mark=",")
-matrix_size %<>% format(big.mark=",")
 matrix_ratio %<>% round(2)
 matrix_ratio %<>% paste0("%")
 ```
 
-Note that there are `r n_patient` distinct patients and `r n_concepts` distinct medications. If you arranged this in a traditional matrix with one row per patient and one indicator variable for every medication, you would have a matrix with `r matrix_size` entries. But there are only `r n_patient_concepts` unique entries in this database, meaning that only `r matrix_ratio` of the entries would be non-zero.
+Note that there are `r n_patients %>% format(big.mark=",")` distinct patients and `r n_concepts %>% format(big.mark=",")` distinct medications. If you arranged this in a traditional matrix with one row per patient and one indicator variable for every medication, you would have a matrix with `r matrix_size %>% format(big.mark=",")` entries. But there are only `r n_patient_concepts %>% format(big.mark=",")` unique entries in this database, meaning that only `r matrix_ratio` of the entries would be non-zero.
 
-The sparse matrix format saves space and computation time by storing only the non-zero entries of the matrix, using pointers.
+The sparse matrix format saves space and computation time by storing only the non-zero entries of the matrix. The details are a bit tricky. I tried to outline them in [a post on my blog](http://blog.pmean.com/sparse-matrices/).
+
+The sparseMatrix function in the Matrix package will create a sparse matrix from a data frame with patient numbers and concept codes.
+
+There are two storage options. The TsparseMatrix format stores the row location and the column location of the non-zero entries only. The CsparseMatrix format stores the row location and pointers. Normally the CsparseMatrix format uses less storage, but not always. Both formats are usually quite good for electronic health record data.
+
+```{r create-sparse-matrix}
+i <- factor(diabetic_medications$patient_num)
+j <- factor(diabetic_medications$concept_cd)
+sparse_c_format <- sparseMatrix(
+  i=as.numeric(i),
+  j=as.numeric(j),
+  x=1,
+  dimnames=list(levels(i), levels(j))
+)
+str(sparse_c_format)
+size_c_format <- object.size(sparse_c_format)
+efficiency_c_format <- 8*as.numeric(n_patients)*as.numeric(n_concepts)/size_c_format
+sparse_t_format <- sparseMatrix(
+  i=as.numeric(i),
+  j=as.numeric(j),
+  x=1,
+  dimnames=list(levels(i), levels(j)),
+  giveCsparse=FALSE
+)
+str(sparse_t_format)
+size_t_format <- object.size(sparse_t_format)
+efficiency_t_format <- 8*as.numeric(n_patients)*as.numeric(n_concepts)/size_t_format
+sparse_binary <- sparseMatrix(
+  i=as.numeric(i),
+  j=as.numeric(j),
+  dimnames=list(levels(i), levels(j)),
+  giveCsparse=TRUE
+)
+str(sparse_binary)
+size_binary_format <- object.size(sparse_binary)
+efficiency_binary_format <- 8*as.numeric(n_patients)*as.numeric(n_concepts)/size_binary_format
+```
+
+The C format (which uses pointers) has a size of `r size_c_format %>% as.numeric %>% format(big.mark=",")` bytes compared to approximately `r (8*matrix_size) %>% format(big.mark=",")` bytes for a regular matrix. This is a `r round(efficiency_c_format)` fold improvement.
+
+The T format (which uses row/column locations) has a size of `r size_t_format %>% as.numeric %>% format(big.mark=",")` bytes and represents a `r round(efficiency_t_format)` fold improvement.
+
+The binary format (which takes advantage of the 0-1 coding) has a size of `r size_binary_format %>% as.numeric %>% format(big.mark=",")` bytes and represents a `r round(efficiency_binary_format)` fold improvement.
+
+You can save a bit more space if you have a symmetric matrix, an upper or lower triangular matrix, a diagonal matrix, or a matrix with only zeros and ones. The zero/one format is called a binary or logical matrix.
 
 Save everything for later use.
 

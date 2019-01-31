@@ -389,4 +389,4 @@ Encourage more statisticians to work in this area.
 
 You can find the source code for this talk at
 
-https://github.com/kumc-bmi/heron-i2b2-analytics/doc/data-mining
+https://github.com/kumc-bmi/heron-i2b2-analytics/doc/mining-talk
