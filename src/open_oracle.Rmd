@@ -31,6 +31,7 @@ c_connect <-
 If your connection works then the following code will count the number of records in the observation_fact table. On my system, this produces a number in the low billions.
 
 ```{r simple-test}
+library(magrittr)
 dbGetQuery(c_connect, "SELECT COUNT(patient_num) FROM blueherondata.observation_fact") %>%
   format(big.mark=",")
 ```
