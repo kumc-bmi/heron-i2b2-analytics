@@ -24,5 +24,5 @@ Next step: installation of SAS, however questions are:
 -  Will there be a licensing issue on a different server with multiple users?
 
 Future: 
--  Do we need to configure tools like Spark? Steve’s guess is no, but need to put it down to see what others think.
+-  Do we need to configure tools like Spark? Steve's guess is no, but need to put it down to see what others think.
 

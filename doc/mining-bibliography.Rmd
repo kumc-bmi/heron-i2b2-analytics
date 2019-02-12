@@ -3,12 +3,12 @@ title: "Mining the Electronic Health Record, Why and How: Bibliography"
 author: "Steve Simon, Department of Biomedical and Health Informatics, UMKC"
 date: "4/19/2018"
 output: html_document
-bibliography: ../key-references.bibtex
+bibliography: key-references.bibtex
 nocite: |
   @chen2018, @deshazo2015, @murphy2010
 ---
 
 ## Bibliography
 
-Note: All images used in this talk are made available through an open source license. You can find the websites where these images came from at https://github.com/kumc-bmi/heron-i2b2-analytics/bin/image-sources.txt
+Note: All images used in this talk are made available through an open source license. You can find the websites where these images came from at https://github.com/kumc-bmi/heron-i2b2-analytics/doc/mining-image-sources.txt
 

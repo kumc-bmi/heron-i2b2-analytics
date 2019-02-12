@@ -13,7 +13,7 @@ Acknowledgements: Thanks to Dan Connolly, Mei Liu, Xing Song, and Russ Waitman.
 
 ## Do you understand this cartoon?
 
-![](~/heron-i2b2-analytics/doc/mining-talk/images/bobby-tables-cartoon.png)
+![](images/bobby-tables-cartoon.png)
 
 <div class="notes">
 
@@ -23,7 +23,7 @@ Working with the electronic health record (EHR) forces you to think like a datab
 
 ## Before the Electronic Health Record
 
-![](~/heron-i2b2-analytics/doc/mining-talk/images/paper-health-record-resized.jpg)
+![](images/paper-health-record-resized.jpg)
 
 <div class="notes">
 
@@ -33,7 +33,7 @@ In order to understand what the EHR is, you need to remember what medical care w
 
 ## After the Electronic Health Record
 
-![](~/heron-i2b2-analytics/doc/mining-talk/images/ehr-data-entry-resized.jpg)
+![](images/ehr-data-entry-resized.jpg)
 
 <div class="notes">
 
@@ -44,7 +44,7 @@ Now, when you visit your patient, you spend half your time tapping away at a com
 
 ## Mining the EHR, the old way
 
-![](~/heron-i2b2-analytics/doc/mining-talk/images/data-in-excel-spreadsheet-resized.jpg)
+![](images/data-in-excel-spreadsheet-resized.jpg)
 
 <div class="notes">
 
@@ -54,7 +54,7 @@ But when the EHR first started, you still need to review the EHR data on screen,
 
 ## Mining the EHR with i2b2
 
-![](~/heron-i2b2-analytics/doc/mining-talk/images/i2b2-screenshot.png)
+![](images/i2b2-screenshot.png)
 
 <div class="notes">
 
@@ -85,7 +85,7 @@ Cerner and Epic are designed for the care needs of individual patients. i2b2, in
 
 ## Intergration example
 
-![https://informatics.kumc.edu/work/wiki/HERON](~/heron-i2b2-analytics/doc/mining-talk/images/heron-progress.png)
+![https://informatics.kumc.edu/work/wiki/HERON](images/heron-progress.png)
 
 <div class="notes">
 
@@ -327,7 +327,7 @@ Here's an example of the hierarchy for a lab test
 
 ## i2b2 schema
 
-![](~/heron-i2b2-analytics/doc/mining-talk/images/i2b2-schema.jpg)
+![](images/i2b2-schema.jpg)
 
 ## Alternatives to i2b2, NHAMCS
 
@@ -335,7 +335,7 @@ Here's an example of the hierarchy for a lab test
 
 ## Alternatives to i2b2, Health facts
 
-![](~/heron-i2b2-analytics/doc/mining-talk/images/deshazo-2015-article.png)
+![](images/deshazo-2015-article.png)
 
 ## Why would you choose i2b2 over these larger nationwide databases?
 
@@ -350,7 +350,7 @@ A local database, however, still has some advantages.
 
 ## Application to developing an EHR phenotype
 
-![](~/heron-i2b2-analytics/doc/mining-talk/images/figure-1.png)
+![](images/figure-1.png)
 
 ## Application to develop an EHR phenotype
 
@@ -371,7 +371,7 @@ I used an elastic net regression model, a variation of LASSO regression.
 
 ## Other applications, Predicting Acute Kidney Injury.
 
-![](~/heron-i2b2-analytics/doc/mining-talk/images/chen-kidney-paper.png)
+![](images/chen-kidney-paper.png)
 
 ## Further work
 
