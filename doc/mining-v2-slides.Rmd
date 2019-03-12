@@ -79,7 +79,7 @@ I only have ten minutes, so I need to be judicious in what I cover. I want to fr
 
 I think I have time to slip in a bit of trivia about Dr. Tukey: he invented the boxplot and coined the terms "software" and "bit" (short for binary digit).
 
-On the final slide, I will show the session we have planned for the Frontiers Informatics meetup on May 23 and refer back to the quote with something along the lines of "if you have an interesting backyard, I want to see you there."
+On the final slide, I will show the session we have planned for the Frontiers Informatics meetup (open data clinical platforms) on May 23 and refer back to the quote with something along the lines of "if you have an interesting backyard, I want to see you there."
 
 ## Not part of the final talk: General structure, continued
 
@@ -90,6 +90,14 @@ In ten minutes, I only have time to make three points.
 2. The nature of the electronic health record creates a data structure well suited for the sparse matrix format
 
 3. Data mining includes mining information from the metadata.
+
+## Things to emphasize
+
+Place in the context of i2b2, which is an open standard.
+
+Open Clinical Data Analytic Platform.
+
+
 
 ## Bibliography
 
