@@ -13,6 +13,17 @@ I have been invited to give a talk at the 2019 Midwest BioInformatics Conference
 
 I will list my affiliation as Department of Biomedical and Health Informatics, University of Missouri-Kansas City, but I also need to acknowledge Frontiers as the supporting funding.
 
+Here's a quote from [Wu 2018](https://www.nature.com/articles/s41598-018-35487-0).
+
+"The dataset used for analysis described in this study was obtained from KUMC’s HERON clinical data repository which is supported by institutional funding and by the KUMC CTSA grant UL1TR000001 from NCRR/NIH."
+
+## References to put in my bibliography
+
+I want to put these in BibTeX format.
+
+Mei Liu's paper(s) on Acute Kidney Injury. I think that the Wu paper described on the previous page or [Chen 2018](https://www.ncbi.nlm.nih.gov/pubmed/29589567) would be good.
+
+
 ## Not part of the final talk: Faculty Research Symposium
 
 Every year, UMKC hosts a faculty research symposium, where we all get a chance to put up posters bragging about the work we are doing. It might be an opportunity to publicize the May 23 Frontiers Informatics meetup. I might instead do a poster for my work with the Center for Economic Information, but I could still have flyers to hand out about the Frontiers Informatics meetup.
@@ -26,6 +37,8 @@ Join the Office of Research Services for the 5th annual faculty research symposi
 * University of Missouri – Kansas City
 * Atterbury Student Success Center- Pierson Auditorium
 * 5000 Holmes, Kansas City, MO 64110
+
+My talk is on April 11 at a session from 1pm to 2pm on the session titled "Data Structures." The other speaker listed as of 3-12-2019 is Carolyn Lawrence-Dill from the Agronomy and Genetics Department of Iowa State University. From here abstract " Our work has focused on mapping genomes and gene elements, predicting gene function, inventing new ways to link genes to phenotypic descriptions and images, developing ways to compute on phenotypic descriptions, organizing broad datasets for community access and use, and developing computational tools that enable others to do all of these sorts of analyses directly" 
 
 ## Not part of the final talk: format
 
