@@ -1,0 +1,104 @@
+---
+title: "Mining the Electronic Health Record"
+author: "Steve Simon, Department of Biomedical and Health Informatics, UMKC"
+output: ioslides_presentation
+bibliography: key-references.bibtex
+---
+
+## Not part of the final talk: Introduction
+
+I have been invited to give a talk at the 2019 Midwest BioInformatics Conference (note the unusual capitalization)! I will prepare the talk in this file. For now, I want to keep some material up front and center as I develop this talk. This information will be marked with the label "Not part of the final talk."
+
+## Not part of the final talk: Affiliation
+
+I will list my affiliation as Department of Biomedical and Health Informatics, University of Missouri-Kansas City, but I also need to acknowledge Frontiers as the supporting funding.
+
+## Not part of the final talk: Faculty Research Symposium
+
+Every year, UMKC hosts a faculty research symposium, where we all get a chance to put up posters bragging about the work we are doing. It might be an opportunity to publicize the May 23 Frontiers Informatics meetup. I might instead do a poster for my work with the Center for Economic Information, but I could still have flyers to hand out about the Frontiers Informatics meetup.
+
+Join the Office of Research Services for the 5th annual faculty research symposium, an all-faculty exchange of research, scholarship and creative activity. The Faculty Research Symposium is 2 to 4 p.m. Wednesday, April 24 in the Student Union Room 401. Online registration ends Wednesday, April 17. Contact Leslie Burgess with questions at burgessla@umkc.edu 816-235-1520. From the [UMatters website](https://info.umkc.edu/umatters/save-the-date-april-24-for-faculty-research-symposium/).
+
+## Not part of the final talk: date and location
+
+* April 11-12, 2019
+*
+* University of Missouri – Kansas City
+* Atterbury Student Success Center- Pierson Auditorium
+* 5000 Holmes, Kansas City, MO 64110
+
+## Not part of the final talk: format
+
+A panel moderator will introduce the theme of the panel and the speaker. Each speaker will have 8-10 minutes. Questions will be saved for the open discussion at the conclusion of each panel.
+
+If you exceed 10 minutes, a member of the conference team will prompt you to conclude.  
+
+## Not part of the final talk: content
+
+The conference will include participants from the full spectrum of informatics, from bioinformatics analysis of genome or proteome data to statistical analysis of clinical data related to large populations.
+
+* Social media – If you are on Twitter, include your handle (e.g., @bionexuskc) in your opening slide.  
+* Accessible - As you prepare your presentation, consider a brief explanation of the problem, technology or methodology in terms that will make your presentation accessible to the full audience.
+* Visual – Consider using visuals instead of dense text as often as possible
+
+## Not part of the final talk: Video and other special requirements
+
+* Please communicate with Shaylee Yount (syount@bionexuskc.org) about any of the following elements that you plan to include:
+  +	Video stored locally
+  +	Active navigation through a web site 
+
+* Note: I do not intend to use these.
+
+## Not part of the final talk: submitting your presentation, deadline
+
+Please send your presentation as a PowerPoint file to Shaylee Yount (syount@bionexuskc.org) by Friday March 28th at 5:00 pm.  
+
+Spread the word! – As a speaker, we hope that you will generate excitement about the conference in your community.  Please encourage your students, colleagues, collaborators and community to participate.   We would like to have a high level of student participation and will appreciate it if you encourage students and postdocs to submit posters.  Please share the link to the conference, Tweet about your presentation using our hashtag #MWBio19.
+
+## Not part of the final talk: conference website
+
+You can find my smiling face among the presenters on the conference website (about two thirds of the way down).
+
+* http://kcbioinformatics.org/conference/speakers/
+
+They posted a short bio at
+
+* http://kcbioinformatics.org/conference/speakers/stephen-simon-phd/
+
+According to the agenda, I am talking on the first day (Thursday, April 11) in the first afternoon session, Data Structure, from 1pm to 2pm.
+
+* http://kcbioinformatics.org/conference/agenda/
+
+## Not part of the final talk: My abstract
+
+The electronic health record (EHR) offers opportunities for research and quality improvement studies that did not exist before. Data mining, discovering new and unexpected patterns in the data, requires a different mode of access for EHR data than more traditional hypothesis driven studies. This talk will cover the specialized statistical and programming skills needed for data mining.
+
+## Not part of the final talk: General structure of the talk
+
+I only have ten minutes, so I need to be judicious in what I cover. I want to frame my talk around the famous quote by John Tukey: "The best thing about being a statistician is that you get to play in everyone's backyard."
+
+I think I have time to slip in a bit of trivia about Dr. Tukey: he invented the boxplot and coined the terms "software" and "bit" (short for binary digit).
+
+On the final slide, I will show the session we have planned for the Frontiers Informatics meetup on May 23 and refer back to the quote with something along the lines of "if you have an interesting backyard, I want to see you there."
+
+## Not part of the final talk: General structure, continued
+
+In ten minutes, I only have time to make three points.
+
+1. If you are interested in data mining, you have to move past the i2b2 software and data builder, and access the data directly with SQL. This requires multiple self-joins
+
+2. The nature of the electronic health record creates a data structure well suited for the sparse matrix format
+
+3. Data mining includes mining information from the metadata.
+
+## Bibliography
+
+You can find more information at
+
+* https://github.com/kumc-bmi/heron-i2b2-analytics
+
+In particular, look for
+
+* doc/mining-v2-image-credits.txt
+* doc/mining-v2-bibliography.html.
+* doc/mining-v2-slides.pptx
