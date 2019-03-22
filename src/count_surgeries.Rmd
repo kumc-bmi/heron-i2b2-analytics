@@ -1,0 +1,85 @@
+---
+title: "Apply exclusions to a patient list"
+author: "Steve Simon"
+date: "5/31/2018"
+output: html_document
+---
+
+This program shows how to apply exclusions to a patient list, using diabetes as an example.
+
+Load the relevant libraries. 
+
+```{r libraries}
+library(dplyr)
+library(knitr)
+library(magrittr)
+library(ROracle)
+```
+
+Please review open_oracle.Rmd to review how to access information in an Oracle database.
+
+```{r timing-functions}
+#
+# This timing function is for my benefit. I want
+# to informally check speeds and by writing the
+# results to a text file, I can peek at the
+# timing of early results while later results
+# are still running. If you want to use this
+# function, place log_time(first=TRUE) ins the
+# first chunk to be timed and place log_time()
+# in the remaining chunks.
+#
+program_name <- "count_surgeries"
+timing_file <- paste0("../src/timing_", program_name, ".txt")
+image_file <- paste0("../data/", program_name, ".RData")
+
+log_time <- function(first=FALSE) {
+  current_chunk <- opts_current$get("label")
+  current_time <- as.character(Sys.time())
+  cat(current_time, current_chunk, "began.\n", file=timing_file, append=!first)
+}
+```
+
+
+```{r login-to-oracle}
+log_time(first=TRUE)
+cdm_config <- read.csv('../cdm_config_B2.csv', stringsAsFactors=FALSE)
+c_connect <-
+  dbConnect(Oracle(), cdm_config$account, cdm_config$password, cdm_config$access)
+```
+
+Quick test
+
+```{r quick-test}
+dbGetQuery(c_connect, "SELECT * FROM blueherondata.observation_fact WHERE ROWNUM < 5")
+dbGetQuery(c_connect, "SELECT * FROM blueherondata.concept_dimension WHERE ROWNUM < 5")
+dbGetQuery(c_connect, "SELECT * FROM blueheronmetadata.heron_terms WHERE ROWNUM < 5")
+```
+
+```{r count}
+log_time()
+select_surgeries <- 
+  "SELECT name_char FROM blueherondata.concept_dimension
+     WHERE name_char LIKE '%ectomy%'"
+dbGetQuery(c_connect, select_surgeries) %>%
+  use_series(NAME_CHAR) %>%
+  strsplit(" ") %>%
+  unlist %>%
+  tolower %>%
+  grep("ectomy", ., value=TRUE) %>%
+  gsub("[[:punct:]]", "", .) %>%
+  gsub("ectomy.*", "-", .) %>%
+  unique %>%
+  sample(50, replace=FALSE) %>%
+  sort %>%
+  paste(collapse=", ")
+```
+
+
+Save everything for possible re-use
+
+```{r save-everything}
+log_time()
+read.table(timing_file) 
+save.image(image_file)
+```

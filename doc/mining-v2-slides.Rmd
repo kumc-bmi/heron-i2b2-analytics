@@ -104,6 +104,119 @@ In ten minutes, I only have time to make three points.
 
 3. Data mining includes mining information from the metadata.
 
+## John Tukey
+
+![The best thing about being a statistician is that you get to play in everyone's backyard.](images/tukey.png)
+
+## Some of my backyards
+
+Academic Emergency Medicine, American Journal of Audiology, American Journal of Kidney Diseases, Annals of Allergy, Asthma & Immunology, Annals of Behavioral Medicine, Annals of Occupational Hygiene, Applied Clinical Informatics, Applied Occupational and Environmental Hygiene, Archives of Dermatology, Archives of Pediatrics & Adolescent Medicine, Birth Defects Research. Part A, Clinical and Molecular Teratology, BMJ (Clinical Research Ed.), Cancer Letters, Cell Death & Disease, Child Maltreatment, Clinical Nephrology, Clinical Pharmacology and Therapeutics, Clinical Toxicology, Endocrinologist, Genomics, Hospital Pharmacy, Journal of Andrology, Journal of Applied Toxicology, Journal of Bone and Joint Surgery, Journal of Clinical Pharmacology, Journal of Clinical Psychology in Medical Settings, Journal of General Internal Medicine, Journal of Human Lactation, Journal of Nursing Administration, Journal of Obstetric, Gynecologic, and Neonatal Nursing, Journal of Occupational and Environmental Medicine, Journal of Pediatric Endocrinology & Metabolism, Journal of Perinatology, Journal of the Acoustical Society of America, Journal of the American Academy of Dermatology, Journal of the American Society of Echocardiography, Journal of the International AIDS Society, Molecular Andrology, Occupational Hygiene, Pediatric Blood & Cancer, Pediatric Cardiology, Pediatric Emergency Care, Pediatric Nephrology, Pediatrics, Perception & Psychophysics, Pharmacogenetics, Reproductive Biomedicine Online, Reproductive Toxicology, Scanning Microscopy, Seminars for Nurse Managers.
+
+<div class="notes">
+
+I've had the opportunity myself to publish in fifty different medical journals. It's skewed a bit to the pediatric side of things, but still represents a broad range of disciplines.
+
+</div>
+
+## Some of my backyards
+
+![Image of Children's Mercy Hospital, Adele Hall Campus](images/cmh.png)
+
+## Some of my backyards
+
+![Cleveland Chiropractic College campus](images/cleveland.png)
+
+## Some of my backyards
+
+![MRI Global building](images/mriglobal.png)
+
+## Some of my backyards
+
+![North Kansas City Hospital](images/nkc-hospital.png)
+
+## Some of my backyards
+
+![Truman Medical Center building](images/tmc.png)
+
+## Some of my backyards
+
+![UMKC and KUMC mascots](images/kangaroo-jayhawk.png)
+
+<div class="notes">
+
+But more than anything, I consider myself to be half Kangaroo and half Jayhawk.
+
+</div>
+
+## Some of my backyards
+
+![Medical Informatics and Enterprise Analytics website](images/miea.png)
+
+<div class="notes">
+
+So when I was offered a chance to work on the Medical Informatics with Russ Waitman, I jumped at the chance. Now they hated me at UMKC, for this. I had child care commitments and had to drop some really good things at UMKC in order to free up enough time to work with Russ. But I decided I had to do this, because Medical Informatics is just like Statistics. They also get to play in everyone's backyard.
+
+</div>
+
+## Mining the Electronic Health Record
+
+What is data mining?
+
+* "Data mining is the process of finding anomalies, patterns and correlations within large data sets" (SAS Institute)
+
+What is the electronic health record
+
+* "An electronic health record (EHR) is a digital version of a patient’s paper chart. EHRs are real-time, patient-centered records that make information available instantly and securely to authorized users." (healthit.gov)
+
+## i2b2 software
+
+![Screenshot of i2b2 software](images/i2b2-software.png)
+
+## The database structure behind the i2b2 software
+
+![Diagram of i2b2 schema](images/i2b2-schema.jpg)
+
+## Requirements needed for mining the electronic health record
+
+Technical requirements
+* Working familiarity with SQL
+* Data wrangling skills
+Non-technical requirements
+* Lust for data
+* An interesting backyard
+
+## How many surgeries?
+
+```{r select-surgeries, eval=FALSE}
+select_surgeries <- 
+  "SELECT name_char FROM blueherondata.concept_dimension
+     WHERE name_char LIKE '%ectomy%'"
+dbGetQuery(c_connect, select_surgeries) %>%
+  use_series(NAME_CHAR) %>%
+  strsplit(" ") %>%
+  unlist %>%
+  tolower %>%
+  grep("ectomy", ., value=TRUE) %>%
+  gsub("[[:punct:]]", "", .) %>%
+  gsub("ectomy.*", "-", .) %>%
+  unique %>%
+  sample(100, replace=FALSE) %>%
+  sort %>%
+  paste(collapse=", ")
+```
+
+## Bobby tables cartoon
+
+![Cartoon describing an injection attack](images/bobby-tables-cartoon.png)
+
+## How many surgeries?
+
+"adenoid-, adrenal-, apico-, arytenoid-, cervic-, cord-, costotransvers-, craniotomycrani-, crypt-, disk-, empyem-, epiplo-, fissur-, hemigloss-, hemilaryng-, hemiphalang-, hemispher-, hepat-, hypophys-, iridotomyirid-, kerat-, kyph-, mastoid-, mucos-, myom-, nephr-, oophor-, opercul-, orchi-, ost-, parathyroid-, pericardi-, pharyngolaryng-, plex-, pneumon-, polyp-, postadenoid-, postcholecyst-, posthyster-, postlymphaden-, posttonsill-, sphenoid-, stern-, synov-, tenosynov-, tracheostomylaryng-, tyl-, tympanosympath-, umbil-, vesicul-"
+
+## How many surgeries?
+
+"acromion-, adenoid-, alveol-, apic-, apico-, arthr-, arytenoid-, astragal-, ather-, burs-, capsul-, carp-, clitor-, coccyg-, crani-, dacryoaden-, dacryocyst-, diaphys-, disarticulationhemipelv-, disk-, diverticul-, endarter-, epididym-, epiglottid-, epiplo-, ethmoid-, fasci-, fistul-, frenul-, ganglion-, gastr-, gingiv-, gloss-, hemigastr-, hemigloss-, hemilamin-, hemilaryng-, hemiphalang-, hemorrhoid-, hepat-, hymen-, hyster-, infundibul-, irid-, labyrinth-, lamin-, lip-, lump-, mucos-, my-, myom-, nephr-, nephroureter-, oophor-, osteophyt-, pannicul-, patell-, phalang-, pharyngolaryng-, phleb-, pleur-, plex-, pneumon-, postadenoid-, postcholecyst-, postgastr-, postlymphaden-, postmastoid-, postpolyp-, postprostat-, postsplen-, prostat-, rectosigmoid-, salping-, salpingoophor-, scler-, segment-, sequestr-, sialoaden-, sigmoid-, sphenoid-, sympath-, synov-, tenon-, tenosynov-, trabecul-, trachel-, trisection-, trisegment-, turbin-, tyl-, tympanomastoid-, umbil-, urethr-, uvul-, vagin-, valv-, vas-, vesicul-, vulv-"
+
 ## Bibliography
 
 You can find more information at
