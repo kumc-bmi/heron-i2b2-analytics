@@ -12,6 +12,10 @@ The image of the MRI Global building (images/mriglobal.png) was taken from
 
 The image of the North Kansas City Hospital building (images/nkc-hospital.png)
 
+The image of the Saint Luke's Hospital building (images/slh.png) was taken from https://www.saintlukeskc.org/locations/saint-lukes-hospital-kansas-city and is used under the fair use provisions of copyright law.
+
+The image of the Truman Medical Center building (images/tmc.png)
+
 The composite image of the UMKC and KUMC mascots (images/kangaroo-jayhawk.png) was taken from
 
 The image Medical Informatics and Enterprise Analytics website (images/miea.png) was taken from http://www.kumc.edu/miea.html
