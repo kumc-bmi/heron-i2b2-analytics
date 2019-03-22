@@ -92,7 +92,7 @@ I only have ten minutes, so I need to be judicious in what I cover. I want to fr
 
 I think I have time to slip in a bit of trivia about Dr. Tukey: he invented the boxplot and coined the terms "software" and "bit" (short for binary digit).
 
-On the final slide, I will show the session we have planned for the Frontiers Informatics meetup on May 23 and refer back to the quote with something along the lines of "if you have an interesting backyard, I want to see you there."
+On the final slide, I will show the session we have planned for the Frontiers Informatics meetup (open data clinical platforms) on May 23 and refer back to the quote with something along the lines of "if you have an interesting backyard, I want to see you there."
 
 ## Not part of the final talk: General structure, continued
 
@@ -104,6 +104,7 @@ In ten minutes, I only have time to make three points.
 
 3. Data mining includes mining information from the metadata.
 
+<<<<<<< HEAD
 ## John Tukey
 
 ![The best thing about being a statistician is that you get to play in everyone's backyard.](images/tukey.png)
@@ -216,6 +217,15 @@ dbGetQuery(c_connect, select_surgeries) %>%
 ## How many surgeries?
 
 "acromion-, adenoid-, alveol-, apic-, apico-, arthr-, arytenoid-, astragal-, ather-, burs-, capsul-, carp-, clitor-, coccyg-, crani-, dacryoaden-, dacryocyst-, diaphys-, disarticulationhemipelv-, disk-, diverticul-, endarter-, epididym-, epiglottid-, epiplo-, ethmoid-, fasci-, fistul-, frenul-, ganglion-, gastr-, gingiv-, gloss-, hemigastr-, hemigloss-, hemilamin-, hemilaryng-, hemiphalang-, hemorrhoid-, hepat-, hymen-, hyster-, infundibul-, irid-, labyrinth-, lamin-, lip-, lump-, mucos-, my-, myom-, nephr-, nephroureter-, oophor-, osteophyt-, pannicul-, patell-, phalang-, pharyngolaryng-, phleb-, pleur-, plex-, pneumon-, postadenoid-, postcholecyst-, postgastr-, postlymphaden-, postmastoid-, postpolyp-, postprostat-, postsplen-, prostat-, rectosigmoid-, salping-, salpingoophor-, scler-, segment-, sequestr-, sialoaden-, sigmoid-, sphenoid-, sympath-, synov-, tenon-, tenosynov-, trabecul-, trachel-, trisection-, trisegment-, turbin-, tyl-, tympanomastoid-, umbil-, urethr-, uvul-, vagin-, valv-, vas-, vesicul-, vulv-"
+=======
+## Things to emphasize
+
+Place in the context of i2b2, which is an open standard.
+
+Open Clinical Data Analytic Platform.
+
+
+>>>>>>> 3a5d4db3b482c01a822b088734aee012167d5202
 
 ## Bibliography
 
