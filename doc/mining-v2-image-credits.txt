@@ -2,7 +2,9 @@ doc/mining-v2-image-credits.txt
 
 Most of the images used in this talk are copyrighted. They are used in the talk under the fair use provisions of copyright law. Please consult the license information on the individual websites before using any of these images yourself.
 
-The image of John Tukey (doc/images/tukey.png) was taken from the Wikipedia site. Most images at Wikipedia are licensed under a creative commons license, but this image was taken from a 
+The image of a clear lightbulb (doc/images/clear_light_bulb.png) was found at Wikimedia Commons and is in the public domain.
+
+The image of John Tukey (doc/images/tukey.png) was taken from the Wikipedia site. Most images at Wikipedia are licensed under a creative commons license, but this image was taken from a copyrighted source under the fair use provisions of copyright law, and I am also using it under these provisions.
 
 The image of the Children Mercy Hospital building (images/cmh.png) was taken from the Children's Mercy website.
 
@@ -17,6 +19,8 @@ The image of the Saint Luke's Hospital building (images/slh.png) was taken from 
 The image of the Truman Medical Center building (images/tmc.png)
 
 The composite image of the UMKC and KUMC mascots (images/kangaroo-jayhawk.png) was taken from
+
+The image of Russ Waitman (images/waitman.png) was take from the Bionexus KC website.
 
 The image Medical Informatics and Enterprise Analytics website (images/miea.png) was taken from http://www.kumc.edu/miea.html
 

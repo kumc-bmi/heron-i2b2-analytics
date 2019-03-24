@@ -5,6 +5,226 @@ output: ioslides_presentation
 bibliography: key-references.bibtex
 ---
 
+## How many researchers...?
+
+![image of a light bulb](images/clear_light_bulb-resized.png)
+
+<div class="notes">
+
+Let's start with a bad joke. How many researchers does it take to screw in a lightbulb? Fifteen. One to screw in the lightbulb and fourteen to serve as co-authors.
+
+I have to admit I'm one of those fourteen. I written some of my own articles, but some of my best work is when I'm third, fifth, or eight co-author.
+
+</div>
+
+## The best thing about being a statistician...
+
+![John Tukey](images/tukey-resized.png)
+
+<div class="notes">
+
+I'm in strong agreement with the famous statistician, John Tukey, who said "The best thing about being a statistician is that you get to play in everyone's backyard." 
+
+</div>
+
+## Children's Mercy Hospital
+
+![Image of Children's Mercy Hospital, Adele Hall Campus](images/cmh-resized.png)
+
+<div class="notes">
+
+Here are some of the local backyards I've gotten to play in. Children's Mercy, ...
+
+</div>
+
+## Cleveland Chiropractic
+
+![Cleveland Chiropractic College campus](images/cleveland-resized.png)
+
+<div class="notes">
+
+..., Cleveland Chiropractic, ...
+
+</div>
+
+## MRI Global
+
+![MRI Global building](images/mriglobal-resized.png)
+
+<div class="notes">
+
+..., MRi Global, ...
+
+</div>
+
+## North Kansas City Hospital
+
+![North Kansas City Hospital](images/nkc-hospital-resized.png)
+
+<div class="notes">
+
+..., North Kansas City Hospital, ...
+
+</div>
+
+## Saint Luke's Hospital
+
+![Saint Luke's Hospital building](images/slh-resized.png)
+
+<div class="notes">
+
+..., Saint Luke's Hospital, ...
+
+</div>
+
+## Truman Medical Center
+
+![Truman Medical Center building](images/tmc-resized.png)
+
+<div class="notes">
+
+..., and Truman Medical Center, ...
+
+</div>
+
+## UMKC and KUMC
+
+![UMKC and KUMC mascots](images/kangaroo-jayhawk.png)
+
+<div class="notes">
+
+... but my two favorite backyards are UMKC and KUMC. I'm half Kangaroo and half Jayhawk.
+
+</div>
+
+## New backyard: Russ Waitman
+
+![Russ Waitman](images/waitman-resized.png)
+
+<div class="notes">
+
+So when this guy offered me a chance to work at KU Med Center in Medical Informatics, I said "Heck yes!" Now they hated me at UMKC for this. I had child care commitments and so to find the time to work with Russ I had to drop some really good things at UMKC. But I had to do this, because Medical Informatics is just like Statistics. They also get to play in everyone's backyard.
+
+</div>
+
+## i2b2 software
+
+![Screenshot of i2b2 software](images/i2b2-software-resized.png)
+
+<div class="notes">
+
+The common standard for research using the electronic health record is i2b2. 
+
+It's an open standard which should be attractive to anyone in this audience who is a student. You learn i2b2 here, and everything you learn will transfer directly to the job you get after you graduate.
+
+They are using i2b2 at some of the local playgrounds that I showed earlier: Children's Mercy, Saint Luke's, and Truman Medical Center. But the i2b2 system at KU Med Center is really great. They've included records from both the billing side and the clinical side. How cool is that! They've integrated the electronic health record with a cancer registry and a trauma registry. They have a slick system called data builder, which dumps the i2b2 records into a SQLite database that you can import into R, and they even let mere mortals like me query directly from the actual database.
+
+The i2b2 software is great for targetted research involving a well structured research hypothesis. But for data mining, which is a more unstructured approach, you have to dig a bit deeper.
+
+</div>
+
+## The database structure behind i2b2
+
+![Diagram of i2b2 schema](images/i2b2-schema-resized.png)
+
+<div class="notes">
+
+Here's the database schema for i2b2. For something as complex as the Electronic Health Record, it's a very spartan design. It has to be, as we'll see in a minute.
+
+</div>
+
+## How many surgeries?
+
+```{r select-surgeries, eval=FALSE}
+select_surgeries <- 
+  "SELECT name_char FROM blueherondata.concept_dimension
+     WHERE name_char LIKE '%ectomy%'"     
+dbGetQuery(c_connect, select_surgeries) %>%   # Extract records
+  use_series(NAME_CHAR) %>%                   # Convert to vector
+  strsplit(" ") %>%                           # Split into words
+  unlist %>%                                  # Re-convert to vector
+  tolower %>%                                 # Force to lower case
+  grep("ectomy", ., value=TRUE) %>%           # Toss extraneous words
+  gsub("[[:punct:]]", "", .) %>%              # Remove punctuation
+  gsub("ectomy.*", "-", .) %>%                # Remove ectomy suffix
+  unique %>%                                  # Remove duplicates
+  sample(100, replace=FALSE) %>%              # Select 100 random
+  sort %>%                                    # Arrange
+  paste(collapse=", ")                        # Delimit with commas
+```
+
+<div class="notes">
+
+Here's something simple you can only do easily if you can directly query the database. This is a simple program for getting a list of certain types of operations. You're looking for the suffix "ectomy" which is Greek for "cut it out." Here's a bit of SQL code and some post-processing in R. You should be able to do this in SAS as well, but I haven't tested it yet.
+
+</div>
+
+## How many surgeries?
+
+"acromion-, adenoid-, alveol-, apic-, apico-, arthr-, arytenoid-, astragal-, ather-, burs-, capsul-, carp-, clitor-, coccyg-, crani-, dacryoaden-, dacryocyst-, diaphys-, disarticulationhemipelv-, disk-, diverticul-, endarter-, epididym-, epiglottid-, epiplo-, ethmoid-, fasci-, fistul-, frenul-, ganglion-, gastr-, gingiv-, gloss-, hemigastr-, hemigloss-, hemilamin-, hemilaryng-, hemiphalang-, hemorrhoid-, hepat-, hymen-, hyster-, infundibul-, irid-, labyrinth-, lamin-, lip-, lump-, mucos-, my-, myom-, nephr-, nephroureter-, oophor-, osteophyt-, pannicul-, patell-, phalang-, pharyngolaryng-, phleb-, pleur-, plex-, pneumon-, postadenoid-, postcholecyst-, postgastr-, postlymphaden-, postmastoid-, postpolyp-, postprostat-, postsplen-, prostat-, rectosigmoid-, salping-, salpingoophor-, scler-, segment-, sequestr-, sialoaden-, sigmoid-, sphenoid-, sympath-, synov-, tenon-, tenosynov-, trabecul-, trachel-, trisection-, trisegment-, turbin-, tyl-, tympanomastoid-, umbil-, urethr-, uvul-, vagin-, valv-, vas-, vesicul-, vulv-"
+
+<div class="notes">
+
+The full list of "ectomies" would be about twice as big. And that illustrates a key challenge with this type of data. It is very sparse. There are hundreds of things that a surgeon can cut out of you, but you should be very grateful that the doctor only chops out one or two things at the most. Looking at the drugs that you could get, even the worst polypharmacy cases would be a small fraction of thousands of drugs that are available. The number of diagnosis codes that you are assigned is also a small fraction of the number of diagnoses that they could hang on you. So the design matrix for any regression model in this area becomes really huge and most of the entries are zeros.
+
+The other thing about the electronic health record is that each operation, each drug, each diagnosis code sits on a separate record. It has to, or the record would string out so long that it would be unmanageable. So you can't say "Give me the record for a patient with sleep apnea getting Propofol anesthetic for a septoplasty." You can only find records to match multiple criteria using a self-join. Self-joins are tricky. They usually require using nested queries and they can be very inefficient.
+
+I don't want to scare you away though. Mining the electronic health records has been one of the most fun backyards I've had a chance to play in.
+
+</div>
+
+## Mei Liu, Acute Kidney Injury
+
+![Mei Liu, next to one of her research publications](images/liu-publication-resized.png)
+
+<div class="notes">
+
+Now, what I've shown you so far isn't too fancy, but there's someone else in Medical Informatics, Mei Liu, who is a lot smarter than me, and she has several research publications on Acute Kidney Injury, A big NSF grant, and a PostDoc working with her.
+
+</div>
+
+## Requirements needed for mining the electronic health record
+
+Technical requirements
+
+* Working familiarity with SQL
+* Data wrangling skills
+
+Non-technical requirements
+
+* Lust for data
+* An interesting backyard
+
+<div class="notes">
+
+So if you want to work in this area that I call "Mining the electronic health record" you need four things. You need to have a working knowledge of SQL. You also have to be pretty good at data wrangling. Data wrangling is a term that some guy, I'm sure it was a guy, developed to make the term data management sound more macho.
+
+More important than these technical skills is that you have to get excited about data. If you weren't salivating at the code that pulled every whatever-ectomy out of the database, then maybe this isn't for you. The final requirement, though, and one that I am sure you already have, is an interesting backyard. I'm not a doctor, and all the examples I come up with on my own for mining the electronic health record are pretty trivial from a medical perspective. If you can bring me an interesting medical question, I can help you with the SQL and the data wrangling.
+
+</div>
+
+## Informatics meetup
+
+![Flier for May 23 Informatics meetup](images/infomatics-meetup-resized.png)
+
+<div class="notes">
+
+If you want to work in this area. We have scheduled an informatics meetup on May 23. We'll have speakers from the beginner's intermediate, and advanced spectrum of data mining. Mei Liu and I will be there along with a bunch of others in Russ's department. If you've got an interesting backyard, we want you to be there, too.
+
+</div>
+
+## Bibliography
+
+You can find more information at
+
+* https://github.com/kumc-bmi/heron-i2b2-analytics
+
+In particular, look for
+
+* doc/mining-v2-image-credits.txt
+* doc/mining-v2-bibliography.html.
+* doc/mining-v2-slides.pptx
+
 ## Not part of the final talk: Introduction
 
 I have been invited to give a talk at the 2019 Midwest BioInformatics Conference (note the unusual capitalization)! I will prepare the talk in this file. For now, I want to keep some material up front and center as I develop this talk. This information will be marked with the label "Not part of the final talk."
@@ -50,7 +270,7 @@ If you exceed 10 minutes, a member of the conference team will prompt you to con
 
 The conference will include participants from the full spectrum of informatics, from bioinformatics analysis of genome or proteome data to statistical analysis of clinical data related to large populations.
 
-* Social media – If you are on Twitter, include your handle (e.g., @bionexuskc) in your opening slide.  
+* Social media – If you are on Twitter, include your handle in your opening slide.  
 * Accessible - As you prepare your presentation, consider a brief explanation of the problem, technology or methodology in terms that will make your presentation accessible to the full audience.
 * Visual – Consider using visuals instead of dense text as often as possible
 
@@ -110,63 +330,23 @@ Place in the context of i2b2, which is an open standard.
 
 Open Clinical Data Analytic Platform.
 
-## John Tukey
-
-![The best thing about being a statistician is that you get to play in everyone's backyard.](images/tukey.png)
-
-## Some of my backyards
+## [Left out of final talk] Some of my backyards
 
 Academic Emergency Medicine, American Journal of Audiology, American Journal of Kidney Diseases, Annals of Allergy, Asthma & Immunology, Annals of Behavioral Medicine, Annals of Occupational Hygiene, Applied Clinical Informatics, Applied Occupational and Environmental Hygiene, Archives of Dermatology, Archives of Pediatrics & Adolescent Medicine, Birth Defects Research. Part A, Clinical and Molecular Teratology, BMJ (Clinical Research Ed.), Cancer Letters, Cell Death & Disease, Child Maltreatment, Clinical Nephrology, Clinical Pharmacology and Therapeutics, Clinical Toxicology, Endocrinologist, Genomics, Hospital Pharmacy, Journal of Andrology, Journal of Applied Toxicology, Journal of Bone and Joint Surgery, Journal of Clinical Pharmacology, Journal of Clinical Psychology in Medical Settings, Journal of General Internal Medicine, Journal of Human Lactation, Journal of Nursing Administration, Journal of Obstetric, Gynecologic, and Neonatal Nursing, Journal of Occupational and Environmental Medicine, Journal of Pediatric Endocrinology & Metabolism, Journal of Perinatology, Journal of the Acoustical Society of America, Journal of the American Academy of Dermatology, Journal of the American Society of Echocardiography, Journal of the International AIDS Society, Molecular Andrology, Occupational Hygiene, Pediatric Blood & Cancer, Pediatric Cardiology, Pediatric Emergency Care, Pediatric Nephrology, Pediatrics, Perception & Psychophysics, Pharmacogenetics, Reproductive Biomedicine Online, Reproductive Toxicology, Scanning Microscopy, Seminars for Nurse Managers.
 
 <div class="notes">
 
-I've had the opportunity myself to publish in fifty different medical journals. It's skewed a bit to the pediatric side of things, but still represents a broad range of disciplines.
+Here are some of the backyards that I've played in. I left out all those boring Statistics journals. I deliberately let this scroll off the page to make it look more impressive. There are fifty different journals here, skewed a bit perhaps to the pediatric side, but otherwise quite a broad representation. 
 
 </div>
 
-## Some of my backyards
+## [Left out of final talk] Bobby tables cartoon
 
-![Image of Children's Mercy Hospital, Adele Hall Campus](images/cmh.png)
+![Cartoon describing an injection attack](images/bobby-tables-cartoon.png)
 
-## Some of my backyards
+## [Left out of final talk] How many surgeries?
 
-![Cleveland Chiropractic College campus](images/cleveland.png)
-
-## Some of my backyards
-
-![MRI Global building](images/mriglobal.png)
-
-## Some of my backyards
-
-![North Kansas City Hospital](images/nkc-hospital.png)
-
-## Some of my backyards
-
-![Saint Luke's Hospital building](images/slh.jpg)
-
-## Some of my backyards
-
-![Truman Medical Center building](images/tmc.png)
-
-## Some of my backyards
-
-![UMKC and KUMC mascots](images/kangaroo-jayhawk.png)
-
-<div class="notes">
-
-But more than anything, I consider myself to be half Kangaroo and half Jayhawk.
-
-</div>
-
-## Some of my backyards
-
-![Medical Informatics and Enterprise Analytics website](images/miea.png)
-
-<div class="notes">
-
-So when I was offered a chance to work on the Medical Informatics with Russ Waitman, I jumped at the chance. Now they hated me at UMKC, for this. I had child care commitments and had to drop some really good things at UMKC in order to free up enough time to work with Russ. But I decided I had to do this, because Medical Informatics is just like Statistics. They also get to play in everyone's backyard.
-
-</div>
+"adenoid-, adrenal-, apico-, arytenoid-, cervic-, cord-, costotransvers-, craniotomycrani-, crypt-, disk-, empyem-, epiplo-, fissur-, hemigloss-, hemilaryng-, hemiphalang-, hemispher-, hepat-, hypophys-, iridotomyirid-, kerat-, kyph-, mastoid-, mucos-, myom-, nephr-, oophor-, opercul-, orchi-, ost-, parathyroid-, pericardi-, pharyngolaryng-, plex-, pneumon-, polyp-, postadenoid-, postcholecyst-, posthyster-, postlymphaden-, posttonsill-, sphenoid-, stern-, synov-, tenosynov-, tracheostomylaryng-, tyl-, tympanosympath-, umbil-, vesicul-"
 
 ## Mining the Electronic Health Record
 
@@ -178,63 +358,9 @@ What is the electronic health record
 
 * "An electronic health record (EHR) is a digital version of a patient’s paper chart. EHRs are real-time, patient-centered records that make information available instantly and securely to authorized users." (healthit.gov)
 
-## i2b2 software
+<div class="notes">
 
-![Screenshot of i2b2 software](images/i2b2-software.png)
+My job/ Mining the electronic health record. Now, I really don't have to define these terms for this audience, but I'll do it anyway. SAS Institute defines data mining as the search for anomalies, patterns, or correlations. The government defines the electronic health record as a digital version of a patient's paper chart. 
 
-## The database structure behind the i2b2 software
+</div>
 
-![Diagram of i2b2 schema](images/i2b2-schema.jpg)
-
-## Requirements needed for mining the electronic health record
-
-Technical requirements
-* Working familiarity with SQL
-* Data wrangling skills
-Non-technical requirements
-* Lust for data
-* An interesting backyard
-
-## How many surgeries?
-
-```{r select-surgeries, eval=FALSE}
-select_surgeries <- 
-  "SELECT name_char FROM blueherondata.concept_dimension
-     WHERE name_char LIKE '%ectomy%'"
-dbGetQuery(c_connect, select_surgeries) %>%
-  use_series(NAME_CHAR) %>%
-  strsplit(" ") %>%
-  unlist %>%
-  tolower %>%
-  grep("ectomy", ., value=TRUE) %>%
-  gsub("[[:punct:]]", "", .) %>%
-  gsub("ectomy.*", "-", .) %>%
-  unique %>%
-  sample(100, replace=FALSE) %>%
-  sort %>%
-  paste(collapse=", ")
-```
-
-## Bobby tables cartoon
-
-![Cartoon describing an injection attack](images/bobby-tables-cartoon.png)
-
-## How many surgeries?
-
-"adenoid-, adrenal-, apico-, arytenoid-, cervic-, cord-, costotransvers-, craniotomycrani-, crypt-, disk-, empyem-, epiplo-, fissur-, hemigloss-, hemilaryng-, hemiphalang-, hemispher-, hepat-, hypophys-, iridotomyirid-, kerat-, kyph-, mastoid-, mucos-, myom-, nephr-, oophor-, opercul-, orchi-, ost-, parathyroid-, pericardi-, pharyngolaryng-, plex-, pneumon-, polyp-, postadenoid-, postcholecyst-, posthyster-, postlymphaden-, posttonsill-, sphenoid-, stern-, synov-, tenosynov-, tracheostomylaryng-, tyl-, tympanosympath-, umbil-, vesicul-"
-
-## How many surgeries?
-
-"acromion-, adenoid-, alveol-, apic-, apico-, arthr-, arytenoid-, astragal-, ather-, burs-, capsul-, carp-, clitor-, coccyg-, crani-, dacryoaden-, dacryocyst-, diaphys-, disarticulationhemipelv-, disk-, diverticul-, endarter-, epididym-, epiglottid-, epiplo-, ethmoid-, fasci-, fistul-, frenul-, ganglion-, gastr-, gingiv-, gloss-, hemigastr-, hemigloss-, hemilamin-, hemilaryng-, hemiphalang-, hemorrhoid-, hepat-, hymen-, hyster-, infundibul-, irid-, labyrinth-, lamin-, lip-, lump-, mucos-, my-, myom-, nephr-, nephroureter-, oophor-, osteophyt-, pannicul-, patell-, phalang-, pharyngolaryng-, phleb-, pleur-, plex-, pneumon-, postadenoid-, postcholecyst-, postgastr-, postlymphaden-, postmastoid-, postpolyp-, postprostat-, postsplen-, prostat-, rectosigmoid-, salping-, salpingoophor-, scler-, segment-, sequestr-, sialoaden-, sigmoid-, sphenoid-, sympath-, synov-, tenon-, tenosynov-, trabecul-, trachel-, trisection-, trisegment-, turbin-, tyl-, tympanomastoid-, umbil-, urethr-, uvul-, vagin-, valv-, vas-, vesicul-, vulv-"
-
-## Bibliography
-
-You can find more information at
-
-* https://github.com/kumc-bmi/heron-i2b2-analytics
-
-In particular, look for
-
-* doc/mining-v2-image-credits.txt
-* doc/mining-v2-bibliography.html.
-* doc/mining-v2-slides.pptx
