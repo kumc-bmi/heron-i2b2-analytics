@@ -1,7 +1,7 @@
 ---
 title: "Mining the Electronic Health Record"
 author: "Steve Simon, Department of Biomedical and Health Informatics, UMKC"
-output: ioslides_presentation
+output: powerpoint_presentation
 bibliography: key-references.bibtex
 ---
 
@@ -222,8 +222,10 @@ You can find more information at
 In particular, look for
 
 * doc/mining-v2-image-credits.txt
-* doc/mining-v2-bibliography.html.
 * doc/mining-v2-slides.pptx
+* doc/mining-v2-speaker-notes.pdf
+
+<!--- commenting out personal notes
 
 ## Not part of the final talk: Introduction
 
@@ -364,3 +366,4 @@ My job/ Mining the electronic health record. Now, I really don't have to define 
 
 </div>
 
+--->
