@@ -27,9 +27,9 @@ I'm in strong agreement with the famous statistician, John Tukey, who said "The 
 
 </div>
 
-## Children's Mercy Hospital
+## Backyard #1
 
-![Image of Children's Mercy Hospital, Adele Hall Campus](images/cmh-resized.png)
+![Children's Mercy Hospital building](images/cmh-resized.png)
 
 <div class="notes">
 
@@ -37,9 +37,9 @@ Here are some of the local backyards I've gotten to play in. Children's Mercy, .
 
 </div>
 
-## Cleveland Chiropractic
+## Backyard #2
 
-![Cleveland Chiropractic College campus](images/cleveland-resized.png)
+![Cleveland Chiropractic College building](images/cleveland-resized.png)
 
 <div class="notes">
 
@@ -47,19 +47,19 @@ Here are some of the local backyards I've gotten to play in. Children's Mercy, .
 
 </div>
 
-## MRI Global
+## Backyard #3
 
 ![MRI Global building](images/mriglobal-resized.png)
 
 <div class="notes">
 
-..., MRi Global, ...
+..., MRI Global, ...
 
 </div>
 
-## North Kansas City Hospital
+## Backyard #4
 
-![North Kansas City Hospital](images/nkc-hospital-resized.png)
+![North Kansas City Hospital building](images/nkc-hospital-resized.png)
 
 <div class="notes">
 
@@ -67,7 +67,7 @@ Here are some of the local backyards I've gotten to play in. Children's Mercy, .
 
 </div>
 
-## Saint Luke's Hospital
+## Backyard #5
 
 ![Saint Luke's Hospital building](images/slh-resized.png)
 
@@ -77,7 +77,7 @@ Here are some of the local backyards I've gotten to play in. Children's Mercy, .
 
 </div>
 
-## Truman Medical Center
+## Backyard #6
 
 ![Truman Medical Center building](images/tmc-resized.png)
 
@@ -87,13 +87,13 @@ Here are some of the local backyards I've gotten to play in. Children's Mercy, .
 
 </div>
 
-## UMKC and KUMC
+## My favorite two backyards
 
 ![UMKC and KUMC mascots](images/kangaroo-jayhawk.png)
 
 <div class="notes">
 
-... but my two favorite backyards are UMKC and KUMC. I'm half Kangaroo and half Jayhawk.
+... but my two favorite backyards are UMKC and KUMC. UMKC pays most of my salary, but I have worked on the committee that provided oversight to all the Data Safety and Monitoring Boards at KUMC. I co-authored a several publications on Bayesian models with KUMC faculty. I helped out with the National Database of Nursing Quality Indicators. I provided informal support to one of the first PhD graduates from the Biostatistics Department. So I consider myself to be half Kangaroo and half Jayhawk. Would that be a Kangjay or a Hawkaroo?
 
 </div>
 
@@ -103,7 +103,7 @@ Here are some of the local backyards I've gotten to play in. Children's Mercy, .
 
 <div class="notes">
 
-So when this guy offered me a chance to work at KU Med Center in Medical Informatics, I said "Heck yes!" Now they hated me at UMKC for this. I had child care commitments and so to find the time to work with Russ I had to drop some really good things at UMKC. But I had to do this, because Medical Informatics is just like Statistics. They also get to play in everyone's backyard.
+So when this guy [pause] offered me a chance to work at KU Med Center in Medical Informatics, I said "Heck yes!" Now this wasn't easy. I had child care commitments and so to find the time to work with Russ I needed to drop some really good things at UMKC. But I had to do this, because Medical Informatics is just like Statistics. They also get to play in everyone's backyard.
 
 </div>
 
@@ -135,7 +135,11 @@ Here's the database schema for i2b2. For something as complex as the Electronic 
 
 ## How many surgeries?
 
+![Screenshot of SQL and R code](images/r-code-12.PNG)
+## How many surgeries?
+
 ```{r select-surgeries, eval=FALSE}
+
 select_surgeries <- 
   "SELECT name_char FROM blueherondata.concept_dimension
      WHERE name_char LIKE '%ectomy%'"     
@@ -151,6 +155,7 @@ dbGetQuery(c_connect, select_surgeries) %>%   # Extract records
   sample(100, replace=FALSE) %>%              # Select 100 random
   sort %>%                                    # Arrange
   paste(collapse=", ")                        # Delimit with commas
+
 ```
 
 <div class="notes">
@@ -167,7 +172,7 @@ Here's something simple you can only do easily if you can directly query the dat
 
 The full list of "ectomies" would be about twice as big. And that illustrates a key challenge with this type of data. It is very sparse. There are hundreds of things that a surgeon can cut out of you, but you should be very grateful that the doctor only chops out one or two things at the most. Looking at the drugs that you could get, even the worst polypharmacy cases would be a small fraction of thousands of drugs that are available. The number of diagnosis codes that you are assigned is also a small fraction of the number of diagnoses that they could hang on you. So the design matrix for any regression model in this area becomes really huge and most of the entries are zeros.
 
-The other thing about the electronic health record is that each operation, each drug, each diagnosis code sits on a separate record. It has to, or the record would string out so long that it would be unmanageable. So you can't say "Give me the record for a patient with sleep apnea getting Propofol anesthetic for a septoplasty." You can only find records to match multiple criteria using a self-join. Self-joins are tricky. They usually require using nested queries and they can be very inefficient.
+The other thing about the electronic health record is that each operation, each drug, each diagnosis code sits on a separate record. It has to, or the record would string out so long that it would be unmanageable. So you can't say "Give me the record for a patient with sleep apnea getting Propofol anesthetic for a septoplasty." Instead, you have to match the apnea record with the Propofol record with the septoplasty records. This means using a self-join. Self-joins are tricky. They usually require using nested queries and they can be very inefficient.
 
 I don't want to scare you away though. Mining the electronic health records has been one of the most fun backyards I've had a chance to play in.
 
@@ -179,7 +184,7 @@ I don't want to scare you away though. Mining the electronic health records has 
 
 <div class="notes">
 
-Now, what I've shown you so far isn't too fancy, but there's someone else in Medical Informatics, Mei Liu, who is a lot smarter than me, and she has several research publications on Acute Kidney Injury, A big NSF grant, and a PostDoc working with her.
+Now, what I've shown you so far isn't too fancy, but there's someone else in Medical Informatics, Mei Liu. She has several research publications on Acute Kidney Injury, a big NSF grant, and a PostDoc working with her. She's a lot smarter than I am, but I know all the good light bulb jokes.
 
 </div>
 
@@ -197,7 +202,7 @@ Non-technical requirements
 
 <div class="notes">
 
-So if you want to work in this area that I call "Mining the electronic health record" you need four things. You need to have a working knowledge of SQL. You also have to be pretty good at data wrangling. Data wrangling is a term that some guy, I'm sure it was a guy, developed to make the term data management sound more macho.
+So if you want to work in this area that I call "Mining the electronic health record" you need four things. You need to have a working knowledge of SQL. Not at the level of a database administrator, but you do have to know how to use the WHERE clause, the various types of joins, and a few other basic things. You also have to be pretty good at data wrangling. Data wrangling is a term that some guy (I'm sure it was a guy) developed to make the term data management sound more macho.
 
 More important than these technical skills is that you have to get excited about data. If you weren't salivating at the code that pulled every whatever-ectomy out of the database, then maybe this isn't for you. The final requirement, though, and one that I am sure you already have, is an interesting backyard. I'm not a doctor, and all the examples I come up with on my own for mining the electronic health record are pretty trivial from a medical perspective. If you can bring me an interesting medical question, I can help you with the SQL and the data wrangling.
 
@@ -209,23 +214,25 @@ More important than these technical skills is that you have to get excited about
 
 <div class="notes">
 
-If you want to work in this area. We have scheduled an informatics meetup on May 23. We'll have speakers from the beginner's intermediate, and advanced spectrum of data mining. Mei Liu and I will be there along with a bunch of others in Russ's department. If you've got an interesting backyard, we want you to be there, too.
+If you want to work in this area, we have scheduled an informatics meetup on May 23. We'll have speakers from the beginner's intermediate, and advanced spectrum of data mining. Mei Liu and I will be running the show and we'll bring along with a bunch of others in Russ's department. If you've got an interesting backyard, we want you to be there, too.
 
 </div>
 
-## Bibliography
+## Where you can find a copy of this talk.
 
-You can find more information at
+This presentation was developed using R Markdown. You can find all the important stuff at
 
 * https://github.com/kumc-bmi/heron-i2b2-analytics
 
 In particular, look for
 
 * doc/mining-v2-image-credits.txt
-* doc/mining-v2-bibliography.html.
 * doc/mining-v2-slides.pptx
+* doc/mining-v2-speaker-notes.pdf
 
 ## Not part of the final talk: Introduction
+
+I'm listing a few notes here for my benefit as I develop my talk. These notes will be cut out when I produce the final presentation.
 
 I have been invited to give a talk at the 2019 Midwest BioInformatics Conference (note the unusual capitalization)! I will prepare the talk in this file. For now, I want to keep some material up front and center as I develop this talk. This information will be marked with the label "Not part of the final talk."
 
@@ -348,7 +355,7 @@ Here are some of the backyards that I've played in. I left out all those boring 
 
 "adenoid-, adrenal-, apico-, arytenoid-, cervic-, cord-, costotransvers-, craniotomycrani-, crypt-, disk-, empyem-, epiplo-, fissur-, hemigloss-, hemilaryng-, hemiphalang-, hemispher-, hepat-, hypophys-, iridotomyirid-, kerat-, kyph-, mastoid-, mucos-, myom-, nephr-, oophor-, opercul-, orchi-, ost-, parathyroid-, pericardi-, pharyngolaryng-, plex-, pneumon-, polyp-, postadenoid-, postcholecyst-, posthyster-, postlymphaden-, posttonsill-, sphenoid-, stern-, synov-, tenosynov-, tracheostomylaryng-, tyl-, tympanosympath-, umbil-, vesicul-"
 
-## Mining the Electronic Health Record
+## [Left out of final talk] Mining the Electronic Health Record
 
 What is data mining?
 
