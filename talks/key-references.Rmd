@@ -1,0 +1,11 @@
+---
+title: "Key references"
+output: html_document
+bibliography: key-references.bibtex
+nocite: |
+  @bellazzi2012
+  @chen2018
+  @deshazo2015
+  @murphy2010
+---
+

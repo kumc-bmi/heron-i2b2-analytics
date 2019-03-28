@@ -1,0 +1,163 @@
+---
+title: "Future directions"
+author: "Steve Simon, Department of Biomedical and Health Informatics, UMKC"
+output: ioslides_presentation
+bibliography: key-references.bibtex
+---
+
+## Abstract
+
+I was invited to an internal meeting on February 12, 2019 "to discuss Green Heron and review how Steve can help educate and train people on Green HERON. The goal is to review Steve’s examples and training material for investigators." This file will provide a very informal overview of my thoughts. The material I present is preliminary and I am very interested in your feedback.
+
+## i2b2 Query & Analysis Tool
+
+![](images/heron01.PNG)
+
+<div class="notes">
+
+Navigating through an electronic health record database can be daunting. Here are a few tips illustrated by a search for records associated with the drug Tamoxifen.
+
+The query and analysis tool that comes with i2b2 is a nice starting point. In Enterprise Analytics, the i2b2 system is affectionaltely called "Heron." Here is a rather trivial example of how you might use Heron to find information about Tamoxifen.
+
+</div>
+
+## i2b2 Query & Analysis Tool
+
+![](images/heron02.PNG)
+
+<div class="notes">
+
+Heron has a simple tree-like structure.
+
+</div>
+
+## i2b2 Query & Analysis Tool
+
+![](images/heron03.PNG)
+
+<div class="notes">
+
+You can drill down to the level of detail that you need.
+
+</div>
+
+## i2b2 Query & Analysis Tool
+
+![](images/heron04.PNG)
+
+<div class="notes">
+
+This screen shows you information about the various formulations for Tamoxifen.
+
+</div>
+
+## Searching via metadata
+
+```{r setup, echo=FALSE}
+suppressMessages(suppressWarnings(library(dplyr)))
+suppressMessages(suppressWarnings(library(magrittr)))
+suppressMessages(suppressWarnings(library(ROracle)))
+cdm_config <- read.csv('../cdm_config.csv', stringsAsFactors=FALSE)
+c_connect <-
+  dbConnect(Oracle(), 
+    cdm_config$account, cdm_config$password, cdm_config$access)
+```
+
+```{r basic-sql}
+sql1 <- "
+SELECT name_char FROM blueherondata.concept_dimension
+WHERE concept_path LIKE '%Tamoxifen%'"
+db1 <- dbGetQuery(c_connect, sql1)
+db1 %>% sample_n(10)
+```
+
+<div class="notes">
+
+This is a different approach. It doesn't get you the exact same answers but it illustrates a different way of attacking the problem. Here are ten randomly selected rows.
+
+</div>
+
+## Advantages of i2b2 access
+
+* Ease of use
+  
+* Hypothesis testing
+
+* Well-focussed search
+  
+<div class="notes">
+
+There are certain projects and certain people where we should recommend i2b2 and certain projects and certain people where we should recommend direct SQL access. It is a mistake to get too dogmatic here, but there is some value in offering general guidelines for when to use which system.
+
+For ease of use, i2b2 is hands-down the winner. It also is more efficient at getting a well-focussed search. For a simple project with a well defined hypothesis, i2b2 is the way to go.
+
+</div>
+
+## Advantages of SQL access
+
+* Data mining ("the process of finding anomalies, patterns and correlations within large data sets")
+  
+* Hypothesis generating
+
+* Diverse search
+  
+<div class="notes">
+
+The advantage for SQL access comes from a broad class of statistical analyses that fall under the umbrella of data mining. SAS Institute provides a nice definition of data mining. Data mining is usually (but not always) hypothesis generating rather than hypothesis testing.
+
+For data mining, you often need a broad and diverse search, and this is easier under SQL. If you look at the code on the previous slide, you will notice that the SQL search pulled information from different parts of the tree structure. This is sometimes good and sometimes bad, but mostly good from a data mining perspective.
+
+</div>
+
+## Examples of data mining applications
+
+"A causal discovery method (McDSL) is adopted for causal discovery to infer true causal relationship between information buried in EHR (such as medication, diagnosis, laboratory tests, comorbidities and etc.) and Stage-3 AKI risk. The research approach comprised two major phases: data collection, and causal discovery. The first phase is propose to collect the data from HER (includes 358 encounters and 891 risk factors). Finally, McDSL is employed to discover the causal risk factors of Stage-3 AKI, and five well-known machine learning models are built for predicting Stage-3 AKI with 10-fold cross-validation (predictive accuracy were measured by AUC, precision, recall and F-score)."
+  
+* @chen2018  
+<div class="notes">
+
+Mei Liu and Xing Song have several publications that illustrate the value of a data mining approach to the electronic health record. We need to keep an annotated bibliography of references like this one.
+
+</div>
+
+## Special features of the data available through Green Heron
+
+* Broad longitudinal coverage across many years
+
+* Inclusion of billing data as well as clinical notes
+
+* Linkage to various registries
+
+* Other advantages?
+
+<div class="notes">
+
+Here's a brief summary of what I see as some of the special advantages to our local implementation of EHR data.
+
+The EHR data from Kansas University Health Systems provides broad coverage over many years. I don't have the exact statistics to document this, but we do want to make sure people know how far back the data goes.
+
+Our data includes billing data as well as the clinical notes.
+
+Our data has linkages to registries like the Cancer registry and the trauma registry.
+
+I'm sure that others will have ideas on other advantages. We need to document these.
+
+</div>
+
+## The heron-i2b2-analytics git repository.
+
+![](images/git02.png)
+
+<div class="notes">
+
+This is the current git repository. The files and subdirectory structure loosely follow the recommendation in Wilson 2017. interface. The README.md file outlines the programs available in the src dir
+
+</div>
+
+## The heron-i2b2-analytics git repository.
+
+The files and subdirectory structure loosely follow the recommendation in @wilson2017. 
+
+* README.md provides a general introduction and lists the tutorial programs.
+
+## Bibliography
