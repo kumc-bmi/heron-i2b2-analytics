@@ -2,16 +2,14 @@
 title: "Mining the Electronic Health Record"
 author: "Steve Simon, Department of Biomedical and Health Informatics, UMKC"
 output: powerpoint_presentation
-bibliography: key-references.bibtex
+bibliography: ../key-references.bibtex
 ---
 
 ## How many researchers...?
 
 ![image of a light bulb](images/clear_light_bulb-resized.png)
 
-<div class="notes">
-
-Let's start with a bad joke. How many researchers does it take to screw in a lightbulb? Fifteen. One to screw in the lightbulb and fourteen to serve as co-authors.
+<div class="notes">Let's start with a bad joke. How many researchers does it take to screw in a lightbulb? Fifteen. One to screw in the lightbulb and fourteen to serve as co-authors.
 
 I have to admit I'm one of those fourteen. I written some of my own articles, but some of my best work is when I'm third, fifth, or eight co-author.
 
@@ -93,7 +91,7 @@ Here are some of the local backyards I've gotten to play in. Children's Mercy, .
 
 <div class="notes">
 
-... but my two favorite backyards are UMKC and KUMC. UMKC pays most of my salary, but I have worked on the committee that provided oversight to all the Data Safety and Monitoring Boards at KUMC. I co-authored a several publications on Bayesian models with KUMC faculty. I helped out with the National Database of Nursing Quality Indicators. I provided informal support to one of the first PhD graduates from the Biostatistics Department. So I consider myself to be half Kangaroo and half Jayhawk. Would that be a Kangjay or a Hawkaroo?
+... but my two favorite backyards are UMKC and KUMC. UMKC pays most of my salary, but I sneak over to the wrong side of the state line as often as I can. I consider myself to be half Kangaroo and half Jayhawk. Would that be a Kangjay or a Hawkaroo?
 
 </div>
 
@@ -136,27 +134,6 @@ Here's the database schema for i2b2. For something as complex as the Electronic 
 ## How many surgeries?
 
 ![Screenshot of SQL and R code](images/r-code-12.PNG)
-## How many surgeries?
-
-```{r select-surgeries, eval=FALSE}
-
-select_surgeries <- 
-  "SELECT name_char FROM blueherondata.concept_dimension
-     WHERE name_char LIKE '%ectomy%'"     
-dbGetQuery(c_connect, select_surgeries) %>%   # Extract records
-  use_series(NAME_CHAR) %>%                   # Convert to vector
-  strsplit(" ") %>%                           # Split into words
-  unlist %>%                                  # Re-convert to vector
-  tolower %>%                                 # Force to lower case
-  grep("ectomy", ., value=TRUE) %>%           # Toss extraneous words
-  gsub("[[:punct:]]", "", .) %>%              # Remove punctuation
-  gsub("ectomy.*", "-", .) %>%                # Remove ectomy suffix
-  unique %>%                                  # Remove duplicates
-  sample(100, replace=FALSE) %>%              # Select 100 random
-  sort %>%                                    # Arrange
-  paste(collapse=", ")                        # Delimit with commas
-
-```
 
 <div class="notes">
 
