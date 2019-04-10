@@ -101,7 +101,7 @@ Here are some of the local backyards I've gotten to play in. Children's Mercy, .
 
 <div class="notes">
 
-So when this guy [pause] offered me a chance to work at KU Med Center in Medical Informatics, I said "Heck yes!" Now this wasn't easy. I had child care commitments and so to find the time to work with Russ I needed to drop some really good things at UMKC. But I had to do this, because Medical Informatics is just like Statistics. They also get to play in everyone's backyard.
+So when this guy [pause] offered me a chance to work at KU Med Center in Medical Informatics, I said "Heck yes!" He had a lot of really talented Statisticians to choose from. I think he chose me because I'm the great explainer. I can take something complex like Bayesian Statistics and make it more accessible. I also think he liked me because I know all the interesting backyards in town. Medical Informatics is just like Statistics. They also get to play in everyone's backyard.
 
 </div>
 
@@ -115,7 +115,7 @@ The common standard for research using the electronic health record is i2b2.
 
 It's an open standard which should be attractive to anyone in this audience who is a student. You learn i2b2 here, and everything you learn will transfer directly to the job you get after you graduate.
 
-They are using i2b2 at some of the local playgrounds that I showed earlier: Children's Mercy, Saint Luke's, and Truman Medical Center. But the i2b2 system at KU Med Center is really great. They've included records from both the billing side and the clinical side. How cool is that! They've integrated the electronic health record with a cancer registry and a trauma registry. They have a slick system called data builder, which dumps the i2b2 records into a SQLite database that you can import into R, and they even let mere mortals like me query directly from the actual database.
+They are using i2b2 at some of the local bakcyards that I showed earlier: Children's Mercy, Saint Luke's, and Truman Medical Center. But the i2b2 system at KU Med Center is really great. They've included records from both the billing side and the clinical side. How cool is that! They've integrated the electronic health record with a cancer registry and a trauma registry. They have a slick system called data builder, which dumps the i2b2 records into a SQLite database that you can import into R, and they even let mere mortals like me query directly from the actual database.
 
 The i2b2 software is great for targetted research involving a well structured research hypothesis. But for data mining, which is a more unstructured approach, you have to dig a bit deeper.
 
@@ -147,11 +147,15 @@ Here's something simple you can only do easily if you can directly query the dat
 
 <div class="notes">
 
-The full list of "ectomies" would be about twice as big. And that illustrates a key challenge with this type of data. It is very sparse. There are hundreds of things that a surgeon can cut out of you, but you should be very grateful that the doctor only chops out one or two things at the most. Looking at the drugs that you could get, even the worst polypharmacy cases would be a small fraction of thousands of drugs that are available. The same thing for diagnosis codes. So the design matrix for any regression model in this area becomes really huge and most of the entries are zeros.
+The full list of "ectomies" would be about twice as big. And that illustrates a key challenge with this type of data. 
 
-The other thing about the electronic health record is that each operation, each drug, each diagnosis code sits on a separate record. It has to, or the record would string out so long that it would be unmanageable. So you can't say "Give me the record for a patient with sleep apnea getting Propofol anesthetic for a septoplasty." Instead, you have to match the apnea record with the Propofol record with the septoplasty records. This means using a self-join. Self-joins are tricky. They usually require using nested queries and they can be very inefficient.
+It is very sparse. There are hundreds of things that surgeons can cut out of you, but you should be very grateful that they only chop out one or two things at the most. So any regression model that you get is going to have hundreds or thousands of indicator variables, but most of them will be zero because surgeons like to keep most of you intact after surgery.
 
-I don't want to scare you away though. Mining the electronic health records has been one of the most fun backyards I've had a chance to play in.
+The other thing about the electronic health record is that you can't have a separate field for each -ectomy.  You just can't. You'd string things out for hundreds of different -ectomies and the database becomes unwieldy. All of those -ectomies are crammed into the same field. And they share that field with all the -otomies, and -plastys -opsies. And every drug they give you at the hospital, there are thousands of them, and every diagnosis code, they all fit in the same record.
+
+So querying the electonic health record is not easy. You can't say "Give me the record for a patient with sleep apnea getting Propofol anesthetic for a septoplasty." Because no single record has all these values. The apnea record is way up here, the propofol record is way down there, and the septplasty is hiding somewhere in the middle. So you have to match the apnea record with the Propofol record with the septoplasty records. This means using a self-join. Self-joins are tricky. They usually require using nested queries and they can be very inefficient.
+
+I don't want to scare you away though. If this stuff were easy, they'd be paying all of us the minimum wage. It's hard, but not THAT hard. Besides, it's a lot of fun.
 
 </div>
 
@@ -179,7 +183,7 @@ Non-technical requirements
 
 <div class="notes">
 
-So if you want to work in this area that I call "Mining the electronic health record" you need four things. You need to have a working knowledge of SQL. Not at the level of a database administrator, but you do have to know how to use the WHERE clause, the various types of joins, and a few other basic things. You also have to be pretty good at data wrangling. Data wrangling is a term that some guy (I'm sure it was a guy) developed to make the term data management sound more macho.
+So if you want to work in this area that I call "Mining the electronic health record" you need four things. You need to have a working knowledge of SQL. Not at the level of a database administrator, but you do have to know how to use the WHERE clause and the various types of joins. You also have to be pretty good at data wrangling. Data wrangling is a term that some guy (I'm sure it was a guy) developed to make the term data management sound more macho.
 
 More important than these technical skills is that you have to get excited about data. If you weren't salivating at the code that pulled every whatever-ectomy out of the database, then maybe this isn't for you. The final requirement, though, and one that I am sure you already have, is an interesting backyard. I'm not a doctor, and all the examples I come up with on my own for mining the electronic health record are pretty trivial from a medical perspective. If you can bring me an interesting medical question, I can help you with the SQL and the data wrangling.
 
