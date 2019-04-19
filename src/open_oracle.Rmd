@@ -31,7 +31,18 @@ c_connect <-
 If your connection works then the following code will count the number of records in the observation_fact table. On my system, this produces a number in the low billions.
 
 ```{r simple-test}
-library(magrittr)
-dbGetQuery(c_connect, "SELECT COUNT(patient_num) FROM blueherondata.observation_fact") %>%
-  format(big.mark=",")
+n <- dbGetQuery(c_connect, "SELECT COUNT(patient_num) FROM blueherondata.observation_fact")
+format(n, big.mark=",")
+```
+
+Recently, R Markdown has added features that allow you to run SQL code directly. Here's how that would work.
+
+```{sql direct-access, connection=c_connect, output.var="total_count"}
+SELECT COUNT(patient_num) FROM blueherondata.observation_fact
+```
+
+The output.var argument in the code above lets you tell the system where you want to results of the query to be stored in R.
+
+```{r display-query}
+format(total_count, big.mark=",")
 ```
