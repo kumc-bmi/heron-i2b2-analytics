@@ -43,7 +43,7 @@ log_time <- function(first=FALSE) {
 
 ```{r login-to-oracle}
 log_time(first=TRUE)
-cdm_config <- read.csv('../cdm_config_A1.csv', stringsAsFactors=FALSE)
+cdm_config <- read.csv('../cdm_config_B2.csv', stringsAsFactors=FALSE)
 c_connect <-
   dbConnect(Oracle(), cdm_config$account, cdm_config$password, cdm_config$access)
 ```
@@ -115,51 +115,6 @@ diabetes_codes %>%
 
 
 ```
-Test SQL
-
-```{sql, connection=c_connect, output.var = "tst0"}
-SELECT DISTINCT concept_cd 
-FROM blueherondata.concept_dimension
-WHERE concept_cd LIKE '%ICD9:250%'
-```
-
-
-```{r}
-dim(tst0)
-```
-
-Test views.
-
-```{sql, connection=c_connect, output.var = "tst0"}
-CREATE OR REPLACE VIEW diabetes_icd9 AS
-SELECT DISTINCT concept_cd 
-FROM blueherondata.concept_dimension
-WHERE concept_cd LIKE '%ICD9:250%'
-```
-
-
-```{sql, connection=c_connect, output.var = "tst1"}
-SELECT * FROM diabetes_icd9
-```
-
-```{r}
-tst1
-```
-
-Views.
-
-```{r}
-sql_view <- "
-CREATE OR REPLACE VIEW diabetes_icd9 AS
-SELECT DISTINCT concept_cd 
-FROM blueherondata.concept_dimension
-WHERE concept_cd LIKE '%ICD9:250%'
-"
-
-dbSendQuery(c_connect, sql_view)
-```
-
-
 
 Here are the ICD10 codes.
 
@@ -352,6 +307,29 @@ alternate_codes %>%
   sample_n(5) %>%
   arrange(C_BASECODE)
 ```
+
+What are the labels associated with all these codes?
+
+```{r labels}
+sql_labels <- "
+SELECT DISTINCT c_name
+FROM blueheronmetadata.heron_terms
+WHERE
+  c_tooltip LIKE '%250 Diabetes mellitus%'
+  ORDER BY c_name
+"
+dbGetQuery(c_connect, sql_labels)
+
+sql_labels <- "
+SELECT DISTINCT c_name
+FROM blueheronmetadata.heron_terms
+WHERE
+  c_tooltip LIKE '%E08-E13 Diabetes mellitus%'
+  ORDER BY c_name
+"
+dbGetQuery(c_connect, sql_labels)
+```
+
 
 The c_basecode field in blueheronmetadata (which corresponds to the concept_cd field in blueherondata) has an interesting prefix, KUH|DX_ID which represents an internal diagnosis code.
 

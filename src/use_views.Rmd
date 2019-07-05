@@ -1,0 +1,200 @@
+---
+title: "Show how to use views in SQL"
+author: "Steve Simon"
+date: "5/3/2019"
+output: html_document
+---
+
+This program shows how to apply exclusions to a patient list, using diabetes as an example.
+
+## Preliminaries
+
+Load the relevant libraries. 
+
+```{r libraries}
+library(dplyr)
+library(knitr)
+library(magrittr)
+library(ROracle)
+#
+# This timing function is for my benefit. I want
+# to informally check speeds and by writing the
+# results to a text file, I can peek at the
+# timing of early results while later results
+# are still running. If you want to use this
+# function, place log_time(first=TRUE) ins the
+# first chunk to be timed and place log_time()
+# in the remaining chunks.
+#
+program_name <- "use_views"
+timing_file <- paste0("../src/timing_", program_name, ".txt")
+image_file <- paste0("../data/", program_name, ".RData")
+
+log_time <- function(first=FALSE) {
+  current_chunk <- opts_current$get("label")
+  current_time <- as.character(Sys.time())
+  cat(current_time, current_chunk, "began.\n", file=timing_file, append=!first)
+}
+```
+
+Login and make a connection. Please review open_oracle.Rmd to more documentation of this step.
+
+```{r login-to-oracle}
+log_time(first=TRUE)
+cdm_config <- read.csv('../cdm_config_C3.csv', stringsAsFactors=FALSE)
+c_connect <-
+  dbConnect(Oracle(), cdm_config$account, cdm_config$password, cdm_config$access)
+```
+
+Quick test
+
+```{r quick-test}
+dbGetQuery(c_connect, "SELECT * FROM blueherondata.observation_fact WHERE ROWNUM < 5")
+dbGetQuery(c_connect, "SELECT * FROM blueherondata.concept_dimension WHERE ROWNUM < 5")
+dbGetQuery(c_connect, "SELECT * FROM blueheronmetadata.heron_terms WHERE ROWNUM < 5")
+```
+
+One more quick check. How many distinct patiets are there in this database?
+
+```{r count-all}
+log_time()
+sql_count_patients <- "
+SELECT COUNT(DISTINCT patient_num)
+FROM blueherondata.observation_fact
+"
+
+dbGetQuery(c_connect, sql_count_patients) %>%
+  format(big.mark=",")
+```
+
+## Using views
+
+The SQL code to count and extract patient numbers can get quite long. It helps to build the code in stages. Using views will help keep the code easy to follow.
+
+### Diabetes codes
+
+The following view provides the ICD9 and ICD10 codes associated with diabetes.
+
+The following SQL snippet counts the distinct number of patients. You can combine with additional SQL code to place restrictions on the types of patients.
+
+```{sql diabetes-icd-view, connection=c_connect, output.var="diabetes_icd_check"}
+CREATE OR REPLACE VIEW diabetes_icd_codes AS
+SELECT DISTINCT concept_cd AS diabetes_codes
+FROM blueherondata.concept_dimension
+WHERE
+  concept_cd LIKE '%ICD9:250%' OR
+  concept_cd LIKE '%ICD10:E08%' OR
+  concept_cd LIKE '%ICD10:E09%' OR
+  concept_cd LIKE '%ICD10:E10%' OR
+  concept_cd LIKE '%ICD10:E11%' OR
+  concept_cd LIKE '%ICD10:E12%' OR
+  concept_cd LIKE '%ICD10:E13%'
+```
+
+```{r}
+dbGetQuery(c_connect, "SELECT * FROM diabetes_icd_codes")
+```
+
+### Alternate method to extract diabetes codes
+
+```{sql alternative-diabetes-icd-view, connection=c_connect, output.var="alternative-diabetes_icd_check"}
+CREATE OR REPLACE VIEW alternative_diabetes_icd_codes AS
+SELECT DISTINCT c_basecode  AS diabetes_codes
+FROM blueheronmetadata.heron_terms
+WHERE
+  c_tooltip LIKE '%250 Diabetes mellitus%' OR
+  c_tooltip LIKE '%E08-E13 Diabetes mellitus%'
+```
+
+### Select patients with the appropriate codes
+
+```{sql diabetes-patient-view, connection=c_connect, output.var="diabetes_check"}
+CREATE OR REPLACE VIEW diabetes_patients AS
+SELECT DISTINCT patient_num AS diabetes_patients
+FROM blueherondata.observation_fact
+INNER JOIN diabetes_icd_codes
+ON diabetes_codes=concept_cd
+```
+
+```{sql alternative-diabetes-patient-view, connection=c_connect, output.var="diabetes_check"}
+CREATE OR REPLACE VIEW alternative_diabetes_patients AS
+SELECT DISTINCT patient_num AS diabetes_patients
+FROM blueherondata.observation_fact
+INNER JOIN alternative_diabetes_icd_codes
+ON diabetes_codes=concept_cd
+```
+
+```{sql female-patient-view, connection=c_connect, output.var="female_check"}
+CREATE OR REPLACE VIEW female_patients AS
+SELECT DISTINCT patient_num AS female_patients
+FROM blueherondata.observation_fact
+WHERE concept_cd='DEM|SEX:f'
+```
+
+```{sql merged-view, connection=c_connect, output.var="merged_check"}
+CREATE OR REPLACE VIEW merged_patients AS
+SELECT * FROM diabetes_patients
+INNER JOIN female_patients
+ON diabetes_patients=female_patients
+```
+
+```{r count-diabetes-conditions}
+log_time()
+dbGetQuery(c_connect, "SELECT COUNT(1) FROM diabetes_icd_codes") %>% format(big.mark=",")
+```
+
+```{r count-alternative-diabetes-conditions}
+log_time()
+dbGetQuery(c_connect, "SELECT COUNT(1) FROM alternative_diabetes_icd_codes") %>% format(big.mark=",")
+```
+
+```{r count-diabetes-patients}
+log_time()
+dbGetQuery(c_connect, "SELECT COUNT(1) FROM diabetes_patients") %>% format(big.mark=",")
+```
+
+```{r count-alternative-diabetes-patients}
+log_time()
+dbGetQuery(c_connect, "SELECT COUNT(1) FROM alternative_diabetes_patients") %>% format(big.mark=",")
+```
+
+It might be worth investigating why there are so many more patients in the second list. The diagnosis codes include an internal code: KUH|DX_ID.
+
+```{sql kuh-dx-id}
+CREATE OR REPLACE VIEW kuh_dx_id_codes AS
+SELECT DISTINCT c_tooltip
+FROM blueheronmetadata.heron_terms
+WHERE
+  (c_tooltip LIKE '%250 Diabetes mellitus%' OR
+   c_tooltip LIKE '%E08-E13 Diabetes mellitus%') AND
+  c_basecode LIKE 'KUH|DX_ID%'
+```
+
+```{r explore kuh-dx-id}
+kuh_tooltips <- dbGetQuery(c_connect, "SELECT * FROM kuh_dx_id WHERE rownum < 50")
+cat(paste0(kuh_tooltips, collapse="\n\n"))
+```
+
+
+```{r count-female-patients}
+log_time()
+dbGetQuery(c_connect, "SELECT COUNT(1) FROM female_patients") %>% format(big.mark=",")
+```
+
+```{r count-female-diabetes-patients}
+log_time()
+dbGetQuery(c_connect, "SELECT COUNT(1) FROM merged_patients") %>% format(big.mark=",")
+```
+
+```{r list-alternative-diabetes-conditions}
+dbGetQuery(c_connect, "
+  SELECT c_name FROM BLUEHERONMETADATA.HERON_TERMS ORDER BY diabetes_codes")
+```
+
+Save everything for possible re-use
+
+```{r save-everything}
+log_time()
+read.table(timing_file) 
+save.image(image_file)
+```
