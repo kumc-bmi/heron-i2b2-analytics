@@ -12,6 +12,7 @@ This program shows how to apply exclusions to a patient list, using diabetes as 
 Load the relevant libraries. 
 
 ```{r libraries}
+library(DBI)
 library(dplyr)
 library(knitr)
 library(magrittr)
@@ -41,7 +42,7 @@ Login and make a connection. Please review open_oracle.Rmd to more documentation
 
 ```{r login-to-oracle}
 log_time(first=TRUE)
-cdm_config <- read.csv('../cdm_config_C3.csv', stringsAsFactors=FALSE)
+cdm_config <- read.csv('../cdm_config_A1.csv', stringsAsFactors=FALSE)
 c_connect <-
   dbConnect(Oracle(), cdm_config$account, cdm_config$password, cdm_config$access)
 ```
@@ -160,7 +161,11 @@ dbGetQuery(c_connect, "SELECT COUNT(1) FROM alternative_diabetes_patients") %>% 
 
 It might be worth investigating why there are so many more patients in the second list. The diagnosis codes include an internal code: KUH|DX_ID.
 
-```{sql kuh-dx-id}
+```{sql kuh-dx-id, connection=c_connect}
+SELECT COUNT(1) FROM alternative_diabetes_patients
+```
+
+```{}
 CREATE OR REPLACE VIEW kuh_dx_id_codes AS
 SELECT DISTINCT c_tooltip
 FROM blueheronmetadata.heron_terms
@@ -170,7 +175,7 @@ WHERE
   c_basecode LIKE 'KUH|DX_ID%'
 ```
 
-```{r explore kuh-dx-id}
+```{r explore kuh-dx-id, eval=FALSE}
 kuh_tooltips <- dbGetQuery(c_connect, "SELECT * FROM kuh_dx_id WHERE rownum < 50")
 cat(paste0(kuh_tooltips, collapse="\n\n"))
 ```
@@ -186,7 +191,7 @@ log_time()
 dbGetQuery(c_connect, "SELECT COUNT(1) FROM merged_patients") %>% format(big.mark=",")
 ```
 
-```{r list-alternative-diabetes-conditions}
+```{r list-alternative-diabetes-conditions, eval=FALSE}
 dbGetQuery(c_connect, "
   SELECT c_name FROM BLUEHERONMETADATA.HERON_TERMS ORDER BY diabetes_codes")
 ```
