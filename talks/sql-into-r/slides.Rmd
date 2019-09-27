@@ -138,5 +138,5 @@ This presentation was developed using R Markdown. You can find all the important
 In particular, look for
 
 * talks/sql-into-r/slides.pptx
-* talks/sql-into-r/speaker-notes.pdf
+
 
